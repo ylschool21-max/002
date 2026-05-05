@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>높이높이 상자쌓기</title>
+    <style>
+        :root {
+            --bg-soft: #fff9db; /* 유아용 부드러운 노란색 */
+            --primary: #ff922b; /* 따뜻한 오렌지 */
+            --accent: #ff6b6b;
+            --panel-bg: #ffffff;
+            --font: 'Pretendard', -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: var(--font);
+            background-color: var(--bg-soft);
+            display: flex; height: 100vh;
+            overflow: hidden; user-select: none;
+        }
+
+        /* 왼쪽 UI 패널 - 4:6 비율을 위해 40% 설정 */
+        #ui-panel {
+            width: 40%;
+            background: linear-gradient(135deg, #fff5f5 0%, #fff9db 100%);
+            border-right: none; 
+            display: flex; flex-direction: column;
+            padding: 1.5rem; z-index: 100;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.05); 
+        }
+
+        .header { 
+            margin-bottom: 2rem; 
+            text-align: center; 
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            border: 3px dashed var(--primary);
+        }
+        .header h1 { font-size: 1.8rem; margin: 0; color: #e67e22; }
+        .header p { font-size: 1rem; color: #d35400; margin-top: 8px; line-height: 1.4; font-weight: 600; }
+
+        .choice-list {
+            flex: 1; display: flex; flex-direction: column;
+            gap: 15px; justify-content: center;
+        }
+
+        .choice-item {
+            background: white;
+            border: none; 
+            border-radius: 2rem;
+            height: 100px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            box-shadow: none; 
+        }
+
+        .choice-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .box-preview {
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            box-shadow: none; 
+        }
+
+        /* 게임 영역 - 4:6 비율을 위해 flex: 1 (남은 60%) 사용 */
+        #game-area {
+            flex: 1; position: relative;
+            display: flex; flex-direction: column;
+            align-items: center; 
+            justify-content: flex-end;
+            padding-bottom: 80px;
+            background: linear-gradient(to bottom, #a5d8ff 0%, #e7f5ff 50%, #f1f3f5 100%);
+            overflow: hidden;
+        }
+
+        /* 배경 구름 애니메이션 */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1;
+            animation: float linear infinite;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud-1 { width: 100px; height: 40px; top: 10%; left: -150px; animation-duration: 20s; }
+        .cloud-2 { width: 150px; height: 60px; top: 25%; left: -200px; animation-duration: 35s; animation-delay: 5s; }
+        .cloud-3 { width: 120px; height: 45px; top: 15%; left: -180px; animation-duration: 28s; animation-delay: 12s; }
+
+        @keyframes float {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 300px)); }
+        }
+
+        #tower-container {
+            display: flex;
+            flex-direction: column-reverse; 
+            align-items: center; 
+            width: 100%;
+            z-index: 10;
+            transform-origin: bottom center;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .box {
+            height: 45px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: white;
+            box-shadow: inset 0 -6px 0 rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 3px;
+            animation: dropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
+            position: relative;
+            transition: transform 0.6s ease-in, opacity 0.6s ease-in;
+        }
+
+        @keyframes dropIn {
+            from { transform: translateY(-500px) rotate(10deg); opacity: 0; }
+            to { transform: translateY(0) rotate(0deg); opacity: 1; }
+        }
+
+        .collapse-left { transform: translate(-150px, 300px) rotate(-90deg) !important; opacity: 0; }
+        .collapse-right { transform: translate(150px, 300px) rotate(90deg) !important; opacity: 0; }
+
+        .ground {
+            width: 550px;
+            height: 30px;
+            background: #82c91e; /* 잔디색 */
+            border-radius: 15px;
+            margin-top: 4px;
+            z-index: 5;
+            border-bottom: 8px solid #5c940d;
+            transition: transform 0.5s ease;
+        }
+
+        #status-container {
+            position: absolute; top: 30px; right: 30px;
+            display: flex; flex-direction: column; gap: 12px; align-items: flex-end;
+            z-index: 100;
+        }
+
+        #status {
+            background: #fff9db; padding: 15px 30px; border-radius: 40px;
+            font-size: 1.6rem; font-weight: 900; color: #f08c00;
+            box-shadow: 0 6px 0 #fab005;
+            border: 4px solid #fab005;
+        }
+
+        #lives {
+            background: #fff5f5; padding: 10px 20px; border-radius: 30px;
+            font-size: 1.1rem; font-weight: 800; color: #ff6b6b;
+            border: 3px solid #ffc9c9;
+            box-shadow: 0 4px 0 #ffc9c9;
+        }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px) rotate(-1deg); }
+            75% { transform: translateX(15px) rotate(1deg); }
+        }
+
+        #confetti-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 2000;
+        }
+
+        #modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; display: none;
+        }
+        .modal-body {
+            background: white; padding: 3rem; border-radius: 3rem; text-align: center;
+            max-width: 450px; box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            border: 8px solid #ffec99;
+        }
+        .modal-body h2 { color: #f08c00; font-size: 2rem; margin-bottom: 1rem; }
+        .modal-body p { font-size: 1.2rem; color: #5c940d; line-height: 1.6; font-weight: 600; }
+        .btn {
+            background: #fab005; color: white; border: none;
+            padding: 1.2rem 3rem; border-radius: 50px; font-size: 1.5rem;
+            font-weight: 900; cursor: pointer; margin-top: 2rem;
+            width: 100%; transition: all 0.2s;
+            box-shadow: 0 8px 0 #f08c00;
+        }
+        .btn:hover { background: #fcc419; transform: translateY(-3px); box-shadow: 0 11px 0 #f08c00; }
+        .btn:active { transform: translateY(2px); box-shadow: 0 4px 0 #f08c00; }
+    </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- 배경 구름 요소들 -->
+<div class="cloud cloud-1"></div>
+<div class="cloud cloud-2"></div>
+<div class="cloud cloud-3"></div>
+
+<div id="modal">
+    <div class="modal-body">
+        <h2 id="modal-title">높이높이 상자쌓기!</h2>
+        <p id="modal-desc">친구들 안녕!<br>왼쪽에서 <b>가장 길쭉한 상자</b>를 찾아보세요!<br>15개를 쌓으면 멋진 선물이 기다려요!</p>
+        <button class="btn" onclick="startGame()">신나게 시작!</button>
+    </div>
+</div>
+
+<div id="ui-panel">
+    <div class="header">
+        <h1>높이높이 상자쌓기</h1>
+        <p>어느 상자가 가장 길까요?<br>제일 긴 상자를 콕! 눌러주세요</p>
+    </div>
+    <div id="choices" class="choice-list"></div>
+</div>
+
+<div id="game-area">
+    <div id="status-container">
+        <div id="status">0 / 15개</div>
+        <div id="lives">하트: 5개</div>
+    </div>
+    <div id="tower-container"></div>
+    <div class="ground"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    const COLORS = ['#ff922b', '#ff6b6b', '#f06595', '#845ef7', '#339af0', '#20c997', '#94d82d', '#fcc419'];
+    const EMOJIS = ['🦁', '🦒', '🐘', '🐼', '🐰', '🦊', '🐷', '🦄', '🌈', '🍦', '🍩', '🚗', '✈️'];
+    
+    let currentFloor = 0;
+    const MAX_FLOOR = 15;
+    let lastWidth = 500; 
+    let isGameOver = false;
+    let lives = 5;
+
+    function startGame() {
+        document.getElementById('modal').style.display = 'none';
+        const tower = document.getElementById('tower-container');
+        tower.innerHTML = '';
+        tower.style.transform = 'scale(1)'; 
+        currentFloor = 0;
+        lastWidth = 500; 
+        lives = 5;
+        isGameOver = false;
+        updateUI();
+        refreshChoices();
+    }
+
+    function updateUI() {
+        document.getElementById('status').textContent = `${currentFloor} / ${MAX_FLOOR}개`;
+        document.getElementById('lives').textContent = `하트: ${lives}개`;
+        
+        document.getElementById('tower-container').style.transform = `scale(1)`;
+        document.querySelector('.ground').style.transform = `scale(1)`;
+    }
+
+    function refreshChoices() {
+        if(isGameOver) return;
+        const container = document.getElementById('choices');
+        container.innerHTML = '';
+
+        const shrinkRate = 0.92; 
+        const targetWidth = lastWidth * shrinkRate;
+        
+        let options = [
+            { width: targetWidth, isCorrect: true },         
+            { width: targetWidth * 0.8, isCorrect: false },
+            { width: targetWidth * 0.6, isCorrect: false },
+            { width: targetWidth * 0.4, isCorrect: false }
+        ];
+
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            const item = document.createElement('div');
+            item.className = 'choice-item';
+            
+            const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+
+            const preview = document.createElement('div');
+            preview.className = 'box-preview';
+            
+            // 패널이 넓어졌으므로 미리보기 스케일을 0.5로 조정
+            const displayScale = 0.5; 
+            preview.style.width = (opt.width * displayScale) + 'px';
+            preview.style.height = '60px';
+            preview.style.backgroundColor = color;
+            preview.textContent = emoji;
+
+            item.onclick = () => selectBox(opt, color, emoji);
+            item.appendChild(preview);
+            container.appendChild(item);
+        });
+    }
+
+    function selectBox(opt, color, emoji) {
+        if(isGameOver) return;
+
+        if (!opt.isCorrect) {
+            lives--;
+            updateUI();
+            
+            if (lives <= 0) {
+                handleCollapse();
+            } else {
+                const gameArea = document.getElementById('game-area');
+                gameArea.classList.add('shake');
+                setTimeout(() => gameArea.classList.remove('shake'), 400);
+            }
+            return;
+        }
+
+        const tower = document.getElementById('tower-container');
+        const box = document.createElement('div');
+        box.className = 'box';
+        box.style.width = opt.width + 'px';
+        box.style.backgroundColor = color;
+        box.textContent = emoji;
+        
+        tower.appendChild(box);
+
+        currentFloor++;
+        lastWidth = opt.width; 
+        updateUI();
+
+        if (currentFloor >= MAX_FLOOR) {
+            handleWin();
+        } else {
+            refreshChoices();
+        }
+    }
+
+    function handleCollapse() {
+        isGameOver = true;
+        const boxes = document.querySelectorAll('.box');
+        
+        boxes.forEach((box, index) => {
+            setTimeout(() => {
+                const direction = Math.random() > 0.5 ? 'collapse-left' : 'collapse-right';
+                box.classList.add(direction);
+            }, (boxes.length - index) * 50);
+        });
+
+        setTimeout(() => {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';
+            document.getElementById('modal-title').textContent = "상자들이 꽈당! 😭";
+            document.getElementById('modal-desc').innerHTML = `어이쿠! 상자들이 무너졌어요.<br>우리 <b>${currentFloor}층</b>까지 잘 쌓았으니까<br>한 번 더 신나게 해볼까요?`;
+        }, boxes.length * 50 + 800);
+    }
+
+    function handleWin() {
+        isGameOver = true;
+        
+        const duration = 5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 70 * (timeLeft / duration);
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 300);
+
+        setTimeout(() => {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-title').textContent = "정말 멋져요! 최고! 👑";
+            document.getElementById('modal-desc').innerHTML = `와아! 15층 피라미드 완성!<br>우리 친구 정말 대단해요!<br>세상에서 가장 멋진 피라미드예요!`;
+        }, 1000);
+    }
+
+    window.onload = () => {
+        document.getElementById('modal').style.display = 'flex';
+    };
+</script>
+
+</body>
+</html>

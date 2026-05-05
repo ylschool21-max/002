@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLAY-ON 질문 보드게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: #fdfcf0;
+            touch-action: manipulation;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: flex-start;
+        }
+
+        .game-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .record-section {
+            flex: 0.8;
+            background: white;
+            border-radius: 40px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            border: 8px solid #e2e8f0;
+        }
+
+        .game-board-area {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            border: 12px solid #fff;
+            overflow: visible;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 40px 20px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            position: relative;
+            background: #fff;
+            border: 4px solid #eee;
+            z-index: 2;
+            margin: auto;
+        }
+
+        .cell.active {
+            border-color: #f59e0b;
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+            z-index: 10;
+        }
+
+        #path-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .player-token {
+            width: 50px;
+            height: 50px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 20;
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 4px solid white;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            pointer-events: none;
+        }
+
+        .dice-visual {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 4px solid #3b82f6;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .dot { background-color: #3b82f6; border-radius: 50%; width: 100%; height: 100%; visibility: hidden; }
+        .dot.visible { visibility: visible; }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rolling { animation: dice-roll 0.15s infinite; }
+        @keyframes dice-roll {
+            0% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(-10deg); }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 40px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 10px solid #fbbf24;
+        }
+
+        /* 기록장 스크롤 영역 */
+        #record-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        #record-list::-webkit-scrollbar { width: 6px; }
+        #record-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .record-item {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 6px solid #3b82f6;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .decoration { position: absolute; pointer-events: none; opacity: 0.5; z-index: 1; }
+    </style>
+</head>
+<body>
+
+    <header class="text-center mb-6">
+        <h1 class="text-5xl font-bold text-blue-600 mb-2">🎲 PLAY-ON 질문 여행</h1>
+        <p class="text-xl text-blue-400">그림책 속 보물을 찾으러 떠나요!</p>
+    </header>
+
+    <div class="main-layout">
+        <!-- 왼쪽: 게임 보드 영역 -->
+        <div class="game-section">
+            <div class="game-board-area" id="container">
+                <i class="fas fa-cloud decoration text-blue-100 text-6xl" style="top: 10%; left: 5%;"></i>
+                <i class="fas fa-sun decoration text-yellow-100 text-7xl" style="top: 5%; right: 10%;"></i>
+                <svg id="path-svg"></svg>
+                <div class="board-grid" id="board"></div>
+                <div id="player" class="player-token">
+                    <i class="fas fa-walking"></i>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="text-center px-4">
+                    <p class="text-gray-400 text-xs uppercase">지금 위치</p>
+                    <p id="status-text" class="text-2xl font-bold text-blue-700">준비!</p>
+                </div>
+                <div class="h-12 w-px bg-gray-200"></div>
+                <div class="flex items-center gap-4">
+                    <div id="dice-container" class="dice-visual">
+                        <div class="dot" id="dot-1"></div><div class="dot" id="dot-2"></div><div class="dot" id="dot-3"></div>
+                        <div class="dot" id="dot-4"></div><div class="dot" id="dot-5"></div><div class="dot" id="dot-6"></div>
+                        <div class="dot" id="dot-7"></div><div class="dot" id="dot-8"></div><div class="dot" id="dot-9"></div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="rollDice()" id="roll-btn" class="bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold py-3 px-8 rounded-2xl shadow-lg transition-all active:scale-95">
+                            주사위 굴리기
+                        </button>
+                        <button onclick="resetGame()" id="reset-btn" class="bg-gray-100 text-gray-500 hover:bg-gray-200 font-bold py-2 px-6 rounded-xl transition-all">
+                            <i class="fas fa-redo-alt mr-2"></i>새로 시작
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 질문 기록장 -->
+        <div class="record-section">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 flex items-center">
+                <i class="fas fa-book-open text-blue-500 mr-2"></i> 질문 기록장
+            </h2>
+            <div id="record-empty" class="flex-grow flex flex-col items-center justify-center text-gray-300">
+                <i class="fas fa-pen-nib text-5xl mb-2"></i>
+                <p>질문에 답을 하면<br>여기에 기록돼요!</p>
+            </div>
+            <div id="record-list" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- 질문 및 답변 입력 모달 -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="m-icon" class="text-7xl mb-4">🌈</div>
+            <h2 id="m-title" class="text-2xl font-bold text-blue-600 mb-2">질문 칸 도착!</h2>
+            <div class="bg-yellow-50 rounded-3xl p-5 mb-4 border-2 border-yellow-100">
+                <p id="m-question" class="text-xl text-gray-800 font-bold"></p>
+            </div>
+            
+            <div class="text-left mb-6">
+                <label class="block text-gray-500 text-sm mb-1 ml-2">우리의 대답 적어보기</label>
+                <textarea id="answer-input" class="w-full p-4 rounded-2xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none text-lg resize-none" rows="3" placeholder="여기에 답변을 입력하세요..."></textarea>
+            </div>
+
+            <button onclick="saveAndClose()" class="w-full bg-blue-500 text-white text-xl font-bold py-4 rounded-2xl shadow-lg hover:bg-blue-600 transition-colors">
+                기록하고 계속하기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const originalCells = [
+            { label: "누가?", icon: "👤", color: "#ffedd5", q: "이 장면에 등장하는 인물은 모두 몇 명일까?" },
+            { label: "어디서?", icon: "📍", color: "#dcfce7", q: "여기는 어디일까? 주인공은 지금 기분이 어때 보여?" },
+            { label: "무엇을?", icon: "🍎", color: "#fef9c3", q: "주인공이 가장 소중하게 생각하는 물건은 무엇일까?" },
+            { label: "언제?", icon: "⏰", color: "#fee2e2", q: "지금은 어떤 계절일까? 그림 속 힌트를 찾아봐!" },
+            { label: "왜?", icon: "💡", color: "#f3e8ff", q: "주인공은 왜 이런 행동을 했을까? 이유를 맞춰보자!" },
+            { label: "어떻게?", icon: "⚙️", color: "#fae8ff", q: "주인공이 곤란한 상황이야! 어떻게 도와줄 수 있을까?" },
+            { label: "비밀", icon: "🤫", color: "#ccfbf1", q: "그림 속에 숨어있는 작은 비밀을 하나 찾아낼 수 있니?" },
+            { label: "만약에", icon: "✨", color: "#e0e7ff", q: "만약 이 이야기가 현실에서 일어난다면 어떨까?" },
+            { label: "진짜?", icon: "🧐", color: "#ffedd5", q: "그림책 속의 일들이 실제로 일어날 수 있을까? 왜 그렇게 생각해?" },
+            { label: "소리는?", icon: "👂", color: "#d1fae5", q: "이 장면에서 어떤 소리가 들릴 것 같니? 흉내 내보자!" },
+            { label: "친구", icon: "👫", color: "#fce7f3", q: "내 친구가 주인공이라면 어떤 말을 해주고 싶어?" },
+            { label: "기분은?", icon: "😊", color: "#fef3c7", q: "이 장면을 보고 나니 내 마음은 어떤 색깔 같아?" },
+            { label: "그다음", icon: "➡️", color: "#e0f2fe", q: "책장을 넘기기 전에, 다음엔 무슨 일이 생길까?" }
+        ];
+
+        let cellsData = [];
+        let currentPos = 0;
+        let isRolling = false;
+        let gameRecords = [];
+        const totalCols = 6;
+
+        const diceDots = {
+            1: [5], 2: [3, 7], 3: [3, 5, 7], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9]
+        };
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initGame() {
+            const shuffledQuestions = shuffle([...originalCells]);
+            cellsData = [
+                { label: "출발", icon: "🚀", color: "#e0f2fe", q: "오늘은 어떤 그림책으로 놀아볼까? 책표지를 보여줘!" },
+                ...shuffledQuestions,
+                { label: "도착!", icon: "🏁", color: "#fbbf24", q: "야호! 질문 여행 성공! 오늘 찾은 최고의 질문은 무엇이었니?" }
+            ];
+
+            const board = document.getElementById('board');
+            board.innerHTML = "";
+            
+            cellsData.forEach((cell, i) => {
+                const row = Math.floor(i / totalCols);
+                const col = i % totalCols;
+                const displayCol = (row % 2 === 0) ? col : (totalCols - 1 - col);
+                
+                const div = document.createElement('div');
+                div.className = 'cell';
+                div.id = `cell-${i}`;
+                div.style.backgroundColor = cell.color;
+                div.style.gridRow = row + 1;
+                div.style.gridColumn = displayCol + 1;
+                div.innerHTML = `
+                    <span class="text-3xl mb-1">${cell.icon}</span>
+                    <span class="text-[11px] font-bold text-gray-500">${cell.label}</span>
+                `;
+                board.appendChild(div);
+            });
+
+            setTimeout(() => {
+                drawPath();
+                movePlayerTo(currentPos);
+            }, 300);
+        }
+
+        function resetGame() {
+            if (isRolling) return;
+            if (confirm("게임을 초기화하고 다시 시작할까요? (기록도 모두 지워집니다)")) {
+                currentPos = 0;
+                gameRecords = [];
+                updateRecordUI();
+                initGame();
+                updateDiceDots(0);
+                document.getElementById('status-text').innerText = "준비!";
+            }
+        }
+
+        function updateDiceDots(value) {
+            document.querySelectorAll('.dot').forEach(dot => dot.classList.remove('visible'));
+            if (diceDots[value]) {
+                diceDots[value].forEach(num => {
+                    document.getElementById(`dot-${num}`).classList.add('visible');
+                });
+            }
+        }
+
+        function drawPath() {
+            let d = "";
+            const container = document.getElementById('container');
+            const containerRect = container.getBoundingClientRect();
+
+            for (let i = 0; i < cellsData.length - 1; i++) {
+                const startCell = document.getElementById(`cell-${i}`);
+                const endCell = document.getElementById(`cell-${i+1}`);
+                if (!startCell || !endCell) continue;
+
+                const start = startCell.getBoundingClientRect();
+                const end = endCell.getBoundingClientRect();
+                
+                const x1 = start.left + start.width/2 - containerRect.left;
+                const y1 = start.top + start.height/2 - containerRect.top;
+                const x2 = end.left + end.width/2 - containerRect.left;
+                const y2 = end.top + end.height/2 - containerRect.top;
+
+                if (i === 0) d += `M ${x1} ${y1} `;
+                const cp1x = x1 + (x2 - x1) * 0.5;
+                const cp1y = y1;
+                const cp2x = x1 + (x2 - x1) * 0.5;
+                const cp2y = y2;
+                d += `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2} `;
+            }
+            
+            document.getElementById('path-svg').innerHTML = `
+                <path d="${d}" fill="none" stroke="#f1f5f9" stroke-width="14" stroke-linecap="round" />
+                <path d="${d}" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="1, 15" />
+            `;
+        }
+
+        function movePlayerTo(index) {
+            const cell = document.getElementById(`cell-${index}`);
+            if (!cell) return;
+            
+            const container = document.getElementById('container');
+            const containerRect = container.getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+            const player = document.getElementById('player');
+
+            const targetX = cellRect.left - containerRect.left + (cellRect.width / 2) - (player.offsetWidth / 2);
+            const targetY = cellRect.top - containerRect.top + (cellRect.height / 2) - (player.offsetHeight / 2) - 15;
+
+            player.style.left = `${targetX}px`;
+            player.style.top = `${targetY}px`;
+            
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+            cell.classList.add('active');
+            document.getElementById('status-text').innerText = cellsData[index].label;
+        }
+
+        async function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+            
+            const diceContainer = document.getElementById('dice-container');
+            const rollBtn = document.getElementById('roll-btn');
+            diceContainer.classList.add('rolling');
+            rollBtn.disabled = true;
+
+            let finalValue = 0;
+            for(let i=0; i<12; i++) {
+                finalValue = Math.floor(Math.random() * 3) + 1;
+                updateDiceDots(finalValue);
+                await new Promise(r => setTimeout(r, 80));
+            }
+
+            diceContainer.classList.remove('rolling');
+
+            for(let i=0; i < finalValue; i++) {
+                if (currentPos < cellsData.length - 1) {
+                    currentPos++;
+                    movePlayerTo(currentPos);
+                    await new Promise(r => setTimeout(r, 600));
+                }
+            }
+
+            setTimeout(showModal, 400);
+            rollBtn.disabled = false;
+            isRolling = false;
+        }
+
+        function showModal() {
+            const data = cellsData[currentPos];
+            document.getElementById('m-icon').innerText = data.icon;
+            document.getElementById('m-title').innerText = `${data.label} 칸 도착!`;
+            document.getElementById('m-question').innerText = data.q;
+            document.getElementById('answer-input').value = "";
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('answer-input').focus();
+        }
+
+        function saveAndClose() {
+            const answer = document.getElementById('answer-input').value.trim();
+            const data = cellsData[currentPos];
+            
+            // 기록 저장
+            gameRecords.unshift({
+                icon: data.icon,
+                label: data.label,
+                question: data.q,
+                answer: answer || "(대답을 입력하지 않았어요)"
+            });
+
+            updateRecordUI();
+            document.getElementById('modal').style.display = 'none';
+
+            if (currentPos === cellsData.length - 1) {
+                setTimeout(() => {
+                    alert("야호! 보드게임을 모두 마쳤어요! 🥳 우측 기록장에서 우리의 대화를 확인해보세요.");
+                }, 300);
+            }
+        }
+
+        function updateRecordUI() {
+            const list = document.getElementById('record-list');
+            const empty = document.getElementById('record-empty');
+            
+            if (gameRecords.length === 0) {
+                list.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            list.classList.remove('hidden');
+            empty.classList.add('hidden');
+            
+            list.innerHTML = gameRecords.map(rec => `
+                <div class="record-item">
+                    <div class="flex items-center mb-2">
+                        <span class="text-2xl mr-2">${rec.icon}</span>
+                        <span class="font-bold text-blue-600">${rec.label}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-2">질문: ${rec.question}</p>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 text-gray-700 italic">
+                        "${rec.answer}"
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.addEventListener('resize', () => {
+            drawPath();
+            movePlayerTo(currentPos);
+        });
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>

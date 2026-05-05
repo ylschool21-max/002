@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장수풍뎅이의 세계 - 한살이와 탐험</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: #fdf6e3;
+            overflow-x: hidden;
+            font-size: 1.25rem;
+        }
+
+        .life-cycle-card {
+            transition: all 0.3s ease;
+        }
+
+        .life-cycle-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            height: 650px;
+            background: #4b3621;
+            border: 8px solid #8b4513;
+            border-radius: 24px;
+            overflow: hidden;
+            touch-action: none;
+            margin: 0 auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .btn-fancy {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transition: transform 0.1s;
+        }
+
+        .btn-fancy:active {
+            transform: scale(0.95);
+        }
+
+        #pupa-timer-ui {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-size: 2rem;
+            display: none;
+            pointer-events: none;
+            z-index: 10;
+            border: 3px solid #f59e0b;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            min-width: 320px;
+        }
+
+        .joystick-btn {
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .beetle-svg-icon {
+            width: 80px;
+            height: 80px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="text-center mb-12">
+        <h1 class="text-5xl md:text-6xl font-bold text-amber-900 mb-6 flex items-center justify-center gap-4">
+            <svg viewBox="0 0 100 120" class="beetle-svg-icon">
+                <g stroke="#3d2422" stroke-width="3" fill="none">
+                    <path d="M30 65 L15 60 L10 50" /> <path d="M70 65 L85 60 L90 50" />
+                    <path d="M30 85 L15 85 L10 95" /> <path d="M70 85 L85 85 L90 95" />
+                    <path d="M30 105 L15 110 L10 115" /> <path d="M70 105 L85 110 L90 115" />
+                </g>
+                <rect x="45" y="10" width="10" height="40" fill="#3d2422" />
+                <path d="M35 15 Q50 -5 65 15 L50 20 Z" fill="#3d2422" />
+                <ellipse cx="50" cy="55" rx="20" ry="22" fill="#5c3633" />
+                <ellipse cx="50" cy="85" rx="30" ry="32" fill="#3d2422" />
+                <circle cx="42" cy="50" r="5" fill="white" />
+                <circle cx="43" cy="50" r="3" fill="black" />
+                <circle cx="58" cy="50" r="5" fill="white" />
+                <circle cx="59" cy="50" r="3" fill="black" />
+            </svg>
+            숲속의 왕, 장수풍뎅이
+        </h1>
+        <p class="text-2xl md:text-3xl text-amber-800 italic">귀여운 멜로디와 함께 즐기는 장수풍뎅이의 일생!</p>
+    </header>
+
+    <!-- Life Cycle -->
+    <section class="max-w-6xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-amber-900 mb-8 flex items-center">
+            <span class="mr-3">🌱</span> 장수풍뎅이의 한살이 과정
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div class="life-cycle-card bg-white p-8 rounded-3xl shadow-md border-b-8 border-yellow-50">
+                <div class="flex justify-center mb-6"><div class="w-12 h-12 bg-yellow-50 border-2 border-yellow-100 rounded-full shadow-inner"></div></div>
+                <h3 class="font-bold text-2xl text-amber-900 mb-2">1. 알</h3>
+                <p class="text-lg text-gray-600">작고 노르스름한 구슬 모양이에요.</p>
+            </div>
+            <div class="life-cycle-card bg-white p-8 rounded-3xl shadow-md border-b-8 border-amber-50">
+                <div class="flex justify-center mb-6 space-x-[-10px]">
+                    <div class="w-10 h-10 bg-amber-50 border-2 border-amber-100 rounded-full"></div>
+                    <div class="w-11 h-11 bg-amber-50 border-2 border-amber-100 rounded-full"></div>
+                    <div class="w-12 h-12 bg-amber-50 border-2 border-amber-100 rounded-full"></div>
+                </div>
+                <h3 class="font-bold text-2xl text-amber-900 mb-2">2. 애벌레</h3>
+                <p class="text-lg text-gray-600">크림색 몸을 가진 흰 굼벵이에요.</p>
+            </div>
+            <div class="life-cycle-card bg-white p-8 rounded-3xl shadow-md border-b-8 border-orange-100">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-10 bg-amber-600 rounded-full relative"><div class="absolute right-[-12px] top-1/2 translate-y-[-50%] w-8 h-4 bg-amber-700 rounded-full rotate-[-30deg]"></div></div>
+                </div>
+                <h3 class="font-bold text-2xl text-amber-900 mb-2">3. 번데기</h3>
+                <p class="text-lg text-gray-600">연갈색 껍질 안에서 뿔이 생겨나요.</p>
+            </div>
+            <div class="life-cycle-card bg-white p-8 rounded-3xl shadow-md border-b-8 border-amber-900">
+                <div class="flex justify-center mb-4">
+                    <svg viewBox="0 0 100 120" class="w-24 h-24">
+                        <g stroke="#3d2422" stroke-width="3" fill="none">
+                            <path d="M30 65 L10 55 L5 45" /> <path d="M70 65 L90 55 L95 45" />
+                            <path d="M25 85 L5 85 L2 95" /> <path d="M75 85 L95 85 L98 95" />
+                            <path d="M30 105 L10 115 L5 125" /> <path d="M70 105 L90 115 L95 125" />
+                        </g>
+                        <rect x="45" y="10" width="10" height="40" fill="#3d2422" />
+                        <path d="M30 15 Q50 -5 70 15 L50 22 Z" fill="#3d2422" />
+                        <ellipse cx="50" cy="55" rx="22" ry="20" fill="#5c3633" />
+                        <ellipse cx="50" cy="90" rx="32" ry="30" fill="#3d2422" />
+                        <path d="M50 65 L50 115" stroke="rgba(0,0,0,0.2)" stroke-width="2" />
+                        <circle cx="40" cy="52" r="5" fill="white" />
+                        <circle cx="41" cy="52" r="3" fill="black" />
+                        <circle cx="60" cy="52" r="5" fill="white" />
+                        <circle cx="61" cy="52" r="3" fill="black" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-2xl text-amber-900 mb-2">4. 성충</h3>
+                <p class="text-lg text-gray-600">단단한 진갈색 껍질이 아주 멋져요!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game -->
+    <section class="max-w-6xl mx-auto">
+        <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
+            <div>
+                <h2 class="text-3xl font-bold text-amber-900 mb-2">🕳️ 땅속 & 땅위 탐험</h2>
+                <p class="text-xl text-amber-800">500점을 모으면 숲의 왕이 됩니다! 두 그루의 참나무 수액(💧)을 찾아보세요.</p>
+            </div>
+            <div class="flex items-center gap-6">
+                <button id="restart-btn" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold py-3 px-8 rounded-2xl transition border-2 border-amber-300 text-xl shadow-sm">
+                    🔄 다시하기
+                </button>
+                <div class="bg-white px-8 py-3 rounded-full font-bold text-amber-900 border-2 border-amber-300 shadow-md">
+                    성장 점수: <span id="score-display" class="text-3xl text-orange-600">0</span> / 500
+                </div>
+            </div>
+        </div>
+
+        <div id="game-container">
+            <canvas id="gameCanvas"></canvas>
+            <div id="pupa-timer-ui">
+                <div id="pupa-status-text" class="text-sm mb-1 opacity-80">땅굴에서 멈춰서 기다리세요!</div>
+                ⏳ 변태 중: <span id="pupa-timer-val" class="font-bold text-yellow-400">1</span>일째
+            </div>
+            <div id="start-screen" class="absolute inset-0 bg-black/75 flex items-center justify-center text-white text-center p-6">
+                <div class="max-w-xl">
+                    <h3 class="text-5xl font-bold mb-8 italic">"장수풍뎅이의 긴 여정"</h3>
+                    <div class="bg-white/10 p-8 rounded-[2rem] backdrop-blur-md mb-8 border border-white/20">
+                        <p class="mb-6 text-amber-200 text-2xl font-bold text-center">성장 가이드</p>
+                        <div class="space-y-4 text-left px-6 text-xl">
+                            <p>🟡 <b>애벌레</b>: 흙(🟤)을 먹어 150점 달성!</p>
+                            <p>🟠 <b>번데기</b>: 땅굴 속에서 <b>멈춰서 14일</b> 기다리기!</p>
+                            <p>🤎 <b>성충</b>: 참나무의 <b>노란 수액(💧)</b>을 먹고 500점 달성!</p>
+                        </div>
+                    </div>
+                    <button id="start-btn" class="btn-fancy text-white font-bold py-5 px-16 rounded-full text-3xl shadow-2xl">
+                        시작하기
+                    </button>
+                </div>
+            </div>
+            <div id="game-alert" class="hidden absolute top-1/3 left-0 right-0 text-center pointer-events-none">
+                <div id="alert-text" class="inline-block bg-orange-500 text-white px-10 py-6 rounded-full font-bold text-3xl shadow-2xl animate-bounce">
+                    메시지
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div class="mt-10 grid grid-cols-3 gap-4 w-64 mx-auto md:hidden">
+            <div></div><button class="joystick-btn bg-amber-800 text-3xl p-6 rounded-full text-white" id="ctrl-up">🔼</button><div></div>
+            <button class="joystick-btn bg-amber-800 text-3xl p-6 rounded-full text-white" id="ctrl-left">◀️</button>
+            <button class="joystick-btn bg-amber-800 text-3xl p-6 rounded-full text-white" id="ctrl-down">🔽</button>
+            <button class="joystick-btn bg-amber-800 text-3xl p-6 rounded-full text-white" id="ctrl-right">▶️</button>
+        </div>
+    </section>
+
+    <footer class="text-center mt-16 text-amber-800/50 pb-12">
+        <p class="text-xl">어린이 곤충 탐험대 전용 학습 자료</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const gameAlert = document.getElementById('game-alert');
+        const alertText = document.getElementById('alert-text');
+        const pupaTimerUI = document.getElementById('pupa-timer-ui');
+        const pupaTimerVal = document.getElementById('pupa-timer-val');
+        const pupaStatusText = document.getElementById('pupa-status-text');
+        const container = document.getElementById('game-container');
+
+        const SoundManager = {
+            ctx: null,
+            melodyInterval: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playCuteBGM() {
+                this.init();
+                if (this.melodyInterval) return;
+                const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00];
+                this.melodyInterval = setInterval(() => {
+                    if (Math.random() > 0.4) {
+                        const freq = notes[Math.floor(Math.random() * notes.length)];
+                        this.playTone(freq, 0.25, 0.04);
+                    }
+                }, 450);
+            },
+            playTone(freq, duration, volume) {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            playEat() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.06);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.06);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.06);
+            },
+            playCelebration() {
+                this.init();
+                const arpeggio = [523.25, 659.25, 783.99, 1046.50];
+                arpeggio.forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.7, 0.12), i * 160);
+                });
+            },
+            stopAll() {
+                if (this.melodyInterval) {
+                    clearInterval(this.melodyInterval);
+                    this.melodyInterval = null;
+                }
+            }
+        };
+
+        let score = 0;
+        let gameActive = false;
+        let animationId = null;
+        let pupaElapsedDays = 1; 
+        let dayTimer = 0;
+        const MAX_PUPA_DAYS = 14;
+        const SURFACE_Y = 150; 
+        const GOAL_SCORE = 500;
+        const MAX_SAP_COUNT = 3; // 수액 한 번에 최대 3개
+
+        let player = {
+            x: 0, y: 0, size: 40, speed: 3.5, dx: 0, dy: 0, angle: 0, stage: 'larva'
+        };
+
+        let inputTarget = null;
+        let foodItems = [];
+        let sapItems = [];
+        let tunnels = [];
+
+        function showAlert(msg, color = 'bg-orange-500') {
+            alertText.innerText = msg;
+            alertText.className = `inline-block ${color} text-white px-10 py-6 rounded-full font-bold text-3xl shadow-2xl animate-bounce`;
+            gameAlert.classList.remove('hidden');
+            setTimeout(() => gameAlert.classList.add('hidden'), 3500);
+        }
+
+        function initGame() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            player = {
+                x: canvas.width / 2,
+                y: canvas.height - 100,
+                size: 40,
+                speed: 3.5,
+                dx: 0,
+                dy: 0,
+                angle: 0,
+                stage: 'larva'
+            };
+            
+            score = 0;
+            scoreDisplay.innerText = score;
+            pupaElapsedDays = 1;
+            dayTimer = 0;
+            inputTarget = null;
+            pupaTimerUI.style.display = 'none';
+            generateWorld();
+        }
+
+        function generateWorld() {
+            foodItems = [];
+            for (let i = 0; i < 15; i++) spawnFood();
+            sapItems = [];
+            for (let i = 0; i < MAX_SAP_COUNT; i++) spawnSap(); // 수액 3개 생성
+            tunnels = [];
+            const tunnelCount = 6;
+            for(let i=0; i < tunnelCount; i++) {
+                let points = [];
+                let startX = Math.random() * canvas.width;
+                let startY = SURFACE_Y + 70 + Math.random() * (canvas.height - SURFACE_Y - 140);
+                points.push({x: startX, y: startY});
+                for(let j=0; j<4; j++) points.push({ x: points[j].x + (Math.random() - 0.5) * 200, y: points[j].y + (Math.random() - 0.5) * 150 });
+                tunnels.push(points);
+            }
+        }
+
+        function spawnFood() { foodItems.push({ x: 50 + Math.random() * (canvas.width - 100), y: SURFACE_Y + 50 + Math.random() * (canvas.height - SURFACE_Y - 100) }); }
+        
+        function spawnSap() { 
+            if (sapItems.length >= MAX_SAP_COUNT) return;
+            // 두 나무 중 랜덤하게 선택하여 생성
+            const treeCenters = [140, canvas.width - 140];
+            const chosenTree = treeCenters[Math.floor(Math.random() * treeCenters.length)];
+            sapItems.push({ 
+                x: chosenTree - 15 + Math.random() * 30, 
+                y: 50 + Math.random() * (SURFACE_Y - 90) 
+            }); 
+        }
+
+        function drawTree(x, hasFriend) {
+            ctx.fillStyle = '#1B5E20';
+            ctx.beginPath();
+            ctx.arc(x, 40, 70, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(x - 40, 0, 80, SURFACE_Y);
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 2;
+            for(let i=0; i<3; i++){
+                ctx.beginPath();
+                ctx.moveTo(x - 20 + i*20, 10);
+                ctx.lineTo(x - 20 + i*20, SURFACE_Y - 10);
+                ctx.stroke();
+            }
+            if (hasFriend) {
+                drawBeetleSprite(x, 60, Math.PI / 2, '#4d3432');
+            }
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, SURFACE_Y);
+            ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(canvas.width / 2, 60, 35, 0, Math.PI * 2); ctx.fill();
+            drawTree(140, true);
+            drawTree(canvas.width - 140, false);
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(0, SURFACE_Y - 15, canvas.width, 20);
+            ctx.fillStyle = '#4b3621';
+            ctx.fillRect(0, SURFACE_Y + 5, canvas.width, canvas.height - SURFACE_Y);
+            ctx.strokeStyle = 'rgba(101, 67, 33, 0.6)'; ctx.lineWidth = 55; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            tunnels.forEach(points => { ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y); for(let i=1; i<points.length; i++) ctx.lineTo(points[i].x, points[i].y); ctx.stroke(); });
+        }
+
+        function isPlayerInTunnel() {
+            let inTunnel = false;
+            tunnels.forEach(points => { for (let i = 0; i < points.length - 1; i++) { if (distToSegment({x: player.x, y: player.y}, points[i], points[i+1]) < 45) inTunnel = true; } });
+            return inTunnel;
+        }
+
+        function distToSegment(p, v, w) {
+            const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
+            if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+        }
+
+        function drawBeetleSprite(x, y, angle, customColor = '#3d2422') {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+            ctx.strokeStyle = customColor; ctx.lineWidth = 4;
+            const legX = [-15, 0, 15];
+            legX.forEach(lx => { ctx.beginPath(); ctx.moveTo(lx, 10); ctx.lineTo(lx+5, 25); ctx.lineTo(lx+15, 30); ctx.stroke(); ctx.beginPath(); ctx.moveTo(lx, -10); ctx.lineTo(lx+5, -25); ctx.lineTo(lx+15, -30); ctx.stroke(); });
+            ctx.fillStyle = customColor; ctx.beginPath(); ctx.ellipse(-10, 0, 26, 22, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(-35, 0); ctx.lineTo(12, 0); ctx.stroke();
+            ctx.fillStyle = '#5c3633'; ctx.beginPath(); ctx.ellipse(15, 0, 16, 18, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = customColor; ctx.beginPath(); ctx.moveTo(30, -5); ctx.lineTo(55, -5); ctx.lineTo(55, 5); ctx.lineTo(30, 5); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(55, 0); ctx.bezierCurveTo(65, -25, 85, -20, 80, -6); ctx.lineTo(75, 0); ctx.lineTo(80, 6); ctx.bezierCurveTo(85, 20, 65, 25, 55, 0); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(22, -9, 5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(23, -9, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(22, 9, 5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(23, 9, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            if (player.stage === 'larva') {
+                ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.angle);
+                ctx.fillStyle = '#FFFDD0'; ctx.strokeStyle = '#E6E2B5'; ctx.lineWidth = 2;
+                for(let i=0; i<4; i++) { ctx.beginPath(); ctx.ellipse(-i * 12, Math.sin(i * 0.8) * 6, 14, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(12, 0, 8, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            } else if (player.stage === 'pupa') {
+                ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.angle);
+                ctx.fillStyle = '#CD853F'; ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.ellipse(0, 0, 30, 18, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                for(let i=-1; i<=1; i++) { ctx.beginPath(); ctx.moveTo(i * 12, -16); ctx.lineTo(i * 12, 16); ctx.stroke(); }
+                ctx.fillStyle = '#8B4513'; ctx.beginPath(); ctx.moveTo(22, -6); ctx.quadraticCurveTo(40, -18, 35, 6); ctx.closePath(); ctx.fill(); ctx.restore();
+            } else { drawBeetleSprite(player.x, player.y, player.angle); }
+        }
+
+        let lastTime = 0;
+        function update(timestamp) {
+            if (!gameActive) return;
+            const deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            if (inputTarget) {
+                const angle = Math.atan2(inputTarget.y - player.y, inputTarget.x - player.x);
+                const dist = Math.hypot(inputTarget.x - player.x, inputTarget.y - player.y);
+                if (dist > 5) {
+                    player.dx = Math.cos(angle) * player.speed; 
+                    player.dy = Math.sin(angle) * player.speed;
+                } else {
+                    player.dx = 0; 
+                    player.dy = 0;
+                    inputTarget = null;
+                }
+            } else {
+                if (!isKeyPressed()) { player.dx = 0; player.dy = 0; }
+            }
+
+            player.x += player.dx; player.y += player.dy;
+            
+            if (player.x < 35) player.x = 35; if (player.x > canvas.width - 35) player.x = canvas.width - 35;
+            const topLimit = (player.stage === 'adult') ? 35 : SURFACE_Y + 35;
+            if (player.y < topLimit) player.y = topLimit; if (player.y > canvas.height - 35) player.y = canvas.height - 35;
+            if (player.dx !== 0 || player.dy !== 0) player.angle = Math.atan2(player.dy, player.dx);
+
+            if (player.stage === 'larva') {
+                foodItems.forEach((food, index) => {
+                    if (Math.hypot(player.x - food.x, player.y - food.y) < 40) {
+                        foodItems.splice(index, 1); score += 10; scoreDisplay.innerText = score; spawnFood();
+                        SoundManager.playEat();
+                        if (score >= 150) { 
+                            player.stage = 'pupa'; player.speed = 1.5; 
+                            player.dx = 0; player.dy = 0; inputTarget = null;
+                            showAlert("번데기가 되었어요!\n땅굴 속에서 멈춰서 기다리세요!"); 
+                        }
+                    }
+                });
+            } else if (player.stage === 'pupa') {
+                if (isPlayerInTunnel()) {
+                    pupaTimerUI.style.display = 'block';
+                    if (player.dx === 0 && player.dy === 0) {
+                        dayTimer += deltaTime;
+                        pupaStatusText.innerText = "안정적으로 변태 중입니다...";
+                        pupaStatusText.style.color = "#4ade80";
+                        if (dayTimer >= 1.0) { pupaElapsedDays++; dayTimer = 0; if (pupaElapsedDays > MAX_PUPA_DAYS) pupaElapsedDays = MAX_PUPA_DAYS; }
+                    } else {
+                        pupaStatusText.innerText = "움직이면 시간이 멈춰요! 멈추세요!";
+                        pupaStatusText.style.color = "#f87171";
+                    }
+                    pupaTimerVal.innerText = pupaElapsedDays;
+                    if (pupaElapsedDays >= MAX_PUPA_DAYS) {
+                        player.stage = 'adult'; player.speed = 4.5; pupaTimerUI.style.display = 'none';
+                        SoundManager.playCelebration();
+                        showAlert("축하합니다! 성충이 되었어요!\n지상 참나무 수액을 찾으세요!", "bg-green-600");
+                    }
+                } else pupaTimerUI.style.display = 'none';
+            } else if (player.stage === 'adult') {
+                sapItems.forEach((sap, index) => {
+                    // 충돌 감지
+                    if (Math.hypot(player.x - sap.x, player.y - sap.y) < 30) {
+                        sapItems.splice(index, 1); 
+                        score += 20; // 20점으로 수정
+                        scoreDisplay.innerText = score; 
+                        spawnSap();
+                        SoundManager.playEat();
+                        
+                        if (score >= GOAL_SCORE) {
+                            gameActive = false;
+                            showAlert("500점 달성! 장수풍뎅이가 다 컸어요! 🎉", "bg-purple-600");
+                            setTimeout(() => {
+                                SoundManager.stopAll();
+                                startScreen.style.display = 'flex';
+                                initGame(); // 초기 상태로 복구
+                            }, 3500);
+                        }
+                    }
+                });
+                if (Math.hypot(player.x - 140, player.y - 60) < 80) {
+                    ctx.fillStyle = 'white'; ctx.fillRect(160, 20, 150, 40); ctx.strokeStyle = 'black'; ctx.strokeRect(160, 20, 150, 40);
+                    ctx.fillStyle = 'black'; ctx.font = 'bold 22px Arial'; ctx.fillText("안녕! 친구야!", 175, 47);
+                }
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); drawBackground();
+            if (player.stage === 'larva') { ctx.font = '26px Arial'; foodItems.forEach(food => ctx.fillText('🟤', food.x, food.y)); }
+            if (player.stage === 'adult') { 
+                // 수액을 물방울 모양으로 그리기
+                sapItems.forEach(sap => { 
+                    ctx.save();
+                    ctx.translate(sap.x, sap.y);
+                    ctx.beginPath();
+                    // 노란색 물방울 모양 드로잉
+                    ctx.moveTo(0, -12); // 꼭대기
+                    ctx.bezierCurveTo(-8, -4, -10, 4, 0, 8); // 왼쪽
+                    ctx.bezierCurveTo(10, 4, 8, -4, 0, -12); // 오른쪽
+                    ctx.fillStyle = '#FFD700'; // 선명한 노란색
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFA000';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    // 하이라이트 (빛나는 느낌)
+                    ctx.beginPath();
+                    ctx.arc(-2, -2, 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.fill();
+                    ctx.restore();
+                }); 
+            }
+            drawPlayer();
+            animationId = requestAnimationFrame(update);
+        }
+
+        let keys = {};
+        function isKeyPressed() { return keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']; }
+
+        function startGame() {
+            if (animationId) cancelAnimationFrame(animationId);
+            startScreen.style.display = 'none';
+            gameActive = true;
+            SoundManager.stopAll();
+            SoundManager.playCuteBGM();
+            initGame();
+            lastTime = performance.now();
+            animationId = requestAnimationFrame(update);
+        }
+
+        restartBtn.addEventListener('click', () => {
+            const wasActive = gameActive;
+            gameActive = false;
+            if(confirm("모험을 처음부터 다시 시작할까요?")) {
+                startGame();
+            } else {
+                gameActive = wasActive;
+                if(gameActive) animationId = requestAnimationFrame(update);
+            }
+        });
+
+        startBtn.addEventListener('click', startGame);
+
+        window.addEventListener('keydown', e => { keys[e.key] = true; inputTarget = null; });
+        window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+        const getCoord = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        };
+
+        const handleInputStart = (e) => { if (!gameActive) return; inputTarget = getCoord(e); };
+        const handleInputMove = (e) => { if (!gameActive || !inputTarget) return; inputTarget = getCoord(e); };
+        const handleInputEnd = () => { inputTarget = null; };
+
+        canvas.addEventListener('mousedown', handleInputStart);
+        canvas.addEventListener('mousemove', handleInputMove);
+        window.addEventListener('mouseup', handleInputEnd);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInputStart(e); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleInputMove(e); });
+        window.addEventListener('touchend', handleInputEnd);
+
+        const bindControl = (id, dx, dy) => {
+            const el = document.getElementById(id);
+            const start = (e) => { e.preventDefault(); inputTarget = null; player.dx = dx * player.speed; player.dy = dy * player.speed; };
+            const end = (e) => { e.preventDefault(); player.dx = 0; player.dy = 0; };
+            el.addEventListener('touchstart', start); el.addEventListener('touchend', end);
+            el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
+        };
+        bindControl('ctrl-up', 0, -1); bindControl('ctrl-down', 0, 1); bindControl('ctrl-left', -1, 0); bindControl('ctrl-right', 1, 0);
+
+        window.addEventListener('resize', () => { canvas.width = container.clientWidth; canvas.height = container.clientHeight; });
+        canvas.width = container.clientWidth; canvas.height = container.clientHeight; drawBackground();
+    </script>
+</body>
+</html>

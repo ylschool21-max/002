@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프리미엄 팡팡 상자 놀이 - 가로 확장판</title>
+    <style>
+        :root {
+            --p-primary: #ff8787;
+            --p-secondary: #74c0fc;
+            --p-accent: #ffd43b;
+            --p-text: #495057;
+            --font: 'Pretendard', -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: var(--font);
+            display: flex; height: 100vh;
+            overflow: hidden; user-select: none;
+            background-color: #fff9db;
+        }
+
+        #ui-panel {
+            width: 28%;
+            background: white;
+            display: flex; flex-direction: column;
+            padding: 2rem; z-index: 100;
+            box-shadow: 20px 0 60px rgba(0,0,0,0.03);
+            border-right: 2px solid #ffec99;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #fff9db 0%, #fff0f6 100%);
+            padding: 25px; border-radius: 24px; text-align: center;
+            border: 1px solid rgba(255,212,59,0.3);
+            margin-bottom: 1.5rem;
+        }
+        .header-card h1 { font-size: 1.5rem; margin: 0; color: #f08c00; font-weight: 800; }
+        
+        .mission-card {
+            background: #fff3bf; padding: 20px; border-radius: 20px;
+            margin-top: 1rem; text-align: center;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .mission-badge {
+            display: inline-block; padding: 4px 12px; border-radius: 10px;
+            background: #f08c00; color: white; font-size: 0.8rem;
+            font-weight: 700; align-self: center;
+        }
+        .mission-text { color: var(--p-text); font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
+
+        .score-display {
+            font-size: 6rem; font-weight: 900; color: var(--p-primary);
+            margin: 0.5rem 0; filter: drop-shadow(0 5px 10px rgba(255, 135, 135, 0.3));
+        }
+
+        #game-area { flex: 1; position: relative; overflow: hidden; background: linear-gradient(to bottom, #bbdefb 0%, #ffffff 100%); }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        #status-container {
+            position: absolute; top: 30px; left: 30px; right: 30px;
+            display: flex; justify-content: flex-end; z-index: 100; pointer-events: none;
+        }
+        .status-pill {
+            background: rgba(255, 255, 255, 0.9); padding: 12px 24px; border-radius: 25px;
+            font-size: 1.2rem; font-weight: 800; color: var(--p-text);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); border: 2px solid #74c0fc;
+        }
+        .highlight { color: #f06595; }
+
+        #modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; display: none;
+        }
+        .modal-body {
+            background: white; padding: 3.5rem; border-radius: 40px; text-align: center;
+            max-width: 450px; box-shadow: 0 30px 80px rgba(0,0,0,0.1);
+            border: 4px solid #ffec99;
+        }
+        .modal-emoji { font-size: 5rem; margin-bottom: 1rem; display: block; }
+        .modal-body h2 { font-size: 2.2rem; color: #f08c00; margin-bottom: 10px; font-weight: 800; }
+        .modal-body p { font-size: 1.2rem; color: #495057; margin-bottom: 2rem; line-height: 1.5; }
+        
+        .btn-main {
+            background: #ff8787; color: white; border: none;
+            padding: 1.1rem 3rem; border-radius: 20px; font-size: 1.4rem;
+            font-weight: 700; cursor: pointer; width: 100%;
+            transition: all 0.3s; box-shadow: 0 10px 20px rgba(255, 135, 135, 0.3);
+        }
+        .btn-main:hover { transform: scale(1.05); background: #ff6b6b; }
+
+        .btn-reset-small {
+            background: white; border: 2px solid #ced4da; color: #868e96;
+            padding: 12px 20px; border-radius: 15px; font-size: 0.95rem;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .btn-reset-small:hover { background: #fff5f5; color: #ff8787; border-color: #ff8787; }
+    </style>
+</head>
+<body>
+
+<div id="modal">
+    <div class="modal-body">
+        <span id="modal-emoji" class="modal-emoji">🚛</span>
+        <h2 id="modal-title">상자를 실어주세요!</h2>
+        <p id="modal-desc">상자 10개 중 8개 이상을<br>트럭에 쏙 넣어볼까요?</p>
+        <button class="btn-main" onclick="closeModal()" id="modal-btn">신나게 시작!</button>
+    </div>
+</div>
+
+<div id="ui-panel">
+    <div class="header-card">
+        <h1>📦 팡팡 상자 놀이</h1>
+        <p>트럭 뒷면에 상자를 싣자!</p>
+    </div>
+    
+    <div style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
+        <div style="font-size: 4.5rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.05));">🚚</div>
+        <div class="score-display" id="panel-score">0</div>
+        <div style="font-weight: 800; color: #fab005; font-size: 1.2rem; margin-top: -10px; margin-bottom: 20px;">성공한 상자 수</div>
+        <div class="mission-card">
+            <span class="mission-badge">도전!</span>
+            <div class="mission-text">트럭에 8개 이상 넣기!</div>
+            <button class="btn-reset-small" onclick="hardReset()">다시 시작하기</button>
+        </div>
+    </div>
+    <div style="margin-top: auto; font-size: 0.9rem; color: #adb5bd; text-align: center; font-weight: 600;">
+        상자를 위로 휙~ 밀어보세요!
+    </div>
+</div>
+
+<div id="game-area">
+    <div id="status-container">
+        <div class="status-pill">남은 상자: <span id="ammo-count" class="highlight">10</span></div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+    let scene, camera, renderer, world;
+    let currentBox, currentBoxBody;
+    let truckGroup, truckPhysBody;
+    let isDragging = false;
+    let startPoint = { x: 0, y: 0 };
+    
+    let score = 0;
+    let totalThrown = 0;
+    const MAX_THROWS = 10;
+    const SUCCESS_THRESHOLD = 8;
+    
+    let gameActive = false;
+    let holeSpeed = 0.05; // 폭이 넓어져서 이동 속도를 약간 늦췄습니다.
+    let holeDirection = 1;
+    let holeZ = -12; 
+    
+    // 검정 네모(수납함) 가로 폭 대폭 확대
+    const HOLE_WIDTH = 24.0; 
+    const HOLE_HEIGHT = 10.0; 
+    const MAGNET_STRENGTH = 2.0; // 80% 성공률 유지
+
+    let boxes = [];
+
+    function init() {
+        world = new CANNON.World();
+        world.gravity.set(0, -35, 0); 
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xbbdefb); 
+        scene.fog = new THREE.Fog(0xbbdefb, 70, 200);
+
+        const container = document.getElementById('game-area');
+        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 30, 65); 
+        camera.lookAt(0, -5, 0); 
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        scene.add(ambientLight);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        mainLight.position.set(15, 45, 25);
+        mainLight.castShadow = true;
+        scene.add(mainLight);
+
+        createEnvironment();
+        spawnNewBox();
+        animate();
+        
+        renderer.domElement.addEventListener('mousedown', onStart);
+        renderer.domElement.addEventListener('touchstart', onStart, {passive: false});
+        window.addEventListener('mouseup', onEnd);
+        window.addEventListener('touchend', onEnd);
+        window.addEventListener('resize', onWindowResize);
+    }
+
+    function createEnvironment() {
+        const groundGeo = new THREE.PlaneGeometry(300, 300);
+        const groundMat = new THREE.MeshPhongMaterial({ color: 0xe3fafc });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        const groundShape = new CANNON.Plane();
+        const groundBody = new CANNON.Body({ mass: 0 });
+        groundBody.addShape(groundShape);
+        groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+        world.addBody(groundBody);
+
+        truckGroup = new THREE.Group();
+        // 외곽 프레임 (가로 확장 반영)
+        const frameGeo = new THREE.BoxGeometry(HOLE_WIDTH + 1.5, HOLE_HEIGHT + 2, 14);
+        const frameMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50, side: THREE.BackSide }); 
+        const frameOuter = new THREE.Mesh(frameGeo, frameMat);
+        frameOuter.position.set(0, 5, -7);
+        truckGroup.add(frameOuter);
+
+        // 검정 네모 수납 공간 (가로 확장 반영)
+        const intFloorGeo = new THREE.BoxGeometry(HOLE_WIDTH, 0.5, 14);
+        const intFloorMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
+        const intFloor = new THREE.Mesh(intFloorGeo, intFloorMat);
+        intFloor.position.set(0, 0.25, -7);
+        truckGroup.add(intFloor);
+
+        // 파란색 문 위치 조정 (가로 확장 반영)
+        const doorGeo = new THREE.BoxGeometry(HOLE_WIDTH / 2 + 1, HOLE_HEIGHT + 1.5, 0.4);
+        const doorMat = new THREE.MeshPhongMaterial({ color: 0x3498db }); 
+        const leftDoor = new THREE.Mesh(doorGeo, doorMat);
+        leftDoor.position.set(-HOLE_WIDTH / 2 - 1.8, 5, 1);
+        leftDoor.rotation.y = Math.PI / 3.5;
+        truckGroup.add(leftDoor);
+        const rightDoor = new THREE.Mesh(doorGeo, doorMat);
+        rightDoor.position.set(HOLE_WIDTH / 2 + 1.8, 5, 1);
+        rightDoor.rotation.y = -Math.PI / 3.5;
+        truckGroup.add(rightDoor);
+
+        scene.add(truckGroup);
+        truckGroup.position.set(0, 0, holeZ);
+
+        truckPhysBody = new CANNON.Body({ mass: 0 });
+        const tFloorShape = new CANNON.Box(new CANNON.Vec3(HOLE_WIDTH/2, 0.25, 7));
+        truckPhysBody.addShape(tFloorShape, new CANNON.Vec3(0, 0.25, -7));
+        world.addBody(truckPhysBody);
+    }
+
+    function spawnNewBox() {
+        if (totalThrown >= MAX_THROWS) {
+            checkGameResult();
+            return;
+        }
+
+        const size = 3.0; 
+        const boxGeo = new THREE.BoxGeometry(size, size, size);
+        const boxMat = new THREE.MeshPhongMaterial({ color: 0xf3b26b, transparent: true }); 
+        const mesh = new THREE.Mesh(boxGeo, boxMat);
+        mesh.castShadow = true;
+
+        const tape = new THREE.Mesh(new THREE.BoxGeometry(size + 0.1, size*0.1, size + 0.1), new THREE.MeshPhongMaterial({ color: 0xd68910 }));
+        mesh.add(tape);
+
+        scene.add(mesh);
+
+        const shape = new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2));
+        const body = new CANNON.Body({ mass: 8.0 }); 
+        body.addShape(shape);
+        body.position.set(0, size/2 + 0.5, 38); 
+        body.linearDamping = 0.4; 
+        world.addBody(body);
+
+        currentBox = mesh;
+        currentBoxBody = body;
+        boxes.push({ mesh, body, active: true, scored: false, disappearing: false });
+        updateUI();
+    }
+
+    function onStart(e) {
+        if (!gameActive) return;
+        isDragging = true;
+        const touch = e.touches ? e.touches[0] : e;
+        startPoint = { x: touch.clientX, y: touch.clientY };
+    }
+
+    function onEnd(e) {
+        if (!isDragging || !gameActive) return;
+        isDragging = false;
+        const touch = e.changedTouches ? e.changedTouches[0] : e;
+        const endPoint = { x: touch.clientX, y: touch.clientY };
+        
+        const dx = (endPoint.x - startPoint.x) * -0.12;
+        const dyRaw = (endPoint.y - startPoint.y);
+        
+        const forceY = Math.min(Math.abs(dyRaw) * 0.15, 12); 
+        const forceZ = Math.max(dyRaw * 1.0, -110); 
+
+        if(dyRaw > -10) return; 
+
+        totalThrown++;
+        currentBoxBody.velocity.set(dx, forceY, forceZ);
+        currentBoxBody.angularVelocity.set(Math.random() * 3, 1, Math.random() * 3);
+
+        setTimeout(() => {
+            if (gameActive && totalThrown < MAX_THROWS) spawnNewBox();
+            else if (totalThrown >= MAX_THROWS) setTimeout(checkGameResult, 3000);
+        }, 1200);
+    }
+
+    function updatePhysics() {
+        if (!truckPhysBody) return;
+        truckGroup.position.x += holeSpeed * holeDirection;
+        truckPhysBody.position.x = truckGroup.position.x;
+        // 트럭이 좌우로 움직이는 범위를 폭에 맞춰 약간 조정
+        if (Math.abs(truckGroup.position.x) > 5.0) holeDirection *= -1;
+
+        if (!gameActive) return;
+
+        boxes.forEach(b => {
+            if (b.active) {
+                const bPos = b.body.position;
+                const tPos = truckGroup.position;
+                
+                if (!b.scored) {
+                    const distZ = bPos.z - tPos.z;
+                    // 적당한 유도 (가로가 넓어져서 유도 강도를 조금 낮춤)
+                    if (distZ < 22.0 && distZ > -1.0) {
+                        const diffX = tPos.x - bPos.x;
+                        b.body.velocity.x += diffX * MAGNET_STRENGTH;
+                        
+                        if (distZ < 6.0) {
+                             b.body.position.x += (tPos.x - b.body.position.x) * 0.05;
+                        }
+                    }
+
+                    if (bPos.z < tPos.z - 0.5 && Math.abs(bPos.x - tPos.x) < HOLE_WIDTH/2 && bPos.y < HOLE_HEIGHT + 3) {
+                        b.scored = true;
+                        score++;
+                        b.body.linearDamping = 0.95;
+                        updateUI();
+                        performGoalEffect();
+                    }
+                } else if (bPos.z < tPos.z - 4.0 && !b.disappearing) {
+                    b.disappearing = true;
+                }
+
+                if (b.disappearing) {
+                    b.mesh.material.opacity -= 0.05;
+                    if (b.mesh.material.opacity <= 0) {
+                        b.active = false;
+                        scene.remove(b.mesh);
+                        world.remove(b.body);
+                    }
+                }
+            }
+        });
+    }
+
+    function performGoalEffect() {
+        confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 }, colors: ['#74c0fc', '#ffd43b'] });
+    }
+
+    function updateUI() {
+        document.getElementById('ammo-count').textContent = Math.max(0, MAX_THROWS - totalThrown);
+        document.getElementById('panel-score').textContent = score;
+    }
+
+    function checkGameResult() {
+        gameActive = false;
+        const modal = document.getElementById('modal');
+        modal.style.display = 'flex';
+        const title = document.getElementById('modal-title');
+        const desc = document.getElementById('modal-desc');
+        
+        if (score >= SUCCESS_THRESHOLD) {
+            title.textContent = "최고의 배달원! 🎉";
+            desc.innerHTML = `상자를 ${score}개 실었습니다.<br>트럭이 아주 든든해요!`;
+        } else {
+            title.textContent = "아쉬워요! 🚚";
+            desc.innerHTML = `${score}개 실었습니다.<br>8개 이상 모으기에 도전하세요!`;
+        }
+    }
+
+    function hardReset() {
+        score = 0; totalThrown = 0;
+        boxes.forEach(b => { scene.remove(b.mesh); world.remove(b.body); });
+        boxes = [];
+        updateUI();
+        gameActive = true;
+        document.getElementById('modal').style.display = 'none';
+        spawnNewBox();
+    }
+
+    function closeModal() {
+        if (totalThrown >= MAX_THROWS) hardReset();
+        else { document.getElementById('modal').style.display = 'none'; gameActive = true; }
+    }
+
+    function onWindowResize() {
+        const container = document.getElementById('game-area');
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        world.step(1/60);
+        updatePhysics();
+        boxes.forEach(b => {
+            if (b.active) {
+                b.mesh.position.copy(b.body.position);
+                b.mesh.quaternion.copy(b.body.quaternion);
+                if (b.body.position.y < -10) { b.active = false; scene.remove(b.mesh); world.remove(b.body); }
+            }
+        });
+        renderer.render(scene, camera);
+    }
+
+    window.onload = () => { init(); document.getElementById('modal').style.display = 'flex'; };
+</script>
+
+</body>
+</html>

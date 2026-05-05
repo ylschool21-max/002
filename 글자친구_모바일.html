@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>글자 친구</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 설정 및 파스텔톤 배경 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Jua', sans-serif;
+            background-color: #FFF9E6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            /* 모바일에서 스크롤 튀는 현상 방지 */
+            min-height: -webkit-fill-available; 
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 230, 240, 0.5) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(220, 240, 255, 0.5) 0%, transparent 20%);
+        }
+
+        html {
+            height: -webkit-fill-available;
+        }
+
+        /* 화면 컨테이너 */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* 타이틀 및 안내 텍스트 */
+        h1.app-title {
+            font-size: clamp(2.5rem, 8vw, 3.5rem); /* 모바일 반응형 폰트 크기 */
+            color: #FF8FAB;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px #FFF;
+        }
+        p.guide-text {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* 마이크 버튼 */
+        .mic-btn {
+            width: clamp(120px, 40vw, 180px);
+            height: clamp(120px, 40vw, 180px);
+            border-radius: 50%;
+            background-color: #FFD166;
+            border: 8px solid #FFF;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            font-size: clamp(3rem, 10vw, 5rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 하이라이트 제거 */
+        }
+        .mic-btn.recording {
+            background-color: #4D96FF;
+            color: white;
+            animation: pulseRipple 1.5s infinite;
+        }
+        
+        /* 공통 버튼 스타일 */
+        .action-btn {
+            background-color: #FFF;
+            border: 4px solid #FFD166;
+            border-radius: 30px;
+            padding: 15px 25px;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-family: 'Jua', sans-serif;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-btn:active {
+            transform: scale(0.95); /* 터치 피드백 */
+        }
+        .action-btn.positive {
+            background-color: #6BCB77;
+            border-color: #6BCB77;
+            color: white;
+        }
+        .action-btn.retry {
+            background-color: #FFB3C6;
+            border-color: #FFB3C6;
+            color: white;
+        }
+
+        /* 글자 표시 영역 */
+        .word-display {
+            background-color: #FFF;
+            border-radius: 30px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            position: relative;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+        
+        /* 글자 수에 따른 폰트 크기 및 줄간격 조절 */
+        .word-display .text-content {
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .text-content.short-text {
+            font-size: clamp(3rem, 12vw, 6rem);
+            line-height: 1.2;
+        }
+        .text-content.long-text {
+            font-size: clamp(2rem, 8vw, 4rem);
+            line-height: 1.5;
+        }
+
+        /* 장식 아이콘 */
+        .deco-icon {
+            position: absolute;
+            font-size: clamp(1.5rem, 6vw, 3rem);
+        }
+        .deco-1 { top: -15px; left: -15px; transform: rotate(-15deg); }
+        .deco-2 { bottom: -15px; right: -15px; transform: rotate(15deg); }
+
+        /* 스피커 버튼 */
+        .speaker-btn {
+            background-color: #4D96FF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            margin: 10px auto 20px auto;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .speaker-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* 오류/안내 메시지 팝업 */
+        #toast-msg {
+            position: fixed;
+            bottom: 30px;
+            background-color: rgba(0,0,0,0.8);
+            color: #FFF;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            z-index: 1000;
+            max-width: 80%;
+            text-align: center;
+        }
+        #toast-msg.show {
+            opacity: 1;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseRipple {
+            0% { box-shadow: 0 0 0 0 rgba(77, 150, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(77, 150, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(77, 150, 255, 0); }
+        }
+
+        /* 하단 경고문구 */
+        .browser-warning {
+            font-size: 1rem;
+            color: #ff6b6b;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 오류 안내용 토스트 메시지 -->
+    <div id="toast-msg"></div>
+
+    <!-- 1. 첫 화면 (말하기) -->
+    <div id="home-screen" class="screen active">
+        <h1 class="app-title">글자 친구</h1>
+        <p class="guide-text">쓰고 싶은 말을 해 볼까요?</p>
+        <button id="mic-start-btn" class="mic-btn">🎤</button>
+        <p class="guide-text" style="font-size: clamp(1rem, 4vw, 1.5rem); color: #888;">마이크를 누르고 말해요</p>
+        <p id="browser-warning" class="browser-warning">⚠️ 현재 브라우저에서는 마이크를 사용할 수 없어요. 안드로이드 크롬(Chrome)이나 아이폰 사파리(Safari)를 이용해주세요.</p>
+    </div>
+
+    <!-- 2. 글자 확인 화면 -->
+    <div id="confirm-screen" class="screen">
+        <p class="guide-text">이 글자가 맞나요?</p>
+        <div class="word-display">
+            <p id="confirm-text" class="text-content short-text"></p>
+        </div>
+        
+        <button class="speaker-btn" onclick="speakText()">🔊</button>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; width: 100%;">
+            <button class="action-btn positive" onclick="goTraceScreen()">✨ 맞아요</button>
+            <button class="action-btn retry" onclick="retrySpeaking()">💬 다시 말할래요</button>
+        </div>
+    </div>
+
+    <!-- 3. 따라 쓰기 화면 -->
+    <div id="trace-screen" class="screen">
+        <p class="guide-text">보고 써 보세요</p>
+        <div class="word-display">
+            <span class="deco-icon deco-1">✏️</span>
+            <span class="deco-icon deco-2">⭐</span>
+            <p id="trace-text" class="text-content short-text"></p>
+        </div>
+        
+        <button class="speaker-btn" onclick="speakText()">🔊</button>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+            <button class="action-btn" onclick="retrySpeaking()">🎤 다시 말하기</button>
+        </div>
+    </div>
+
+    <script>
+        // 전역 상태
+        let currentRecognizedText = "";
+        let isTtsInitialized = false; // 모바일 오디오 권한 우회용 변수
+
+        // 모바일 오디오 자동 재생 잠금 해제 (화면 아무 곳이나 터치 시 최초 1회 실행)
+        function unlockAudio() {
+            if (!isTtsInitialized && window.speechSynthesis) {
+                const silentUtterance = new SpeechSynthesisUtterance('');
+                silentUtterance.volume = 0; // 소리 없이 실행
+                window.speechSynthesis.speak(silentUtterance);
+                window.speechSynthesis.resume();
+                isTtsInitialized = true;
+                
+                // 이벤트 리스너 제거 (한 번만 실행되도록)
+                document.removeEventListener('touchstart', unlockAudio);
+                document.removeEventListener('click', unlockAudio);
+            }
+        }
+        document.addEventListener('touchstart', unlockAudio);
+        document.addEventListener('click', unlockAudio);
+
+        // Web Speech API 지원 확인
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                const micBtn = document.getElementById('mic-start-btn');
+                micBtn.classList.add('recording');
+                micBtn.innerHTML = '🎙️';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                if (transcript) {
+                    currentRecognizedText = transcript;
+                    showConfirmScreen();
+                } else {
+                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                }
+            };
+
+            recognition.onend = function() {
+                const micBtn = document.getElementById('mic-start-btn');
+                micBtn.classList.remove('recording');
+                micBtn.innerHTML = '🎤';
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                const micBtn = document.getElementById('mic-start-btn');
+                micBtn.classList.remove('recording');
+                micBtn.innerHTML = '🎤';
+                
+                if (event.error === 'not-allowed') {
+                    showToast("마이크 권한을 허용해 주세요.");
+                } else {
+                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                }
+            };
+        } else {
+            // 지원하지 않는 브라우저일 경우 경고 표시
+            document.getElementById('browser-warning').style.display = 'block';
+            document.getElementById('mic-start-btn').style.opacity = '0.5';
+        }
+
+        // 화면 전환 함수
+        function goScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showConfirmScreen() {
+            const confirmTextEl = document.getElementById('confirm-text');
+            confirmTextEl.innerText = currentRecognizedText;
+            adjustTextSize(confirmTextEl, currentRecognizedText);
+            goScreen('confirm-screen');
+            
+            // 모바일에서 setTimeout을 사용하면 권한이 끊겨 소리가 안 날 수 있으므로 즉시 실행
+            speakText(currentRecognizedText);
+        }
+
+        function goTraceScreen() {
+            const traceTextEl = document.getElementById('trace-text');
+            traceTextEl.innerText = currentRecognizedText;
+            adjustTextSize(traceTextEl, currentRecognizedText);
+            goScreen('trace-screen');
+        }
+
+        function retrySpeaking() {
+            goScreen('home-screen');
+            // 다시 말할 때는 굳이 음성으로 안내하지 않고 토스트만 띄움
+            showToast("다시 한 번 말해 볼까요?");
+        }
+
+        // 글자 수에 따른 UI 최적화
+        function adjustTextSize(element, text) {
+            if (text.length <= 10) {
+                element.classList.remove('long-text');
+                element.classList.add('short-text');
+            } else {
+                element.classList.remove('short-text');
+                element.classList.add('long-text');
+            }
+        }
+
+        // 마이크 시작
+        document.getElementById('mic-start-btn').addEventListener('click', () => {
+            // 마이크 인식 시작
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.log("인식이 이미 실행 중입니다.");
+                }
+            } else {
+                showToast("현재 브라우저에서는 사용할 수 없어요.");
+            }
+        });
+
+        // Speech Synthesis API (글자 읽어주기)
+        function speakText(textToSpeak = currentRecognizedText) {
+            if (!window.speechSynthesis || !textToSpeak) return;
+
+            // 1. 모바일 환경에서 오디오가 일시정지(Pause)된 상태일 수 있으므로 강제 재개
+            window.speechSynthesis.resume();
+            
+            // 2. 현재 읽고 있는 것이 있다면 취소
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 0.8; // 모바일 환경을 고려해 약간 속도 조절
+            utterance.pitch = 1.2;
+
+            // 3. 안드로이드 버그 방지: 발화 시작 시 다시 한 번 resume 호출
+            utterance.onstart = () => {
+                window.speechSynthesis.resume();
+            };
+
+            // 4. setTimeout 등 지연 없이 바로 실행 (모바일 보안 정책 우회)
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 토스트 메시지
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

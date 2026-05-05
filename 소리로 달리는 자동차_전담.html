@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏎️ 전조등 자동차 레이싱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Jua', sans-serif;
+            touch-action: none;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+        }
+        .ui-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 상단 신호등 UI */
+        .traffic-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 15px 30px;
+            border-radius: 40px;
+            border: 4px solid #6366f1;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            z-index: 50;
+            color: white;
+            pointer-events: none;
+        }
+
+        #traffic-light-horizontal {
+            width: 150px;
+            height: 50px;
+            background: #1e293b;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+        }
+        .light-bulb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0f172a;
+            transition: all 0.2s ease;
+        }
+        .light-red.active { background: #ff4757; box-shadow: 0 0 25px #ff4757; }
+        .light-yellow.active { background: #ffa502; box-shadow: 0 0 25px #ffa502; }
+        .light-green.active { background: #2ed573; box-shadow: 0 0 25px #2ed573; }
+        
+        #input-value-side {
+            font-size: 2.5rem;
+            color: #818cf8;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        /* 하단 게임 정보 UI */
+        .game-stats {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            pointer-events: none;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 3px solid #6366f1;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 6px 0 #0f172a;
+            color: white;
+        }
+
+        /* 메뉴 공통 스타일 */
+        .menu-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 50px;
+            box-shadow: 0 20px 0 #cbd5e1;
+            text-align: center;
+            pointer-events: auto;
+            width: 90%;
+            max-width: 480px;
+            z-index: 100;
+            border: 8px solid #4f46e5;
+        }
+        
+        .btn-select {
+            color: white;
+            padding: 24px;
+            border-radius: 35px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.1s;
+            border: none;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-mic { background: #4f46e5; box-shadow: 0 10px 0 #312e81; }
+        .btn-touch { background: #10b981; box-shadow: 0 10px 0 #065f46; }
+        .btn-start { background: #ff4757; box-shadow: 0 10px 0 #c0392b; color: white; padding: 20px; border-radius: 30px; font-size: 2rem; width: 100%; border: none; cursor: pointer; }
+
+        .btn-select:active, .btn-start:active { transform: translateY(4px); box-shadow: 0 5px 0 rgba(0,0,0,0.2); }
+
+        #ready-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.98);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: white;
+        }
+
+        .gauge-container {
+            width: 100%;
+            height: 35px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 25px 0;
+            border: 4px solid #cbd5e1;
+        }
+        #gauge-fill {
+            width: 0%;
+            height: 100%;
+            background: #4f46e5;
+            transition: width 0.05s linear;
+        }
+        
+        #warning-toast {
+            position: fixed;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4757;
+            color: white;
+            padding: 15px 60px;
+            border-radius: 100px;
+            font-size: 3rem;
+            display: none;
+            z-index: 150;
+            box-shadow: 0 0 30px rgba(255, 71, 87, 0.6);
+        }
+        
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 결과 화면: 화면 중앙 정렬 보완 */
+        #result-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            display: none; /* JS에서 flex로 변경 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="warning-toast">멈춰요! ✋</div>
+
+    <!-- 출발 카운트다운 레이어 -->
+    <div id="ready-screen">
+        <div id="ready-count" class="text-9xl font-bold mb-4 text-indigo-400">3</div>
+        <div class="text-4xl">도로 진입 준비!</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="ui-layer">
+        <!-- 게임 화면 상단 패널 -->
+        <div id="header-panel" class="traffic-header hidden">
+            <div id="traffic-light-horizontal">
+                <div id="red-light" class="light-bulb light-red"></div>
+                <div id="yellow-light" class="light-bulb light-yellow"></div>
+                <div id="green-light" class="light-bulb light-green"></div>
+            </div>
+            <div id="input-value-side">0</div>
+        </div>
+
+        <!-- 게임 화면 하단 HUD -->
+        <div id="hud" class="game-stats hidden">
+            <div class="stat-card">
+                <div class="text-sm text-indigo-300 mb-1">제한 시간</div>
+                <div id="timer-text" class="text-3xl text-yellow-400">40초</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-sm text-indigo-300 mb-1">우리 하트</div>
+                <div id="lives-text" class="text-2xl text-rose-500">❤️❤️❤️</div>
+            </div>
+        </div>
+
+        <!-- [메인 메뉴] 모드 선택 -->
+        <div id="mode-selection" class="menu-box">
+            <div class="text-7xl mb-4">🏎️</div>
+            <h1 class="text-3xl text-indigo-600 mb-8 font-bold">어떻게 운전할까요?</h1>
+            <div id="menu-buttons" class="flex flex-col gap-4">
+                <button id="btn-mic-mode" class="btn-select btn-mic">
+                    <span class="text-4xl">🎤</span>
+                    <span>소리로 운전하기</span>
+                </button>
+                <button id="btn-touch-mode" class="btn-select btn-touch">
+                    <span class="text-4xl">👆</span>
+                    <span>터치로 운전하기</span>
+                </button>
+            </div>
+            <div id="connecting-status" class="hidden py-10">
+                <div class="text-4xl mb-4">🔊</div>
+                <div class="text-2xl text-indigo-500 font-bold loading-pulse">마이크 연결하는 중...</div>
+            </div>
+        </div>
+
+        <!-- [소리 체크] 마이크 연결 후 소리 확인 -->
+        <div id="mic-check-panel" class="menu-box hidden">
+            <div class="text-6xl mb-4">🎤</div>
+            <h2 class="text-2xl text-indigo-600 mb-2 font-bold">소리가 잘 들리나요?</h2>
+            <p class="text-slate-500 mb-4 text-lg">"아~" 소리를 내서 게이지가 움직이는지 보세요!</p>
+            
+            <div class="gauge-container">
+                <div id="gauge-fill"></div>
+            </div>
+            
+            <button id="btn-confirm-start" class="btn-start">확인 완료! 게임 시작</button>
+        </div>
+    </div>
+
+    <!-- 결과 창 (UI 레이어 외부에 배치하여 중앙 정렬 보장) -->
+    <div id="result-overlay">
+        <div class="bg-white p-12 rounded-[60px] text-center w-[85%] max-w-[450px] border-8 border-indigo-600 shadow-2xl">
+            <div id="result-emoji" class="text-8xl mb-6">🏆</div>
+            <div id="result-text-main" class="text-5xl mb-4 text-indigo-900 font-bold">성공!</div>
+            <p id="result-desc" class="text-xl text-slate-500 mb-8 font-medium">안전하게 목적지에 도착했어요!</p>
+            <button onclick="location.reload()" class="btn-start mt-4">다시하기</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let audioContext, analyser, dataArray;
+        let gameRunning = false;
+        let controlMode = null; 
+        let isTouching = false;
+        let currentLight = 'GREEN';
+        let lightTimer = 180;
+        let lives = 3;
+        let volume = 0;
+        let isPausedForWarning = false;
+        let gameTimeLeft = 40;
+        let lastTimeUpdate = 0;
+        
+        const threshold = 45; 
+        const volumeMultiplier = 4.0; 
+        const LANES = 6;
+        let roadWidth, roadX;
+        let cars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            roadWidth = Math.min(canvas.width * 0.95, 800);
+            roadX = (canvas.width - roadWidth) / 2;
+            if(cars.length > 0) cars.forEach(car => car.updatePosition());
+        }
+
+        class Car {
+            constructor(laneIndex) {
+                this.laneIndex = laneIndex; 
+                this.w = 55; 
+                this.h = 95;
+                this.reset();
+                this.y = canvas.height - (Math.random() * 800);
+            }
+            reset() {
+                this.speed = 0;
+                this.accelBase = 0.08 + Math.random() * 0.1; 
+                this.maxSpeed = 4 + Math.random() * 4;
+                this.friction = 0.96;
+                this.y = canvas.height + 250; 
+                const colors = ['#e11d48', '#2563eb', '#16a34a', '#d97706', '#9333ea'];
+                this.color = colors[this.laneIndex % colors.length];
+                this.updatePosition();
+            }
+            updatePosition() {
+                const laneWidth = roadWidth / LANES;
+                this.x = roadX + (laneWidth * this.laneIndex) + (laneWidth / 2);
+            }
+            update(isMovingInput) {
+                if (isPausedForWarning) {
+                    this.speed *= 0.8;
+                } else if (isMovingInput) {
+                    this.speed = Math.min(this.speed + this.accelBase, this.maxSpeed);
+                } else {
+                    this.speed *= this.friction;
+                }
+                this.isMoving = this.speed > 0.5;
+                this.showBrakeLight = (currentLight === 'RED' && !isMovingInput);
+                this.y -= this.speed;
+                if (this.y < -this.h - 200) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // --- 전조등 광원 효과 (도로 비춤) ---
+                if (this.isMoving) {
+                    const gradient = ctx.createLinearGradient(0, -this.h/2, 0, -this.h/2 - 150);
+                    gradient.addColorStop(0, 'rgba(255, 255, 200, 0.4)');
+                    gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.w/2 + 5, -this.h/2);
+                    ctx.lineTo(-this.w/2 - 30, -this.h/2 - 150);
+                    ctx.lineTo(this.w/2 + 30, -this.h/2 - 150);
+                    ctx.lineTo(this.w/2 - 5, -this.h/2);
+                    ctx.fill();
+                }
+
+                // 1. 그림자
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath(); ctx.roundRect(-this.w/2 + 6, -this.h/2 + 6, this.w, this.h, 12); ctx.fill();
+
+                // 2. 바퀴
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-this.w/2 - 4, -this.h/2 + 15, 8, 20); // 앞왼
+                ctx.fillRect(this.w/2 - 4, -this.h/2 + 15, 8, 20);  // 앞오
+                ctx.fillRect(-this.w/2 - 4, this.h/2 - 35, 8, 20);  // 뒤왼
+                ctx.fillRect(this.w/2 - 4, this.h/2 - 35, 8, 20);   // 뒤오
+
+                // 3. 차체 본체
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.roundRect(-this.w/2, -this.h/2, this.w, this.h, 12);
+                ctx.fill();
+
+                // 4. 앞유리 (창문)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.roundRect(-this.w/2 + 8, -this.h/2 + 25, this.w - 16, 25, 5);
+                ctx.fill();
+
+                // 5. 전조등 (Headlights)
+                ctx.fillStyle = this.isMoving ? '#fff7ed' : '#94a3b8';
+                if(this.isMoving) { ctx.shadowBlur = 10; ctx.shadowColor = "white"; }
+                ctx.beginPath();
+                ctx.arc(-this.w/2 + 12, -this.h/2 + 5, 6, 0, Math.PI * 2);
+                ctx.arc(this.w/2 - 12, -this.h/2 + 5, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // 6. 브레이크등
+                if (this.showBrakeLight) {
+                    ctx.shadowBlur = 15; ctx.shadowColor = "red"; ctx.fillStyle = '#ff0000';
+                    ctx.beginPath(); ctx.roundRect(-this.w/2 + 5, this.h/2 - 8, 12, 6, 3); ctx.roundRect(this.w/2 - 17, this.h/2 - 8, 12, 6, 3); ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // --- UI 전환 로직 ---
+
+        const modeSelectionUI = document.getElementById('mode-selection');
+        const menuButtons = document.getElementById('menu-buttons');
+        const connectingStatus = document.getElementById('connecting-status');
+        const micCheckUI = document.getElementById('mic-check-panel');
+        
+        const btnMicMode = document.getElementById('btn-mic-mode');
+        const btnTouchMode = document.getElementById('btn-touch-mode');
+        const btnConfirmStart = document.getElementById('btn-confirm-start');
+
+        btnMicMode.addEventListener('click', async () => {
+            menuButtons.classList.add('hidden');
+            connectingStatus.classList.remove('hidden');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                modeSelectionUI.remove();
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                source.connect(analyser);
+                controlMode = 'MIC';
+                
+                micCheckUI.classList.remove('hidden');
+                
+                const checkVolume = () => {
+                    if (gameRunning || controlMode !== 'MIC') return;
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0; for(let i=0; i < dataArray.length; i++) sum += dataArray[i];
+                    let v = (sum / dataArray.length) * volumeMultiplier;
+                    const fill = document.getElementById('gauge-fill');
+                    if (fill) fill.style.width = Math.min(100, (v / 110) * 100) + "%";
+                    requestAnimationFrame(checkVolume);
+                };
+                checkVolume();
+            } catch (err) {
+                alert("마이크 접근이 거부되었거나 연결을 확인해주세요.");
+                location.reload();
+            }
+        });
+
+        btnTouchMode.addEventListener('click', () => {
+            modeSelectionUI.remove();
+            controlMode = 'TOUCH';
+            startCountdown();
+        });
+
+        btnConfirmStart.addEventListener('click', () => {
+            micCheckUI.remove();
+            startCountdown();
+        });
+
+        // --- 게임 엔진 ---
+
+        function startCountdown() {
+            const readyScreen = document.getElementById('ready-screen');
+            const readyCount = document.getElementById('ready-count');
+            readyScreen.style.display = 'flex';
+            
+            let count = 3;
+            readyCount.innerText = count;
+            
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    readyCount.innerText = count;
+                } else if (count === 0) {
+                    readyCount.innerText = "출발!";
+                } else {
+                    clearInterval(timer);
+                    readyScreen.style.display = 'none';
+                    initGameUI();
+                }
+            }, 800);
+        }
+
+        function initGameUI() {
+            document.getElementById('header-panel').classList.remove('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+            if(controlMode === 'TOUCH') {
+                document.getElementById('input-value-side').innerText = "👆";
+            }
+            
+            resize();
+            cars = Array.from({ length: LANES }, (_, i) => new Car(i));
+            gameRunning = true;
+            
+            document.querySelectorAll('.light-bulb').forEach(el => el.classList.remove('active'));
+            document.getElementById('green-light').classList.add('active');
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function triggerWarning() {
+            if (isPausedForWarning) return;
+            isPausedForWarning = true;
+            lives--;
+            document.getElementById('lives-text').innerText = "❤️".repeat(Math.max(0, lives)) + "🖤".repeat(3 - Math.max(0, lives));
+            
+            if (lives <= 0) {
+                gameRunning = false;
+                const overlay = document.getElementById('result-overlay');
+                overlay.style.display = 'flex';
+                document.getElementById('result-emoji').innerText = "💥";
+                document.getElementById('result-text-main').innerText = "운전 종료!";
+                document.getElementById('result-desc').innerText = "빨간불에는 멈춰야 해요!";
+            } else {
+                document.getElementById('warning-toast').style.display = 'block';
+                setTimeout(() => { 
+                    document.getElementById('warning-toast').style.display = 'none'; 
+                    isPausedForWarning = false; 
+                }, 1500);
+            }
+        }
+
+        function gameLoop(timestamp) {
+            if (!gameRunning && !isPausedForWarning) return;
+            
+            if (gameRunning && !isPausedForWarning) {
+                if (!lastTimeUpdate) lastTimeUpdate = timestamp;
+                if (timestamp - lastTimeUpdate >= 1000) {
+                    gameTimeLeft--;
+                    document.getElementById('timer-text').innerText = gameTimeLeft + "초";
+                    lastTimeUpdate = timestamp;
+                    if (gameTimeLeft <= 0) {
+                        gameRunning = false;
+                        const overlay = document.getElementById('result-overlay');
+                        overlay.style.display = 'flex';
+                        document.getElementById('result-emoji').innerText = "🏆";
+                        document.getElementById('result-text-main').innerText = "주행 성공!";
+                        document.getElementById('result-desc').innerText = "안전하게 목적지에 도착했어요!";
+                    }
+                }
+            }
+
+            // 배경 및 도로 그리기
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(roadX, 0, roadWidth, canvas.height);
+            
+            // 중앙선
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.setLineDash([20, 30]);
+            ctx.lineWidth = 4;
+            for(let i=1; i<LANES; i++) {
+                const lx = roadX + (roadWidth/LANES) * i;
+                ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, canvas.height); ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            let moving = false;
+            if (controlMode === 'MIC' && analyser) {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0; for(let i=0; i < dataArray.length; i++) sum += dataArray[i];
+                volume = (sum / dataArray.length) * volumeMultiplier;
+                document.getElementById('input-value-side').innerText = Math.floor(volume);
+                moving = volume > threshold;
+            } else if (controlMode === 'TOUCH') {
+                moving = isTouching;
+                document.getElementById('input-value-side').style.opacity = isTouching ? "1" : "0.3";
+            }
+            
+            lightTimer--;
+            if (lightTimer <= 0) {
+                if (currentLight === 'GREEN') { currentLight = 'YELLOW'; lightTimer = 80; }
+                else if (currentLight === 'YELLOW') { currentLight = 'RED'; lightTimer = 150 + Math.random() * 80; }
+                else { currentLight = 'GREEN'; lightTimer = 200 + Math.random() * 100; }
+                
+                document.querySelectorAll('.light-bulb').forEach(el => el.classList.remove('active'));
+                const activeLight = document.getElementById(currentLight.toLowerCase() + '-light');
+                if (activeLight) activeLight.classList.add('active');
+            }
+
+            if (currentLight === 'RED' && moving && !isPausedForWarning) {
+                triggerWarning();
+            }
+            
+            cars.forEach(car => { car.update(moving); car.draw(); });
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener('mousedown', () => isTouching = true);
+        window.addEventListener('mouseup', () => isTouching = false);
+        window.addEventListener('touchstart', (e) => { 
+            if(gameRunning) e.preventDefault(); 
+            isTouching = true; 
+        }, {passive: false});
+        window.addEventListener('touchend', () => isTouching = false);
+
+        window.onload = resize; 
+        window.onresize = resize;
+    </script>
+</body>
+</html>

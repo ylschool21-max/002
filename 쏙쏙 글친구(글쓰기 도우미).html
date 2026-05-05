@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쏙쏙 글친구</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      background: linear-gradient(135deg, #fff7ed, #fff1f2, #eff6ff);
+      color: #1f2937;
+    }
+    .wrap { max-width: 1360px; margin: 0 auto; padding: 18px; }
+    .hero, .panel, .side {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+    }
+    .hero { padding: 24px 28px; margin-bottom: 18px; }
+    .hero h1 { margin: 0; font-size: 38px; line-height: 1.2; }
+    .hero p { margin: 10px 0 0; font-size: 20px; color: #475569; line-height: 1.6; }
+
+    .grid { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 18px; }
+    .panel, .side { padding: 22px; min-height: 740px; }
+
+    .head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block; padding: 10px 16px; border-radius: 999px;
+      font-size: 14px; font-weight: 800;
+    }
+    .badge.blue { background: #e0f2fe; color: #0369a1; }
+    .badge.yellow { background: #fef3c7; color: #b45309; }
+    .badge.green { background: #dcfce7; color: #15803d; }
+    .badge.pink { background: #ffe4e6; color: #be123c; }
+    .badge.purple { background: #ede9fe; color: #6d28d9; }
+
+    .display-box {
+      min-height: 600px;
+      border: 4px dashed #e2e8f0; border-radius: 28px;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      display: flex; align-items: center; justify-content: center; padding: 30px;
+    }
+    .placeholder { text-align: center; }
+    .mic-circle {
+      width: 110px; height: 110px; border-radius: 999px; margin: 0 auto 24px;
+      background: #e0f2fe; display: flex; align-items: center; justify-content: center; font-size: 54px;
+    }
+    .mic-circle.listening { background: #ffe4e6; animation: pulse 1.2s infinite; }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.85; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .placeholder .main { font-size: 34px; font-weight: 800; line-height: 1.5; }
+    .placeholder .sub { margin-top: 16px; font-size: 20px; color: #64748b; }
+
+    .speech-card {
+      width: 100%; background: #fff1f2; border-radius: 24px; padding: 28px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .speech-card .label {
+      text-align: center; color: #64748b; font-size: 22px; font-weight: 800; margin-bottom: 16px;
+    }
+    .speech-card .text {
+      font-size: 52px; line-height: 1.8; font-weight: 800; text-align: center; word-break: keep-all;
+    }
+
+    .word-top {
+      text-align: center; margin-bottom: 14px; background: #f8fafc; border-radius: 22px; padding: 18px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .word-top .word {
+      font-size: 108px; font-weight: 900; line-height: 1.2; margin-top: 6px; word-break: keep-all;
+    }
+
+    .word-panel {
+      width: 100%;
+      background: white; border-radius: 24px; padding: 26px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    .speaker-btn {
+      width: 170px; height: 170px; border-radius: 999px; border: 0;
+      font-size: 74px; cursor: pointer; background: #e0f2fe; color: #0369a1;
+      box-shadow: 0 12px 24px rgba(14,165,233,0.18);
+    }
+    .speaker-btn:active { transform: scale(0.97); }
+
+    .navs { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .nav-btn {
+      border: 0; border-radius: 18px; padding: 16px 14px; font-size: 20px; font-weight: 900;
+      cursor: pointer; background: #e2e8f0; color: #334155;
+    }
+    .nav-btn.main { background: #fde68a; color: #78350f; }
+    .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn {
+      width: 100%; border: 0; border-radius: 22px; padding: 22px 18px;
+      font-size: 28px; font-weight: 900; cursor: pointer; color: white;
+      box-shadow: 0 10px 22px rgba(15,23,42,0.12); margin-bottom: 14px;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn.blue { background: #0ea5e9; }
+    .btn.red { background: #fb7185; }
+    .btn.purple { background: #a78bfa; }
+    .btn.amber { background: #fbbf24; color: #78350f; }
+    .btn.green { background: #22c55e; }
+    .btn.gray { background: #64748b; }
+
+    .guide, .sample-box, .info-box {
+      border-radius: 22px; padding: 18px; background: #f8fafc;
+    }
+    .guide { margin-top: 12px; }
+    .guide h3, .sample-box h3, .info-box h3 { margin: 0 0 12px; font-size: 22px; }
+    .guide ol {
+      padding-left: 22px; margin: 0; color: #475569; font-size: 18px; line-height: 1.9; font-weight: 600;
+    }
+    .sample-box { margin-top: 14px; background: #fff1f2; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 0; border-radius: 999px; background: white; padding: 10px 16px; font-size: 15px; font-weight: 800;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.08); cursor: pointer;
+    }
+    .sample-box p, .info-box p { color: #64748b; margin: 10px 0 0; font-size: 14px; font-weight: 700; line-height: 1.7; }
+    .info-box { margin-top: 14px; background: #eef2ff; }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .panel, .side { min-height: auto; }
+      .hero h1 { font-size: 30px; }
+      .speech-card .text { font-size: 40px; }
+      .btn { font-size: 24px; }
+      .placeholder .main { font-size: 28px; }
+      .word-top .word { font-size: 70px; }
+      .speaker-btn { width: 140px; height: 140px; font-size: 62px; }
+      .navs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>쏙쏙 글친구</h1>
+      <p>모르는 글을 말하고, 듣고, 따라 적어보는 귀여운 글쓰기 도우미</p>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <div id="listenView">
+          <div class="head">
+            <span class="badge blue">왼쪽 학습 화면</span>
+            <span class="badge yellow" id="statusText">말하기 버튼을 누르고 이야기해 보세요.</span>
+          </div>
+          <div class="display-box" id="displayBox"></div>
+        </div>
+
+        <div id="wordView" style="display:none;">
+          <div class="head">
+            <span class="badge pink">단어 듣기 화면</span>
+            <span class="badge purple" id="wordCount">1 / 1 단어</span>
+          </div>
+
+          <div class="word-top">
+            <div class="word" id="currentWordBig">사과</div>
+          </div>
+
+          <div class="word-panel">
+            <button class="speaker-btn" id="speakWordBtn" title="단어 듣기">🔊</button>
+          </div>
+
+          <div class="navs">
+            <button class="nav-btn" id="prevWordBtn">이전 단어</button>
+            <button class="nav-btn main" id="backBtn">다시 말하기로 돌아가기</button>
+            <button class="nav-btn" id="nextWordBtn">다음 단어</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="head">
+          <span class="badge green">오른쪽 조작 화면</span>
+        </div>
+
+        <button class="btn blue" id="listenBtn">🎤 말하기</button>
+        <button class="btn purple" id="replayBtn" disabled>🔊 전체 다시 듣기</button>
+        <button class="btn amber" id="clearBtn">↺ 지우기</button>
+        <button class="btn green" id="completeBtn" disabled>✔ 완료</button>
+        <button class="btn gray" id="homeBtn">🏠 처음으로</button>
+
+        <div class="guide">
+          <h3>✏ 사용 방법</h3>
+          <ol>
+            <li>말하기 버튼을 누르고 하고 싶은 말을 해요.</li>
+            <li>왼쪽에 적힌 글을 다시 들어보며 확인해요.</li>
+            <li>맞게 적혔다면 완료 버튼을 눌러요.</li>
+            <li>단어를 하나씩 보며 스피커 버튼을 눌러 들어봐요.</li>
+          </ol>
+        </div>
+
+        <div class="sample-box">
+          <h3>바로 해보기</h3>
+          <div class="chips" id="sampleChips"></div>
+          <p>띄어쓰기가 있으면 단어별로 나누고, 띄어쓰기가 없으면 전체를 하나의 단어처럼 보여줍니다.</p>
+        </div>
+
+        <div class="info-box">
+          <h3>안내</h3>
+          <p>가능한 경우 한국어 음성 중 더 자연스럽게 들리는 보이스를 먼저 선택해서 읽어줍니다.</p>
+          <p>음성 인식은 Chrome 또는 Edge에서 더 잘 작동하고, 마이크 권한 허용이 필요합니다.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const EXAMPLES = [
+      "사과",
+      "자동차",
+      "토끼",
+      "우리 학교",
+      "나는 사과가 좋아",
+      "기차를 타요"
+    ];
+
+    let spokenText = "";
+    let isListening = false;
+    let mode = "listen";
+    let wordIndex = 0;
+    let recognition = null;
+    let voicesLoaded = false;
+
+    const displayBox = document.getElementById("displayBox");
+    const statusText = document.getElementById("statusText");
+    const listenBtn = document.getElementById("listenBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const completeBtn = document.getElementById("completeBtn");
+    const homeBtn = document.getElementById("homeBtn");
+
+    const listenView = document.getElementById("listenView");
+    const wordView = document.getElementById("wordView");
+    const currentWordBig = document.getElementById("currentWordBig");
+    const wordCount = document.getElementById("wordCount");
+    const speakWordBtn = document.getElementById("speakWordBtn");
+    const prevWordBtn = document.getElementById("prevWordBtn");
+    const nextWordBtn = document.getElementById("nextWordBtn");
+    const backBtn = document.getElementById("backBtn");
+    const sampleChips = document.getElementById("sampleChips");
+
+    EXAMPLES.forEach(text => {
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      btn.textContent = text;
+      btn.onclick = () => {
+        spokenText = text;
+        mode = "listen";
+        wordIndex = 0;
+        setStatus("예시 글을 불러왔어요. 다시 듣고 완료해 보세요.");
+        render();
+      };
+      sampleChips.appendChild(btn);
+    });
+
+    function setStatus(text) {
+      statusText.textContent = text;
+    }
+
+    function getWords() {
+      const cleaned = spokenText.trim();
+      if (!cleaned) return [];
+      const splitWords = cleaned.split(/\s+/).filter(Boolean);
+      return splitWords.length ? splitWords : [cleaned];
+    }
+
+    function currentWord() {
+      const words = getWords();
+      return words[wordIndex] || "";
+    }
+
+    function pickBestKoreanVoice() {
+      if (!window.speechSynthesis) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || !voices.length) return null;
+
+      const koreanVoices = voices.filter(v =>
+        (v.lang || "").toLowerCase().includes("ko") ||
+        (v.name || "").includes("Korean") ||
+        (v.name || "").includes("한국")
+      );
+
+      if (!koreanVoices.length) return null;
+
+      const preferredKeywords = [
+        "Google 한국의",
+        "Google Korean",
+        "Microsoft SunHi",
+        "Microsoft Heami",
+        "Yuna",
+        "Sora"
+      ];
+
+      for (const key of preferredKeywords) {
+        const found = koreanVoices.find(v => (v.name || "").includes(key));
+        if (found) return found;
+      }
+
+      return koreanVoices[0];
+    }
+
+    function speakText(text) {
+      if (!window.speechSynthesis || !text) return;
+      window.speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ko-KR";
+
+      const voice = pickBestKoreanVoice();
+      if (voice) utter.voice = voice;
+
+      utter.rate = 0.92;
+      utter.pitch = 1.05;
+      utter.volume = 1;
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    function renderListenBox() {
+      if (!spokenText) {
+        displayBox.innerHTML = `
+          <div class="placeholder">
+            <div class="mic-circle ${isListening ? 'listening' : ''}">🎤</div>
+            <div class="main">말하기 버튼을 누르고 이야기해 보세요</div>
+            <div class="sub">예: 사과 / 우리 학교 / 나는 사과가 좋아</div>
+          </div>
+        `;
+      } else {
+        displayBox.innerHTML = `
+          <div class="speech-card">
+            <div class="label">내가 말한 글</div>
+            <div class="text">${spokenText}</div>
+          </div>
+        `;
+      }
+    }
+
+    function renderWordView() {
+      const words = getWords();
+      currentWordBig.textContent = currentWord() || "단어";
+      wordCount.textContent = `${words.length ? wordIndex + 1 : 1} / ${words.length || 1} 단어`;
+      prevWordBtn.disabled = wordIndex === 0;
+      nextWordBtn.disabled = wordIndex >= words.length - 1;
+    }
+
+    function render() {
+      replayBtn.disabled = !spokenText;
+      completeBtn.disabled = !spokenText;
+      listenBtn.className = `btn ${isListening ? 'red' : 'blue'}`;
+      listenBtn.textContent = isListening ? "⏹ 말하기 멈추기" : "🎤 말하기";
+
+      if (mode === "listen") {
+        listenView.style.display = "block";
+        wordView.style.display = "none";
+        renderListenBox();
+      } else {
+        listenView.style.display = "none";
+        wordView.style.display = "block";
+        renderWordView();
+      }
+    }
+
+    function startListening() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("이 브라우저에서는 음성 인식을 지원하지 않아요. Chrome 또는 Edge에서 실행해 주세요.");
+        return;
+      }
+
+      if (recognition) {
+        recognition.stop();
+        recognition = null;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = "ko-KR";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        setStatus("듣고 있어요. 또박또박 말해 보세요.");
+        render();
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        spokenText = transcript.trim();
+        setStatus("글자로 바꾸었어요. 다시 들어보고 확인해 보세요.");
+        render();
+      };
+
+      recognition.onerror = () => {
+        isListening = false;
+        setStatus("소리를 잘 듣지 못했어요. 다시 말해 보세요.");
+        render();
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        render();
+      };
+
+      recognition.start();
+    }
+
+    function stopListening() {
+      if (recognition) recognition.stop();
+      isListening = false;
+      setStatus("말하기가 멈췄어요. 내용을 확인해 보세요.");
+      render();
+    }
+
+    function goHome() {
+      if (recognition) recognition.stop();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      spokenText = "";
+      isListening = false;
+      mode = "listen";
+      wordIndex = 0;
+      setStatus("말하기 버튼을 누르고 이야기해 보세요.");
+      render();
+    }
+
+    listenBtn.onclick = () => {
+      if (isListening) stopListening();
+      else startListening();
+    };
+
+    replayBtn.onclick = () => {
+      if (!spokenText) return;
+      speakText(spokenText);
+      setStatus("전체 문장을 다시 들려주고 있어요.");
+    };
+
+    clearBtn.onclick = () => {
+      stopListening();
+      spokenText = "";
+      mode = "listen";
+      wordIndex = 0;
+      setStatus("내용을 지웠어요. 다시 말해 보세요.");
+      render();
+    };
+
+    completeBtn.onclick = () => {
+      if (!spokenText) return;
+      mode = "word";
+      wordIndex = 0;
+      setStatus("단어를 하나씩 들어봐요.");
+      render();
+    };
+
+    homeBtn.onclick = () => goHome();
+
+    speakWordBtn.onclick = () => {
+      const word = currentWord();
+      if (!word) return;
+      speakText(word);
+    };
+
+    prevWordBtn.onclick = () => {
+      wordIndex = Math.max(0, wordIndex - 1);
+      render();
+    };
+
+    nextWordBtn.onclick = () => {
+      wordIndex = Math.min(getWords().length - 1, wordIndex + 1);
+      render();
+    };
+
+    backBtn.onclick = () => {
+      mode = "listen";
+      render();
+    };
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        voicesLoaded = true;
+      };
+      window.speechSynthesis.getVoices();
+    }
+
+    render();
+  </script>
+</body>
+</html>
