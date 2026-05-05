@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영차영차 체조놀이 - 영일유치원</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: #FFF9E6;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        .font-pen { font-family: 'Nanum Pen Script', cursive; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- 네비게이션 -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center">
+        <a href="index.html" class="text-3xl font-bold text-yellow-500 flex items-center gap-2">
+            <span class="text-4xl">☀️</span> 영일유치원
+        </a>
+        <div class="hidden md:flex gap-6 text-xl">
+            <a href="index.html#play-list" class="hover:text-yellow-500 transition">놀이 목록</a>
+        </div>
+        <button class="bg-yellow-400 text-white px-6 py-2 rounded-full text-lg hover:bg-yellow-500 transition shadow-md">
+            입학상담
+        </button>
+    </nav>
+
+    <!-- 헤더 -->
+    <header class="pt-32 pb-16 px-4 text-center bg-blue-50 relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-64 h-64 bg-blue-200 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute bottom-0 -right-10 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-40"></div>
+
+        <div class="relative">
+            <div class="text-8xl md:text-9xl mb-6">🤸</div>
+            <h1 class="text-5xl md:text-7xl font-bold text-blue-600 mb-4">영차영차 체조놀이</h1>
+            <p class="text-2xl md:text-3xl text-gray-600">선생님과 함께 튼튼하게 몸을 움직여봐요!</p>
+        </div>
+    </header>
+
+    <!-- 본문 -->
+    <main class="py-16 px-4">
+        <div class="container mx-auto max-w-3xl space-y-10">
+
+            <!-- 어떤 놀이인가요? -->
+            <div class="bg-white rounded-3xl p-8 shadow-lg border-4 border-blue-100">
+                <h2 class="text-4xl font-bold text-blue-600 mb-4">🌟 어떤 놀이인가요?</h2>
+                <p class="text-2xl text-gray-700 leading-relaxed">
+                    매일 아침 친구들과 함께 모여 신나는 음악에 맞춰 몸을 움직이는 시간이에요.
+                    폴짝폴짝 점프하기, 살랑살랑 춤추기, 쭉쭉 스트레칭까지 다양한 동작을 배워요.
+                </p>
+            </div>
+
+            <!-- 무엇을 할까요? -->
+            <div class="bg-white rounded-3xl p-8 shadow-lg border-4 border-purple-100">
+                <h2 class="text-4xl font-bold text-purple-600 mb-6">🎵 무엇을 할까요?</h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 rounded-2xl p-5 flex items-center gap-4">
+                        <span class="text-5xl">🦘</span>
+                        <span class="text-2xl text-gray-700">폴짝폴짝 점프하기</span>
+                    </div>
+                    <div class="bg-purple-50 rounded-2xl p-5 flex items-center gap-4">
+                        <span class="text-5xl">💃</span>
+                        <span class="text-2xl text-gray-700">살랑살랑 춤추기</span>
+                    </div>
+                    <div class="bg-pink-50 rounded-2xl p-5 flex items-center gap-4">
+                        <span class="text-5xl">🙆</span>
+                        <span class="text-2xl text-gray-700">쭉쭉 스트레칭</span>
+                    </div>
+                    <div class="bg-yellow-50 rounded-2xl p-5 flex items-center gap-4">
+                        <span class="text-5xl">👏</span>
+                        <span class="text-2xl text-gray-700">박수치며 노래하기</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 무엇을 배우나요? -->
+            <div class="bg-white rounded-3xl p-8 shadow-lg border-4 border-pink-100">
+                <h2 class="text-4xl font-bold text-pink-600 mb-4">💡 무엇을 배우나요?</h2>
+                <ul class="text-2xl text-gray-700 space-y-3">
+                    <li class="flex items-start gap-3"><span>✨</span><span>건강한 몸과 즐거운 마음을 길러요</span></li>
+                    <li class="flex items-start gap-3"><span>✨</span><span>친구들과 함께하는 즐거움을 느껴요</span></li>
+                    <li class="flex items-start gap-3"><span>✨</span><span>음악을 듣고 박자를 익혀요</span></li>
+                    <li class="flex items-start gap-3"><span>✨</span><span>균형감각과 조절력이 자라요</span></li>
+                </ul>
+            </div>
+
+            <!-- 활동 정보 -->
+            <div class="bg-blue-100 rounded-3xl p-8 shadow-lg">
+                <h2 class="text-4xl font-bold text-blue-700 mb-4">📅 활동 정보</h2>
+                <div class="text-2xl text-gray-700 space-y-2">
+                    <p>🕘 <strong>시간:</strong> 매일 오전 9:30 ~ 10:00</p>
+                    <p>📍 <strong>장소:</strong> 유치원 강당</p>
+                    <p>👶 <strong>대상:</strong> 모든 반</p>
+                </div>
+            </div>
+
+            <!-- 돌아가기 버튼 -->
+            <div class="text-center pt-6">
+                <a href="index.html#play-list" class="inline-block bg-blue-500 text-white text-2xl px-10 py-4 rounded-full hover:bg-blue-600 transition shadow-xl transform hover:scale-105">
+                    ← 다른 놀이 보러가기
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-gray-800 text-white py-12 px-4 text-center">
+        <div class="container mx-auto">
+            <h3 class="text-3xl font-bold mb-4 text-yellow-400">영일유치원</h3>
+            <p class="text-lg mb-2">부산광역시 행복구 희망동 123-45 (꿈자람길 7)</p>
+            <p class="text-lg mb-6">전화문의: 02-1234-5678</p>
+            <div class="flex justify-center gap-6 mb-8 text-3xl">
+                <span>📸</span> <span>📺</span> <span>💌</span>
+            </div>
+            <p class="text-gray-400 text-sm">© 2024 Yeong-il Kindergarten. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

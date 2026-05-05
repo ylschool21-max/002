@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,69 +14,24 @@
             overflow-x: hidden;
         }
         .font-pen { font-family: 'Nanum Pen Script', cursive; }
-        
-        /* 애니메이션 효과 */
+
         .bounce-slow { animation: bounce 3s infinite; }
         @keyframes bounce {
             0%, 100% { transform: translateY(-5%); }
             50% { transform: translateY(0); }
         }
 
-        .card-flip {
-            perspective: 1000px;
+        .play-card {
+            transition: all 0.3s ease;
         }
-        .card-inner {
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            cursor: pointer;
+        .play-card:hover {
+            transform: translateY(-6px);
         }
-        .card-inner.is-flipped {
-            transform: rotateY(180deg);
+        .play-card:hover .arrow {
+            transform: translateX(8px);
         }
-        .card-front, .card-back {
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 1rem;
-        }
-        .card-back {
-            transform: rotateY(180deg);
-        }
-
-        /* 퍼즐 스타일 */
-        .puzzle-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 300px;
-            margin: 0 auto;
-        }
-        .puzzle-piece {
-            width: 90px;
-            height: 90px;
-            background-color: #FFD93D;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .puzzle-piece:active { transform: scale(0.9); }
-
-        /* 캐릭터 체조 애니메이션 */
-        .mascot-gym {
-            animation: gym 1s infinite alternate ease-in-out;
-        }
-        @keyframes gym {
-            from { transform: rotate(-10deg) scale(1); }
-            to { transform: rotate(10deg) scale(1.1); }
-        }
-
-        .bg-cloud {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-0.124,0.011-0.245,0.021-0.366C10.518,13.682,9.076,14,7.5,14C4.463,14,2,11.537,2,8.5 S4.463,3,7.5,3c0.124,0,0.245,0.011,0.366,0.021C9.318,1.518,10.924,1,12.5,1c3.037,0,5.5,2.463,5.5,5.5 c0,0.124-0.011,0.245-0.021,0.366C19.482,6.318,20.924,6,22.5,6c3.037,0,5.5,2.463,5.5,5.5S25.537,17,22.5,17 c-0.124,0-0.245-0.011-0.366-0.021C20.682,18.482,19.076,19,17.5,19z"/></svg>');
+        .arrow {
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
@@ -85,13 +39,11 @@
 
     <!-- 네비게이션 -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center">
-        <div class="text-3xl font-bold text-yellow-500 flex items-center gap-2">
+        <a href="index.html" class="text-3xl font-bold text-yellow-500 flex items-center gap-2">
             <span class="text-4xl">☀️</span> 영일유치원
-        </div>
+        </a>
         <div class="hidden md:flex gap-6 text-xl">
-            <a href="#gym" class="hover:text-yellow-500 transition">체조놀이</a>
-            <a href="#puzzle" class="hover:text-yellow-500 transition">퍼즐놀이</a>
-            <a href="#cards" class="hover:text-yellow-500 transition">글자놀이</a>
+            <a href="#play-list" class="hover:text-yellow-500 transition">놀이 목록</a>
         </div>
         <button class="bg-yellow-400 text-white px-6 py-2 rounded-full text-lg hover:bg-yellow-500 transition shadow-md">
             입학상담
@@ -102,7 +54,7 @@
     <header class="h-screen flex flex-col items-center justify-center text-center px-4 pt-16 relative overflow-hidden">
         <div class="absolute -top-10 -left-10 w-64 h-64 bg-pink-200 rounded-full blur-3xl opacity-50"></div>
         <div class="absolute bottom-20 -right-10 w-80 h-80 bg-blue-200 rounded-full blur-3xl opacity-50"></div>
-        
+
         <h1 class="text-6xl md:text-8xl font-bold text-yellow-500 mb-6 drop-shadow-sm bounce-slow">
             안녕! 영일유치원에 온 걸 <br>환영해! 🎈
         </h1>
@@ -110,8 +62,8 @@
             매일매일이 즐거운 모험과 배움으로 가득한 <br>우리들의 행복한 놀이터입니다.
         </p>
         <div class="flex gap-4">
-            <a href="#gym" class="bg-pink-400 text-white text-xl px-8 py-4 rounded-3xl hover:bg-pink-500 transition shadow-xl">
-                놀이 시작하기! 🎨
+            <a href="#play-list" class="bg-pink-400 text-white text-xl px-8 py-4 rounded-3xl hover:bg-pink-500 transition shadow-xl">
+                놀이 보러가기! 🎨
             </a>
         </div>
 
@@ -120,89 +72,42 @@
         </div>
     </header>
 
-    <!-- 체조놀이 섹션 -->
-    <section id="gym" class="py-24 bg-blue-50">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-5xl font-bold text-blue-600 mb-4">🤸 영차영차 체조놀이</h2>
-            <p class="text-2xl text-gray-600 mb-12">선생님과 함께 튼튼하게 몸을 움직여봐요!</p>
-            
-            <div class="flex flex-col items-center">
-                <div id="gym-mascot" class="text-9xl mb-8">
-                    🙋‍♂️
-                </div>
-                <div class="flex gap-4 mb-12">
-                    <button onclick="startGym('jump')" class="bg-blue-500 text-white px-8 py-3 rounded-full text-xl hover:bg-blue-600 shadow-lg">폴짝폴짝 점프!</button>
-                    <button onclick="startGym('wave')" class="bg-purple-500 text-white px-8 py-3 rounded-full text-xl hover:bg-purple-600 shadow-lg">살랑살랑 춤춰요</button>
-                    <button onclick="stopGym()" class="bg-gray-400 text-white px-8 py-3 rounded-full text-xl hover:bg-gray-500 shadow-lg">멈추기</button>
-                </div>
-                <div id="gym-status" class="text-3xl text-blue-400 font-bold h-10">친구들, 준비됐나요?</div>
-            </div>
-        </div>
-    </section>
+    <!-- 놀이 목록 섹션 -->
+    <section id="play-list" class="py-24 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-5xl md:text-6xl font-bold text-center text-yellow-500 mb-4">🎨 놀이 목록</h2>
+            <p class="text-2xl text-gray-600 text-center mb-12">어떤 놀이가 궁금한가요? 카드를 눌러보세요!</p>
 
-    <!-- 퍼즐놀이 섹션 -->
-    <section id="puzzle" class="py-24 bg-yellow-50">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-5xl font-bold text-orange-500 mb-4">🧩 조각조각 퍼즐놀이</h2>
-            <p class="text-2xl text-gray-600 mb-12">알록달록 퍼즐을 맞춰서 완성해 볼까요?</p>
-            
-            <div id="puzzle-board" class="puzzle-grid bg-white p-4 rounded-3xl shadow-2xl border-4 border-yellow-200">
-                <!-- JS로 퍼즐 생성 -->
-            </div>
-            
-            <button onclick="shufflePuzzle()" class="mt-12 bg-orange-500 text-white px-10 py-4 rounded-full text-2xl hover:bg-orange-600 shadow-xl transition transform hover:scale-105">
-                퍼즐 섞기! 🔄
-            </button>
-        </div>
-    </section>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 체조놀이 -->
+                <a href="gym.html" class="play-card block bg-blue-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-blue-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🤸</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-blue-600">영차영차 체조놀이</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">선생님과 함께 튼튼하게 몸을 움직여요!</p>
+                        <div class="arrow text-4xl text-blue-400 mt-2">→</div>
+                    </div>
+                </a>
 
-    <!-- 글자놀이 섹션 -->
-    <section id="cards" class="py-24 bg-pink-50">
-        <div class="container mx-auto px-4">
-            <h2 class="text-5xl font-bold text-pink-600 text-center mb-4">🔤 뒤죽박죽 글자카드</h2>
-            <p class="text-2xl text-gray-600 text-center mb-12">카드를 뒤집어서 어떤 단어가 숨어있는지 맞춰봐요!</p>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                <!-- 카드 1 -->
-                <div class="card-flip h-48 md:h-64" onclick="flipCard(this)">
-                    <div class="card-inner w-full h-full relative border-4 border-pink-200 rounded-3xl shadow-lg">
-                        <div class="card-front absolute inset-0 bg-white text-6xl font-bold text-pink-500">가</div>
-                        <div class="card-back absolute inset-0 bg-pink-400 text-white flex flex-col gap-2">
-                            <span class="text-6xl">👜</span>
-                            <span class="text-3xl">가방</span>
-                        </div>
+                <!-- 퍼즐놀이 -->
+                <a href="puzzle.html" class="play-card block bg-yellow-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-yellow-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🧩</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-orange-500">조각조각 퍼즐놀이</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">알록달록 퍼즐을 맞춰서 완성해 봐요!</p>
+                        <div class="arrow text-4xl text-orange-400 mt-2">→</div>
                     </div>
-                </div>
-                <!-- 카드 2 -->
-                <div class="card-flip h-48 md:h-64" onclick="flipCard(this)">
-                    <div class="card-inner w-full h-full relative border-4 border-blue-200 rounded-3xl shadow-lg">
-                        <div class="card-front absolute inset-0 bg-white text-6xl font-bold text-blue-500">나</div>
-                        <div class="card-back absolute inset-0 bg-blue-400 text-white flex flex-col gap-2">
-                            <span class="text-6xl">🦋</span>
-                            <span class="text-3xl">나비</span>
-                        </div>
+                </a>
+
+                <!-- 글자놀이 -->
+                <a href="cards.html" class="play-card block bg-pink-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-pink-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🔤</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-pink-600">뒤죽박죽 글자카드</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">카드를 뒤집어 숨은 단어를 찾아봐요!</p>
+                        <div class="arrow text-4xl text-pink-400 mt-2">→</div>
                     </div>
-                </div>
-                <!-- 카드 3 -->
-                <div class="card-flip h-48 md:h-64" onclick="flipCard(this)">
-                    <div class="card-inner w-full h-full relative border-4 border-green-200 rounded-3xl shadow-lg">
-                        <div class="card-front absolute inset-0 bg-white text-6xl font-bold text-green-500">다</div>
-                        <div class="card-back absolute inset-0 bg-green-400 text-white flex flex-col gap-2">
-                            <span class="text-6xl">🐿️</span>
-                            <span class="text-3xl">다람쥐</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- 카드 4 -->
-                <div class="card-flip h-48 md:h-64" onclick="flipCard(this)">
-                    <div class="card-inner w-full h-full relative border-4 border-yellow-200 rounded-3xl shadow-lg">
-                        <div class="card-front absolute inset-0 bg-white text-6xl font-bold text-yellow-500">라</div>
-                        <div class="card-back absolute inset-0 bg-yellow-400 text-white flex flex-col gap-2">
-                            <span class="text-6xl">📻</span>
-                            <span class="text-3xl">라디오</span>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
@@ -220,85 +125,5 @@
         </div>
     </footer>
 
-    <!-- 알림 메시지 박스 -->
-    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white px-8 py-3 rounded-full opacity-0 pointer-events-none transition-opacity duration-300 text-xl z-[100]">
-        성공했어요! 참 잘했어요 👏
-    </div>
-
-    <script>
-        // --- 토스트 알림 기능 ---
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.classList.remove('opacity-0');
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-            }, 2000);
-        }
-
-        // --- 체조놀이 로직 ---
-        const mascot = document.getElementById('gym-mascot');
-        const gymStatus = document.getElementById('gym-status');
-        
-        function startGym(type) {
-            mascot.classList.remove('bounce-slow', 'mascot-gym');
-            if (type === 'jump') {
-                mascot.classList.add('bounce-slow');
-                gymStatus.innerText = "폴짝폴짝! 하늘 높이 뛰어요!";
-            } else if (type === 'wave') {
-                mascot.classList.add('mascot-gym');
-                gymStatus.innerText = "살랑살랑~ 즐겁게 춤을 춰요!";
-            }
-        }
-
-        function stopGym() {
-            mascot.classList.remove('bounce-slow', 'mascot-gym');
-            gymStatus.innerText = "조금 쉬었다가 또 만나요!";
-        }
-
-        // --- 퍼즐놀이 로직 ---
-        const puzzleBoard = document.getElementById('puzzle-board');
-        let pieces = ['🍎', '🍌', '🍇', '🍓', '🍒', '🥝', '🫐', '🍑', '🍍'];
-        
-        function initPuzzle() {
-            puzzleBoard.innerHTML = '';
-            pieces.forEach((emoji, index) => {
-                const div = document.createElement('div');
-                div.className = 'puzzle-piece shadow-md border-2 border-yellow-100 hover:bg-yellow-100';
-                div.innerText = emoji;
-                div.onclick = () => swapPieces(index);
-                puzzleBoard.appendChild(div);
-            });
-        }
-
-        function shufflePuzzle() {
-            pieces.sort(() => Math.random() - 0.5);
-            initPuzzle();
-            showToast("퍼즐이 뒤섞였어요! 맞춰보세요.");
-        }
-
-        function swapPieces(index) {
-            // 아주 간단한 스왑 로직 (이웃한 것과 바꿈)
-            const nextIdx = (index + 1) % pieces.length;
-            [pieces[index], pieces[nextIdx]] = [pieces[nextIdx], pieces[index]];
-            initPuzzle();
-            
-            // 승리 체크 (간단화: 특정 순서가 되면)
-            if (pieces[0] === '🍎' && pieces[8] === '🍍') {
-                showToast("우와! 퍼즐을 다 맞췄어요! 대단해!");
-            }
-        }
-
-        // --- 글자놀이 카드 로직 ---
-        function flipCard(card) {
-            const inner = card.querySelector('.card-inner');
-            inner.classList.toggle('is-flipped');
-        }
-
-        // 초기화
-        window.onload = () => {
-            initPuzzle();
-        };
-    </script>
 </body>
 </html>
