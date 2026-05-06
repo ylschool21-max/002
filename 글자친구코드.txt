@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>글자 친구</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Jua', sans-serif;
+            background-color: #FFF9E6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 230, 240, 0.5) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(220, 240, 255, 0.5) 0%, transparent 20%);
+        }
+        html { height: -webkit-fill-available; }
+ 
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .screen.active { display: flex; }
+ 
+        h1.app-title {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            color: #FF8FAB;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px #FFF;
+        }
+        p.guide-text {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            color: #555;
+            margin-bottom: 30px;
+        }
+ 
+        .mic-btn {
+            width: clamp(120px, 40vw, 180px);
+            height: clamp(120px, 40vw, 180px);
+            border-radius: 50%;
+            background-color: #FFD166;
+            border: 8px solid #FFF;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            font-size: clamp(3rem, 10vw, 5rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mic-btn.recording {
+            background-color: #4D96FF;
+            color: white;
+            animation: pulseRipple 1.5s infinite;
+        }
+ 
+        .action-btn {
+            background-color: #FFF;
+            border: 4px solid #FFD166;
+            border-radius: 30px;
+            padding: 15px 25px;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-family: 'Jua', sans-serif;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-btn:active { transform: scale(0.95); }
+        .action-btn.positive { background-color: #6BCB77; border-color: #6BCB77; color: white; }
+        .action-btn.retry    { background-color: #FFB3C6; border-color: #FFB3C6; color: white; }
+        .action-btn.test     { background-color: #4D96FF; border-color: #4D96FF; color: white; font-size: 1.1rem; padding: 10px 20px; }
+ 
+        .word-display {
+            background-color: #FFF;
+            border-radius: 35px;
+            padding: 50px 60px;          /* 좌우 여백 더 여유롭게 */
+            width: auto;                 /* ⭐ 글자 길이에 맞춰 자동 확장 */
+            min-width: 280px;            /* 너무 작아지지 않도록 */
+            max-width: 95%;              /* 화면 밖으로 안 넘치게 */
+            min-height: 180px;
+            box-sizing: border-box;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            position: relative;
+            display: inline-flex;        /* ⭐ 컨텐츠 크기에 맞게 */
+            align-items: center;
+            justify-content: center;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+        /* 짧은 텍스트(≤10자): 한 줄, 컨테이너는 글자에 딱 맞게 */
+        .word-display.fit-short {
+            min-height: 200px;
+        }
+        /* 긴 텍스트(>10자): 컨테이너가 더 넓고 높게 */
+        .word-display.fit-long {
+            width: 100%;
+            max-width: 800px;
+            min-height: 240px;
+            padding: 50px 50px;
+        }
+        .text-content { color: #333; margin: 0; padding: 0; }
+        .text-content.short-text {
+            font-size: clamp(4rem, 14vw, 8rem);
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .text-content.long-text {
+            font-size: clamp(2.2rem, 9vw, 4.5rem);
+            line-height: 1.6;
+            white-space: normal;
+        }
+ 
+        .deco-icon { position: absolute; font-size: clamp(1.5rem, 6vw, 3rem); }
+        .deco-1 { top: -15px; left: -15px; transform: rotate(-15deg); }
+        .deco-2 { bottom: -15px; right: -15px; transform: rotate(15deg); }
+ 
+        .speaker-btn {
+            background-color: #4D96FF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            margin: 10px auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .speaker-btn:active { transform: scale(0.9); }
+ 
+        #toast-msg {
+            position: fixed;
+            bottom: 30px;
+            background-color: rgba(0,0,0,0.8);
+            color: #FFF;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            z-index: 1000;
+            max-width: 80%;
+            text-align: center;
+        }
+        #toast-msg.show { opacity: 1; }
+ 
+        /* 진단 패널 */
+        #diag-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #FFF;
+            border: 2px solid #FFD166;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-family: 'Jua', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 999;
+            opacity: 0.7;
+        }
+        #diag-panel {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            width: 320px;
+            max-width: 90vw;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: #FFF;
+            border: 2px solid #FFD166;
+            border-radius: 15px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            z-index: 999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            text-align: left;
+            line-height: 1.5;
+        }
+        #diag-panel.show { display: block; }
+        #diag-panel .row { padding: 4px 0; border-bottom: 1px dashed #eee; word-break: break-all; }
+        #diag-panel .ok  { color: #2e8b57; }
+        #diag-panel .ng  { color: #d33; }
+        #diag-panel h3   { margin: 0 0 10px 0; font-family: 'Jua', sans-serif; color: #FF8FAB; }
+ 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseRipple {
+            0%   { box-shadow: 0 0 0 0 rgba(77,150,255,0.7); }
+            70%  { box-shadow: 0 0 0 20px rgba(77,150,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(77,150,255,0); }
+        }
+ 
+        /* ⭐ 인앱 브라우저 안내 오버레이 */
+        #inapp-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #inapp-overlay.show { display: flex; }
+        .inapp-box {
+            background: #FFF;
+            border-radius: 25px;
+            padding: 30px 25px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+        .inapp-box .emoji { font-size: 4rem; margin-bottom: 10px; }
+        .inapp-box h2 {
+            color: #FF6B6B;
+            font-size: 1.6rem;
+            margin: 0 0 15px 0;
+            font-family: 'Jua', sans-serif;
+        }
+        .inapp-box p {
+            font-size: 1.05rem;
+            color: #555;
+            line-height: 1.6;
+            margin: 10px 0;
+            font-family: 'Jua', sans-serif;
+        }
+        .inapp-box .step-box {
+            background: #FFF9E6;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #333;
+        }
+        .inapp-box .step-box b { color: #FF8FAB; }
+        .inapp-box .url-box {
+            background: #F0F0F0;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            margin: 10px 0;
+            color: #333;
+        }
+        .inapp-box button {
+            background: #4D96FF;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-family: 'Jua', sans-serif;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 4px 10px rgba(77,150,255,0.3);
+        }
+        .inapp-box button.secondary {
+            background: #FFF;
+            color: #555;
+            border: 2px solid #DDD;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+ 
+    <!-- ⭐ 인앱 브라우저 감지 안내 모달 -->
+    <div id="inapp-overlay">
+        <div class="inapp-box">
+            <div class="emoji">🌐</div>
+            <h2 id="inapp-title">크롬 브라우저에서 열어 주세요</h2>
+            <p id="inapp-desc">
+                지금은 <b style="color:#FF6B6B;">앱 안의 브라우저</b>로 열려 있어<br>
+                소리(TTS) 기능이 동작하지 않아요.
+            </p>
+            <div class="step-box" id="inapp-steps">
+                <b>📱 여는 방법</b><br>
+                ① 화면 오른쪽 위 <b>⋮</b> (점 세 개) 메뉴 누르기<br>
+                ② <b>"다른 브라우저로 열기"</b> 또는<br>
+                &nbsp;&nbsp;&nbsp;<b>"Chrome으로 열기"</b> 선택<br>
+                ③ 크롬에서 다시 실행하기
+            </div>
+            <div class="url-box" id="inapp-url"></div>
+            <button onclick="copyURL()">📋 주소 복사하기</button>
+            <button class="secondary" onclick="dismissInappWarning()">그래도 계속하기</button>
+        </div>
+    </div>
+ 
+    <!-- 진단 토글 버튼 -->
+    <button id="diag-toggle" onclick="toggleDiag()">🔧 진단</button>
+    <div id="diag-panel">
+        <h3>TTS 진단</h3>
+        <div id="diag-content">로딩중...</div>
+    </div>
+ 
+    <div id="toast-msg"></div>
+ 
+    <!-- 1. 첫 화면 -->
+    <div id="home-screen" class="screen active">
+        <h1 class="app-title">글자 친구</h1>
+        <p class="guide-text">쓰고 싶은 말을 해 볼까요?</p>
+        <button id="mic-start-btn" class="mic-btn">🎤</button>
+        <p class="guide-text" style="font-size: clamp(1rem, 4vw, 1.5rem); color: #888;">마이크를 누르고 말해요</p>
+    </div>
+ 
+    <!-- 2. 글자 확인 화면 -->
+    <div id="confirm-screen" class="screen">
+        <div class="word-display">
+            <p id="confirm-text" class="text-content short-text"></p>
+        </div>
+        <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; width: 100%;">
+            <button class="action-btn positive" onclick="goTraceScreen()">✨ 맞아요</button>
+            <button class="action-btn retry"    onclick="retrySpeaking()">💬 다시 말할래요</button>
+        </div>
+    </div>
+ 
+    <!-- 3. 따라 쓰기 화면 -->
+    <div id="trace-screen" class="screen">
+        <p class="guide-text">보고 써 보세요</p>
+        <div class="word-display">
+            <span class="deco-icon deco-1">✏️</span>
+            <span class="deco-icon deco-2">⭐</span>
+            <p id="trace-text" class="text-content short-text"></p>
+        </div>
+        <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+            <button class="action-btn" onclick="retrySpeaking()">🎤 다시 말하기</button>
+        </div>
+    </div>
+ 
+    <script>
+        let currentRecognizedText = "";
+        let lastSpeakStatus = "(아직 시도 안 함)";
+        let lastSpeakError  = "";
+        let voicesCache = [];
+ 
+        /* ─────────────────────────────────────────────
+           ⭐ 인앱 브라우저 감지 (KakaoTalk, Naver, Line 등)
+           이런 브라우저들은 speechSynthesis 미지원
+        ───────────────────────────────────────────── */
+        function detectInappBrowser() {
+            const ua = navigator.userAgent || '';
+            // 카카오톡, 네이버, 라인, 페이스북, 인스타그램, 다음, 일반 WebView
+            const inappPatterns = [
+                /KAKAOTALK/i,
+                /NAVER\(inapp/i,
+                /Line\//i,
+                /FBAN|FBAV/i,
+                /Instagram/i,
+                /Daum/i,
+                /; ?wv\)/i  // Android WebView 일반
+            ];
+            const matched = inappPatterns.find(p => p.test(ua));
+            if (!matched) return null;
+ 
+            if (/KAKAOTALK/i.test(ua))   return 'KakaoTalk';
+            if (/NAVER/i.test(ua))       return 'Naver';
+            if (/Line/i.test(ua))        return 'Line';
+            if (/FBAN|FBAV/i.test(ua))   return 'Facebook';
+            if (/Instagram/i.test(ua))   return 'Instagram';
+            if (/Daum/i.test(ua))        return 'Daum';
+            return 'WebView';
+        }
+ 
+        function showInappWarning() {
+            const browser = detectInappBrowser();
+            if (!browser) return;
+ 
+            // speechSynthesis 가 진짜로 없을 때만 경고 (브라우저는 인앱이지만 지원하는 경우 있음)
+            if ('speechSynthesis' in window) return;
+ 
+            const titleEl = document.getElementById('inapp-title');
+            const descEl  = document.getElementById('inapp-desc');
+            const stepsEl = document.getElementById('inapp-steps');
+            const urlEl   = document.getElementById('inapp-url');
+ 
+            titleEl.innerText = `${browser} 안에서는 소리가 안 나와요`;
+            descEl.innerHTML = 
+                `현재 <b style="color:#FF6B6B;">${browser} 인앱 브라우저</b>로 열려 있어<br>` +
+                `소리(TTS) 기능이 동작하지 않아요.<br><br>` +
+                `<b>크롬(Chrome)</b>에서 열면 정상 동작해요!`;
+ 
+            // 카카오톡 전용 안내
+            if (browser === 'KakaoTalk') {
+                stepsEl.innerHTML = 
+                    `<b>📱 카카오톡에서 크롬으로 여는 방법</b><br>` +
+                    `① 화면 오른쪽 위 <b>⋮</b> (점 세 개) 누르기<br>` +
+                    `② <b>"다른 브라우저로 열기"</b> 선택<br>` +
+                    `③ <b>Chrome</b> 선택`;
+            }
+ 
+            urlEl.innerText = location.href;
+            document.getElementById('inapp-overlay').classList.add('show');
+        }
+ 
+        function dismissInappWarning() {
+            document.getElementById('inapp-overlay').classList.remove('show');
+        }
+ 
+        function copyURL() {
+            const url = location.href;
+            try {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        showToast("주소가 복사되었어요!");
+                    });
+                } else {
+                    // 구형 폴백
+                    const ta = document.createElement('textarea');
+                    ta.value = url;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast("주소가 복사되었어요!");
+                }
+            } catch(e) {
+                showToast("주소 복사 실패. 직접 복사해 주세요.");
+            }
+        }
+ 
+        // 페이지 로드되자마자 인앱 브라우저 검사
+        window.addEventListener('load', showInappWarning);
+ 
+        /* ─────────────────────────────────────────────
+           ⭐ 한국어 음성 미설치 감지
+           voices 가 로드됐지만 한국어가 0개면 안내
+        ───────────────────────────────────────────── */
+        let koVoiceCheckDone = false;
+        function checkKoreanVoice() {
+            if (koVoiceCheckDone) return;
+            if (!('speechSynthesis' in window)) return;
+ 
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length === 0) return; // 아직 로딩 중
+ 
+            const koVoices = voices.filter(v => 
+                (v.lang || '').toLowerCase().startsWith('ko'));
+ 
+            koVoiceCheckDone = true;
+ 
+            if (koVoices.length === 0) {
+                // 한국어 음성 없음 → 안내 모달
+                showKoreanVoiceWarning();
+            }
+        }
+ 
+        function showKoreanVoiceWarning() {
+            const overlay = document.getElementById('inapp-overlay');
+            const titleEl = document.getElementById('inapp-title');
+            const descEl  = document.getElementById('inapp-desc');
+            const stepsEl = document.getElementById('inapp-steps');
+            const urlEl   = document.getElementById('inapp-url');
+ 
+            titleEl.innerText = "한국어 음성을 설치해 주세요";
+            descEl.innerHTML = 
+                `이 기기에 <b style="color:#FF6B6B;">한국어 TTS 음성 데이터</b>가<br>` +
+                `설치되어 있지 않아 소리가 나오지 않아요.<br><br>` +
+                `<b>1~2분이면 설치할 수 있어요!</b>`;
+ 
+            stepsEl.innerHTML = 
+                `<b>📱 한국어 음성 설치 방법</b><br>` +
+                `① 휴대폰 <b>설정</b> 앱 열기<br>` +
+                `② <b>일반</b> → <b>언어 및 입력</b> 선택<br>` +
+                `③ <b>텍스트 음성 변환 출력</b> 선택<br>` +
+                `④ 기본 엔진이 <b>"Google 텍스트 음성 변환"</b> 인지 확인<br>` +
+                `⑤ 옆의 <b>⚙️ 톱니바퀴</b> 누르기<br>` +
+                `⑥ <b>"음성 데이터 설치"</b> 또는 <b>"언어 설치"</b> 누르기<br>` +
+                `⑦ <b>"한국어(대한민국)"</b> 찾아서 <b>다운로드</b><br>` +
+                `⑧ 완료 후 이 페이지 <b>새로고침</b>`;
+ 
+            urlEl.style.display = 'none'; // 주소 복사 불필요
+            // "주소 복사" 버튼 숨기기
+            const copyBtn = overlay.querySelector('button:not(.secondary)');
+            if (copyBtn) copyBtn.style.display = 'none';
+ 
+            // "그래도 계속하기" 버튼 텍스트 변경
+            const dismissBtn = overlay.querySelector('button.secondary');
+            if (dismissBtn) dismissBtn.innerText = '나중에 설치할게요';
+ 
+            overlay.classList.add('show');
+        }
+ 
+        // voices 로드되면 체크
+        if ('speechSynthesis' in window) {
+            // 즉시 한 번
+            setTimeout(checkKoreanVoice, 500);
+            // 음성 변경 시
+            const origVoicesChanged = window.speechSynthesis.onvoiceschanged;
+            window.speechSynthesis.onvoiceschanged = function() {
+                if (origVoicesChanged) origVoicesChanged();
+                refreshVoices();
+                checkKoreanVoice();
+            };
+            // 폴링으로 한 번 더
+            setTimeout(checkKoreanVoice, 2000);
+            setTimeout(checkKoreanVoice, 5000);
+        }
+ 
+        /* ─────────────────────────────────────────────
+           ⭐ 가장 단순한 TTS (S7 호환용)
+           불필요한 cancel / warmup / resume 모두 제거
+        ───────────────────────────────────────────── */
+        function speak(text) {
+            if (!('speechSynthesis' in window)) {
+                lastSpeakStatus = "❌ speechSynthesis 미지원";
+                updateDiag();
+                const browser = detectInappBrowser();
+                if (browser) {
+                    showInappWarning();
+                } else {
+                    showToast("이 브라우저는 음성 합성을 지원하지 않아요.");
+                }
+                return false;
+            }
+            if (!text) return false;
+ 
+            // ⭐ 한국어 음성이 없으면 즉시 안내
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const koVoices = voices.filter(v => 
+                    (v.lang || '').toLowerCase().startsWith('ko'));
+                if (koVoices.length === 0) {
+                    showKoreanVoiceWarning();
+                    return false;
+                }
+            }
+ 
+            try {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'ko-KR';
+                u.rate = 0.9;
+                u.pitch = 1.1;
+                u.volume = 1.0;
+ 
+                // ⭐ 한국어 음성 명시 지정 (있을 경우)
+                const koVoice = voices.find(v => 
+                    (v.lang || '').toLowerCase().startsWith('ko'));
+                if (koVoice) u.voice = koVoice;
+ 
+                u.onstart = () => {
+                    lastSpeakStatus = "✅ 발화 시작됨";
+                    updateDiag();
+                };
+                u.onend = () => {
+                    lastSpeakStatus = "✅ 발화 완료";
+                    updateDiag();
+                };
+                u.onerror = (e) => {
+                    lastSpeakStatus = "❌ 발화 오류";
+                    lastSpeakError = e.error || "(unknown)";
+                    updateDiag();
+                    // synthesis-failed 면 한국어 음성 미설치 가능성 → 안내
+                    if (e.error === 'synthesis-failed' || e.error === 'language-unavailable' || e.error === 'voice-unavailable') {
+                        showKoreanVoiceWarning();
+                    }
+                };
+ 
+                lastSpeakStatus = "⏳ speak() 호출됨";
+                updateDiag();
+                window.speechSynthesis.speak(u);
+                return true;
+            } catch(e) {
+                lastSpeakStatus = "❌ 예외 발생";
+                lastSpeakError = e.message;
+                updateDiag();
+                return false;
+            }
+        }
+ 
+        /* ⭐ 사용자 버튼 클릭 시 호출되는 발화 (가장 안정적) */
+        function manualSpeak() {
+            speak(currentRecognizedText);
+        }
+ 
+        /* ⭐ 자동 발화 (인식 후) - S7 에서 안 되면 사용자가 🔊 누르면 됨 */
+        function autoSpeak(text) {
+            // 화면 전환 후 약간의 딜레이로 안정화
+            setTimeout(() => speak(text), 50);
+        }
+ 
+        /* ⭐ 테스트 버튼 - 가장 단순하게 호출 */
+        function testTTS() {
+            const ok = speak("안녕하세요. 글자 친구입니다.");
+            if (!ok) {
+                showToast("음성 합성을 사용할 수 없어요.");
+            }
+        }
+ 
+        /* ─────────────────────────────────────────────
+           voices 로딩
+        ───────────────────────────────────────────── */
+        function refreshVoices() {
+            if (!('speechSynthesis' in window)) return;
+            voicesCache = window.speechSynthesis.getVoices() || [];
+            updateDiag();
+        }
+        if ('speechSynthesis' in window) {
+            refreshVoices();
+            window.speechSynthesis.onvoiceschanged = refreshVoices;
+            // 일부 안드로이드는 onvoiceschanged 가 안 떠서 폴링
+            let pc = 0;
+            const pi = setInterval(() => {
+                refreshVoices();
+                pc++;
+                if (voicesCache.length > 0 || pc > 20) clearInterval(pi);
+            }, 300);
+        }
+ 
+        /* ─────────────────────────────────────────────
+           진단 패널
+        ───────────────────────────────────────────── */
+        function toggleDiag() {
+            document.getElementById('diag-panel').classList.toggle('show');
+            updateDiag();
+        }
+        function updateDiag() {
+            const el = document.getElementById('diag-content');
+            if (!el) return;
+ 
+            const hasSS = 'speechSynthesis' in window;
+            const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+            const proto = location.protocol;
+            const isSecure = window.isSecureContext;
+            const ua = navigator.userAgent;
+ 
+            let voiceList = '';
+            if (voicesCache.length === 0) {
+                voiceList = '<span class="ng">⚠️ 음성 목록 비어있음</span>';
+            } else {
+                const koVoices = voicesCache.filter(v => (v.lang || '').toLowerCase().startsWith('ko'));
+                voiceList = `${voicesCache.length}개 (한국어: ${koVoices.length}개)`;
+                if (koVoices.length > 0) {
+                    voiceList += '<br>' + koVoices.slice(0,3).map(v => `· ${v.name} [${v.lang}]`).join('<br>');
+                }
+            }
+ 
+            el.innerHTML = `
+                <div class="row">프로토콜: <b class="${proto==='https:'||proto==='file:'?'ok':'ng'}">${proto}</b></div>
+                <div class="row">보안 컨텍스트: <b class="${isSecure?'ok':'ng'}">${isSecure}</b></div>
+                <div class="row">speechSynthesis: <b class="${hasSS?'ok':'ng'}">${hasSS}</b></div>
+                <div class="row">SpeechRecognition: <b class="${hasSR?'ok':'ng'}">${hasSR}</b></div>
+                <div class="row">음성 목록: ${voiceList}</div>
+                <div class="row">마지막 발화 상태: <b>${lastSpeakStatus}</b></div>
+                ${lastSpeakError ? `<div class="row ng">에러: ${lastSpeakError}</div>` : ''}
+                <div class="row" style="font-size:0.7rem;color:#888;">UA: ${ua}</div>
+            `;
+        }
+        // 1초마다 자동 갱신
+        setInterval(updateDiag, 1000);
+ 
+        /* ─────────────────────────────────────────────
+           음성 인식
+        ───────────────────────────────────────────── */
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+ 
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+ 
+            recognition.onstart = () => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.add('recording');
+                btn.innerHTML = '🎙️';
+            };
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.trim();
+                if (transcript) {
+                    currentRecognizedText = transcript;
+                    showConfirmScreen();
+                } else {
+                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                }
+            };
+            recognition.onend = () => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.remove('recording');
+                btn.innerHTML = '🎤';
+            };
+            recognition.onerror = (event) => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.remove('recording');
+                btn.innerHTML = '🎤';
+                if (event.error === 'not-allowed') {
+                    showToast("마이크 권한을 허용해 주세요.");
+                } else if (event.error === 'no-speech') {
+                    showToast("말소리가 들리지 않았어요.");
+                } else if (event.error !== 'aborted') {
+                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                }
+            };
+        }
+ 
+        document.getElementById('mic-start-btn').addEventListener('click', () => {
+            if (recognition) {
+                try { recognition.start(); } catch(e) {}
+            } else {
+                showToast("이 브라우저는 음성 인식을 지원하지 않아요.");
+            }
+        });
+ 
+        /* ─────────────────────────────────────────────
+           화면 전환
+        ───────────────────────────────────────────── */
+        function goScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        function showConfirmScreen() {
+            const el = document.getElementById('confirm-text');
+            el.innerText = currentRecognizedText;
+            adjustTextSize(el, currentRecognizedText);
+            goScreen('confirm-screen');
+            autoSpeak(currentRecognizedText);
+        }
+        function goTraceScreen() {
+            const el = document.getElementById('trace-text');
+            el.innerText = currentRecognizedText;
+            adjustTextSize(el, currentRecognizedText);
+            goScreen('trace-screen');
+        }
+        function retrySpeaking() {
+            goScreen('home-screen');
+            showToast("다시 한 번 말해 볼까요?");
+        }
+        function adjustTextSize(element, text) {
+            // 글자 컨테이너(.word-display) 도 함께 크기 조절
+            const container = element.closest('.word-display');
+            if (text.length <= 10) {
+                element.classList.remove('long-text');
+                element.classList.add('short-text');
+                if (container) {
+                    container.classList.remove('fit-long');
+                    container.classList.add('fit-short');
+                }
+            } else {
+                element.classList.remove('short-text');
+                element.classList.add('long-text');
+                if (container) {
+                    container.classList.remove('fit-short');
+                    container.classList.add('fit-long');
+                }
+            }
+        }
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+ 
+        // 초기 진단 갱신
+        updateDiag();
+    </script>
+</body>
+</html>
