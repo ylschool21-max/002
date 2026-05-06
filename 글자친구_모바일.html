@@ -17,13 +17,12 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            min-height: -webkit-fill-available; 
+            min-height: -webkit-fill-available;
             overflow-x: hidden;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(255, 230, 240, 0.5) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(220, 240, 255, 0.5) 0%, transparent 20%);
         }
- 
         html { height: -webkit-fill-available; }
  
         .screen {
@@ -73,7 +72,7 @@
             color: white;
             animation: pulseRipple 1.5s infinite;
         }
-        
+ 
         .action-btn {
             background-color: #FFF;
             border: 4px solid #FFD166;
@@ -92,42 +91,40 @@
             -webkit-tap-highlight-color: transparent;
         }
         .action-btn:active { transform: scale(0.95); }
-        .action-btn.positive {
-            background-color: #6BCB77;
-            border-color: #6BCB77;
-            color: white;
-        }
-        .action-btn.retry {
-            background-color: #FFB3C6;
-            border-color: #FFB3C6;
-            color: white;
-        }
+        .action-btn.positive { background-color: #6BCB77; border-color: #6BCB77; color: white; }
+        .action-btn.retry    { background-color: #FFB3C6; border-color: #FFB3C6; color: white; }
+        .action-btn.test     { background-color: #4D96FF; border-color: #4D96FF; color: white; font-size: 1.1rem; padding: 10px 20px; }
  
-        /* ── 글자 표시 영역: 더 크게 ── */
         .word-display {
             background-color: #FFF;
             border-radius: 35px;
-            padding: 50px 40px;
-            width: 100%;
-            max-width: 700px;
-            min-height: 200px;
+            padding: 50px 60px;          /* 좌우 여백 더 여유롭게 */
+            width: auto;                 /* ⭐ 글자 길이에 맞춰 자동 확장 */
+            min-width: 280px;            /* 너무 작아지지 않도록 */
+            max-width: 95%;              /* 화면 밖으로 안 넘치게 */
+            min-height: 180px;
             box-sizing: border-box;
             box-shadow: 0 20px 35px rgba(0,0,0,0.08);
             margin-bottom: 16px;
             position: relative;
-            display: flex;
+            display: inline-flex;        /* ⭐ 컨텐츠 크기에 맞게 */
             align-items: center;
             justify-content: center;
             word-break: keep-all;
             overflow-wrap: break-word;
         }
-        
-        .word-display .text-content {
-            color: #333;
-            margin: 0;
-            padding: 0;
+        /* 짧은 텍스트(≤10자): 한 줄, 컨테이너는 글자에 딱 맞게 */
+        .word-display.fit-short {
+            min-height: 200px;
         }
-        /* ── 10자 이하: 한 줄 고정 ── */
+        /* 긴 텍스트(>10자): 컨테이너가 더 넓고 높게 */
+        .word-display.fit-long {
+            width: 100%;
+            max-width: 800px;
+            min-height: 240px;
+            padding: 50px 50px;
+        }
+        .text-content { color: #333; margin: 0; padding: 0; }
         .text-content.short-text {
             font-size: clamp(4rem, 14vw, 8rem);
             line-height: 1.2;
@@ -139,10 +136,7 @@
             white-space: normal;
         }
  
-        .deco-icon {
-            position: absolute;
-            font-size: clamp(1.5rem, 6vw, 3rem);
-        }
+        .deco-icon { position: absolute; font-size: clamp(1.5rem, 6vw, 3rem); }
         .deco-1 { top: -15px; left: -15px; transform: rotate(-15deg); }
         .deco-2 { bottom: -15px; right: -15px; transform: rotate(15deg); }
  
@@ -157,7 +151,6 @@
             cursor: pointer;
             box-shadow: 0 6px 12px rgba(0,0,0,0.1);
             margin: 10px auto 20px auto;
-            transition: transform 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -182,25 +175,66 @@
         }
         #toast-msg.show { opacity: 1; }
  
+        /* 진단 패널 */
+        #diag-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #FFF;
+            border: 2px solid #FFD166;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-family: 'Jua', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 999;
+            opacity: 0.7;
+        }
+        #diag-panel {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            width: 320px;
+            max-width: 90vw;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: #FFF;
+            border: 2px solid #FFD166;
+            border-radius: 15px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            z-index: 999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            text-align: left;
+            line-height: 1.5;
+        }
+        #diag-panel.show { display: block; }
+        #diag-panel .row { padding: 4px 0; border-bottom: 1px dashed #eee; word-break: break-all; }
+        #diag-panel .ok  { color: #2e8b57; }
+        #diag-panel .ng  { color: #d33; }
+        #diag-panel h3   { margin: 0 0 10px 0; font-family: 'Jua', sans-serif; color: #FF8FAB; }
+ 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulseRipple {
-            0% { box-shadow: 0 0 0 0 rgba(77, 150, 255, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(77, 150, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(77, 150, 255, 0); }
-        }
- 
-        .browser-warning {
-            font-size: 1rem;
-            color: #ff6b6b;
-            margin-top: 20px;
-            display: none;
+            0%   { box-shadow: 0 0 0 0 rgba(77,150,255,0.7); }
+            70%  { box-shadow: 0 0 0 20px rgba(77,150,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(77,150,255,0); }
         }
     </style>
 </head>
 <body>
+ 
+    <!-- 진단 토글 버튼 -->
+    <button id="diag-toggle" onclick="toggleDiag()">🔧 진단</button>
+    <div id="diag-panel">
+        <h3>TTS 진단</h3>
+        <div id="diag-content">로딩중...</div>
+    </div>
  
     <div id="toast-msg"></div>
  
@@ -210,20 +244,17 @@
         <p class="guide-text">쓰고 싶은 말을 해 볼까요?</p>
         <button id="mic-start-btn" class="mic-btn">🎤</button>
         <p class="guide-text" style="font-size: clamp(1rem, 4vw, 1.5rem); color: #888;">마이크를 누르고 말해요</p>
-        <p id="browser-warning" class="browser-warning">⚠️ 현재 브라우저에서는 마이크를 사용할 수 없어요. 안드로이드 크롬(Chrome)이나 아이폰 사파리(Safari)를 이용해주세요.</p>
     </div>
  
-    <!-- 2. 글자 확인 화면 ("이 글자가 맞나요?" 제거) -->
+    <!-- 2. 글자 확인 화면 -->
     <div id="confirm-screen" class="screen">
         <div class="word-display">
             <p id="confirm-text" class="text-content short-text"></p>
         </div>
-        
-        <button class="speaker-btn" onclick="speakText()">🔊</button>
-        
+        <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; width: 100%;">
             <button class="action-btn positive" onclick="goTraceScreen()">✨ 맞아요</button>
-            <button class="action-btn retry" onclick="retrySpeaking()">💬 다시 말할래요</button>
+            <button class="action-btn retry"    onclick="retrySpeaking()">💬 다시 말할래요</button>
         </div>
     </div>
  
@@ -235,9 +266,7 @@
             <span class="deco-icon deco-2">⭐</span>
             <p id="trace-text" class="text-content short-text"></p>
         </div>
-        
-        <button class="speaker-btn" onclick="speakText()">🔊</button>
-        
+        <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
             <button class="action-btn" onclick="retrySpeaking()">🎤 다시 말하기</button>
         </div>
@@ -245,64 +274,136 @@
  
     <script>
         let currentRecognizedText = "";
-        let isTtsInitialized = false;
-        let voicesReady = false;
-        let koVoice = null;
+        let lastSpeakStatus = "(아직 시도 안 함)";
+        let lastSpeakError  = "";
+        let voicesCache = [];
  
         /* ─────────────────────────────────────────────
-           TTS 음성 목록 로딩 (S7 등 구형 안드로이드 핵심)
-           getVoices() 가 처음에는 빈 배열을 반환 → 
-           onvoiceschanged 이벤트에서 실제 목록을 받음
+           ⭐ 가장 단순한 TTS (S7 호환용)
+           불필요한 cancel / warmup / resume 모두 제거
         ───────────────────────────────────────────── */
-        function loadVoices() {
-            if (!window.speechSynthesis) return;
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                koVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ko'))
-                       || voices.find(v => v.lang && v.lang.toLowerCase().includes('kr'))
-                       || null;
-                voicesReady = true;
-                console.log('TTS voices loaded:', voices.length, 'Korean voice:', koVoice ? koVoice.name : 'default');
+        function speak(text) {
+            if (!('speechSynthesis' in window)) {
+                lastSpeakStatus = "❌ speechSynthesis 미지원";
+                updateDiag();
+                showToast("이 브라우저는 음성 합성을 지원하지 않아요.");
+                return false;
             }
-        }
+            if (!text) return false;
  
-        if (window.speechSynthesis) {
-            loadVoices();
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-            // 일부 기기는 onvoiceschanged 가 안 떠서 폴링으로 백업
-            let voicePollCount = 0;
-            const voicePoll = setInterval(() => {
-                loadVoices();
-                voicePollCount++;
-                if (voicesReady || voicePollCount > 20) clearInterval(voicePoll);
-            }, 250);
-        }
- 
-        /* ─────────────────────────────────────────────
-           오디오 잠금 해제 (구형 안드로이드 필수)
-           - volume=0 묵음이 아닌 실제 짧은 발화로 워밍업
-           - 첫 사용자 터치 시 1회만 실행
-        ───────────────────────────────────────────── */
-        function unlockAudio() {
-            if (isTtsInitialized || !window.speechSynthesis) return;
             try {
-                window.speechSynthesis.cancel();
-                // 진짜 짧은 텍스트로 엔진 깨움 (S7 에서 volume=0 무시되는 경우 있음)
-                const u = new SpeechSynthesisUtterance('.');
+                const u = new SpeechSynthesisUtterance(text);
                 u.lang = 'ko-KR';
-                u.volume = 0.01;
-                u.rate = 10;
+                u.rate = 0.9;
+                u.pitch = 1.1;
+                u.volume = 1.0;
+ 
+                u.onstart = () => {
+                    lastSpeakStatus = "✅ 발화 시작됨";
+                    updateDiag();
+                };
+                u.onend = () => {
+                    lastSpeakStatus = "✅ 발화 완료";
+                    updateDiag();
+                };
+                u.onerror = (e) => {
+                    lastSpeakStatus = "❌ 발화 오류";
+                    lastSpeakError = e.error || "(unknown)";
+                    updateDiag();
+                };
+ 
+                lastSpeakStatus = "⏳ speak() 호출됨";
+                updateDiag();
                 window.speechSynthesis.speak(u);
-                isTtsInitialized = true;
-                
-                document.removeEventListener('touchstart', unlockAudio);
-                document.removeEventListener('click', unlockAudio);
+                return true;
             } catch(e) {
-                console.warn('TTS unlock failed:', e);
+                lastSpeakStatus = "❌ 예외 발생";
+                lastSpeakError = e.message;
+                updateDiag();
+                return false;
             }
         }
-        document.addEventListener('touchstart', unlockAudio, { passive: true });
-        document.addEventListener('click', unlockAudio);
+ 
+        /* ⭐ 사용자 버튼 클릭 시 호출되는 발화 (가장 안정적) */
+        function manualSpeak() {
+            speak(currentRecognizedText);
+        }
+ 
+        /* ⭐ 자동 발화 (인식 후) - S7 에서 안 되면 사용자가 🔊 누르면 됨 */
+        function autoSpeak(text) {
+            // 화면 전환 후 약간의 딜레이로 안정화
+            setTimeout(() => speak(text), 50);
+        }
+ 
+        /* ⭐ 테스트 버튼 - 가장 단순하게 호출 */
+        function testTTS() {
+            const ok = speak("안녕하세요. 글자 친구입니다.");
+            if (!ok) {
+                showToast("음성 합성을 사용할 수 없어요.");
+            }
+        }
+ 
+        /* ─────────────────────────────────────────────
+           voices 로딩
+        ───────────────────────────────────────────── */
+        function refreshVoices() {
+            if (!('speechSynthesis' in window)) return;
+            voicesCache = window.speechSynthesis.getVoices() || [];
+            updateDiag();
+        }
+        if ('speechSynthesis' in window) {
+            refreshVoices();
+            window.speechSynthesis.onvoiceschanged = refreshVoices;
+            // 일부 안드로이드는 onvoiceschanged 가 안 떠서 폴링
+            let pc = 0;
+            const pi = setInterval(() => {
+                refreshVoices();
+                pc++;
+                if (voicesCache.length > 0 || pc > 20) clearInterval(pi);
+            }, 300);
+        }
+ 
+        /* ─────────────────────────────────────────────
+           진단 패널
+        ───────────────────────────────────────────── */
+        function toggleDiag() {
+            document.getElementById('diag-panel').classList.toggle('show');
+            updateDiag();
+        }
+        function updateDiag() {
+            const el = document.getElementById('diag-content');
+            if (!el) return;
+ 
+            const hasSS = 'speechSynthesis' in window;
+            const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+            const proto = location.protocol;
+            const isSecure = window.isSecureContext;
+            const ua = navigator.userAgent;
+ 
+            let voiceList = '';
+            if (voicesCache.length === 0) {
+                voiceList = '<span class="ng">⚠️ 음성 목록 비어있음</span>';
+            } else {
+                const koVoices = voicesCache.filter(v => (v.lang || '').toLowerCase().startsWith('ko'));
+                voiceList = `${voicesCache.length}개 (한국어: ${koVoices.length}개)`;
+                if (koVoices.length > 0) {
+                    voiceList += '<br>' + koVoices.slice(0,3).map(v => `· ${v.name} [${v.lang}]`).join('<br>');
+                }
+            }
+ 
+            el.innerHTML = `
+                <div class="row">프로토콜: <b class="${proto==='https:'||proto==='file:'?'ok':'ng'}">${proto}</b></div>
+                <div class="row">보안 컨텍스트: <b class="${isSecure?'ok':'ng'}">${isSecure}</b></div>
+                <div class="row">speechSynthesis: <b class="${hasSS?'ok':'ng'}">${hasSS}</b></div>
+                <div class="row">SpeechRecognition: <b class="${hasSR?'ok':'ng'}">${hasSR}</b></div>
+                <div class="row">음성 목록: ${voiceList}</div>
+                <div class="row">마지막 발화 상태: <b>${lastSpeakStatus}</b></div>
+                ${lastSpeakError ? `<div class="row ng">에러: ${lastSpeakError}</div>` : ''}
+                <div class="row" style="font-size:0.7rem;color:#888;">UA: ${ua}</div>
+            `;
+        }
+        // 1초마다 자동 갱신
+        setInterval(updateDiag, 1000);
  
         /* ─────────────────────────────────────────────
            음성 인식
@@ -316,13 +417,12 @@
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
  
-            recognition.onstart = function() {
-                const micBtn = document.getElementById('mic-start-btn');
-                micBtn.classList.add('recording');
-                micBtn.innerHTML = '🎙️';
+            recognition.onstart = () => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.add('recording');
+                btn.innerHTML = '🎙️';
             };
- 
-            recognition.onresult = function(event) {
+            recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript.trim();
                 if (transcript) {
                     currentRecognizedText = transcript;
@@ -331,19 +431,15 @@
                     showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
                 }
             };
- 
-            recognition.onend = function() {
-                const micBtn = document.getElementById('mic-start-btn');
-                micBtn.classList.remove('recording');
-                micBtn.innerHTML = '🎤';
+            recognition.onend = () => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.remove('recording');
+                btn.innerHTML = '🎤';
             };
- 
-            recognition.onerror = function(event) {
-                console.error("Speech recognition error:", event.error);
-                const micBtn = document.getElementById('mic-start-btn');
-                micBtn.classList.remove('recording');
-                micBtn.innerHTML = '🎤';
-                
+            recognition.onerror = (event) => {
+                const btn = document.getElementById('mic-start-btn');
+                btn.classList.remove('recording');
+                btn.innerHTML = '🎤';
                 if (event.error === 'not-allowed') {
                     showToast("마이크 권한을 허용해 주세요.");
                 } else if (event.error === 'no-speech') {
@@ -352,141 +448,68 @@
                     showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
                 }
             };
-        } else {
-            document.getElementById('browser-warning').style.display = 'block';
-            document.getElementById('mic-start-btn').style.opacity = '0.5';
         }
  
-        function goScreen(screenId) {
+        document.getElementById('mic-start-btn').addEventListener('click', () => {
+            if (recognition) {
+                try { recognition.start(); } catch(e) {}
+            } else {
+                showToast("이 브라우저는 음성 인식을 지원하지 않아요.");
+            }
+        });
+ 
+        /* ─────────────────────────────────────────────
+           화면 전환
+        ───────────────────────────────────────────── */
+        function goScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
- 
         function showConfirmScreen() {
             const el = document.getElementById('confirm-text');
             el.innerText = currentRecognizedText;
             adjustTextSize(el, currentRecognizedText);
             goScreen('confirm-screen');
-            speakText(currentRecognizedText);
+            autoSpeak(currentRecognizedText);
         }
- 
         function goTraceScreen() {
             const el = document.getElementById('trace-text');
             el.innerText = currentRecognizedText;
             adjustTextSize(el, currentRecognizedText);
             goScreen('trace-screen');
         }
- 
         function retrySpeaking() {
             goScreen('home-screen');
             showToast("다시 한 번 말해 볼까요?");
         }
- 
         function adjustTextSize(element, text) {
+            // 글자 컨테이너(.word-display) 도 함께 크기 조절
+            const container = element.closest('.word-display');
             if (text.length <= 10) {
                 element.classList.remove('long-text');
                 element.classList.add('short-text');
+                if (container) {
+                    container.classList.remove('fit-long');
+                    container.classList.add('fit-short');
+                }
             } else {
                 element.classList.remove('short-text');
                 element.classList.add('long-text');
+                if (container) {
+                    container.classList.remove('fit-short');
+                    container.classList.add('fit-long');
+                }
             }
         }
- 
-        document.getElementById('mic-start-btn').addEventListener('click', () => {
-            if (recognition) {
-                try { recognition.start(); }
-                catch(e) { console.log("이미 인식 중입니다."); }
-            } else {
-                showToast("현재 브라우저에서는 사용할 수 없어요.");
-            }
-        });
- 
-        /* ─────────────────────────────────────────────
-           ⭐ TTS 실행 (S7 호환 강화 핵심) ⭐
-           1) cancel() 후 즉시 speak() 하면 안드로이드에서 씹힘
-              → 짧은 setTimeout 으로 큐 분리
-           2) voices 가 아직 로딩 안 됐으면 로드되길 기다림
-           3) onstart 이 일정 시간 안에 안 오면 1회 재시도
-           4) 14초 끊김 버그 → pause/resume 패치
-        ───────────────────────────────────────────── */
-        function speakText(textToSpeak) {
-            if (!window.speechSynthesis) return;
-            if (textToSpeak === undefined) textToSpeak = currentRecognizedText;
-            if (!textToSpeak) return;
- 
-            // voices 가 아직 안 들어왔다면 잠깐 기다려보기
-            if (!voicesReady) loadVoices();
- 
-            doSpeak(textToSpeak, 0);
-        }
- 
-        function doSpeak(text, attempt) {
-            try { window.speechSynthesis.cancel(); } catch(e) {}
- 
-            // ⭐ S7 핵심: cancel 직후 speak 하면 무음 → 100ms 딜레이
-            setTimeout(() => {
-                try {
-                    const u = new SpeechSynthesisUtterance(text);
-                    u.lang   = 'ko-KR';
-                    u.rate   = 0.8;
-                    u.pitch  = 1.2;
-                    u.volume = 1.0;
-                    if (koVoice) u.voice = koVoice;
- 
-                    let started = false;
- 
-                    u.onstart = () => {
-                        started = true;
-                        // 일부 안드로이드는 시작 직후 일시정지 상태 → 강제 재개
-                        try { window.speechSynthesis.resume(); } catch(e) {}
-                        androidResumePatch();
-                    };
-                    u.onend   = () => clearInterval(window._resumeTimer);
-                    u.onerror = (e) => {
-                        clearInterval(window._resumeTimer);
-                        console.warn('TTS error:', e.error);
-                    };
- 
-                    window.speechSynthesis.speak(u);
- 
-                    // 강제 resume (Android Chrome 의 paused 상태 진입 버그)
-                    try { window.speechSynthesis.resume(); } catch(e) {}
- 
-                    // ⭐ 700ms 안에 onstart 가 안 오면 1회 재시도
-                    setTimeout(() => {
-                        if (!started && attempt < 1) {
-                            console.log('TTS not started, retrying...');
-                            doSpeak(text, attempt + 1);
-                        }
-                    }, 700);
- 
-                } catch(e) {
-                    console.warn('speak failed:', e);
-                }
-            }, 100);
-        }
- 
-        // Android Chrome 14초 끊김 버그 우회
-        function androidResumePatch() {
-            clearInterval(window._resumeTimer);
-            window._resumeTimer = setInterval(() => {
-                if (!window.speechSynthesis.speaking) {
-                    clearInterval(window._resumeTimer);
-                    return;
-                }
-                try {
-                    window.speechSynthesis.pause();
-                    window.speechSynthesis.resume();
-                } catch(e) {}
-            }, 10000);
-        }
- 
         function showToast(message) {
             const toast = document.getElementById('toast-msg');
             toast.innerText = message;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
+ 
+        // 초기 진단 갱신
+        updateDiag();
     </script>
 </body>
 </html>
