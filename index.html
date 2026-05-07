@@ -1,1672 +1,239 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import {
-  Search,
-  X,
-  ExternalLink,
-  Menu,
-  Sparkles,
-  Filter as FilterIcon,
-  RotateCcw,
-  ArrowRight,
-  ArrowDown,
-  ChevronRight,
-  Tag,
-  BookOpen,
-  Lightbulb,
-  Compass,
-  Share2,
-  Repeat,
-  Heart,
-  Smile,
-  Tablet,
-  Monitor,
-  Laptop,
-  Bot,
-  Camera,
-  Users,
-  Sprout,
-  PartyPopper,
-  PlayCircle,
-  Info,
-} from "lucide-react";
-
-/* =========================================================
-   영일유치원 교육자료 나눔터
-   - 단일 React 컴포넌트
-   - Tailwind core utilities 사용
-   - 외부 이미지 없이 구성 (이모지 + CSS 도형)
-   ========================================================= */
-
-const COLORS = {
-  bg: "#FFF8EC",
-  bgSoft: "#FFFDF6",
-  yellow: "#FFD86B",
-  yellowSoft: "#FFEFC2",
-  green: "#9DDC9A",
-  greenSoft: "#D6F0D5",
-  sky: "#9EDCFF",
-  skySoft: "#DCF2FF",
-  pink: "#FFB7C5",
-  pinkSoft: "#FFE3EA",
-  purple: "#C9B8F2",
-  purpleSoft: "#E7DEFB",
-  text: "#333333",
-  textMuted: "#6B6B6B",
-  card: "#FFFFFF",
-  border: "#F1E7CF",
-};
-
-const FONT_STACK =
-  "'Gowun Dodum', 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', system-ui, sans-serif";
-
-const FONT_DISPLAY =
-  "'Jua', 'Gowun Dodum', 'Apple SD Gothic Neo', 'Pretendard', sans-serif";
-
-/* ===== 자료 데이터 =====
-   새 자료를 추가하려면 이 배열에 객체를 하나 추가하세요. */
-const sampleResources = [
-  {
-    id: 1,
-    title: "그림책 「곰돌이의 질문」 질문카드",
-    description: "곰돌이의 호기심에서 출발하는 우리들의 질문 나누기 카드 세트",
-    longDescription:
-      "그림책 「곰돌이의 질문」을 함께 읽은 뒤, 유아들이 자신의 궁금증을 자유롭게 표현할 수 있도록 돕는 질문카드 세트입니다. 카드에는 열린 질문이 담겨 있어 정답이 아닌 생각을 나누는 데 초점을 둡니다.",
-    tags: ["그림책", "질문놀이", "감정나눔", "카드놀이"],
-    age: "5세",
-    type: "질문카드",
-    topic: "그림책",
-    device: ["태블릿", "전자칠판"],
-    playOnStage: "L",
-    icon: "🧸",
-    accent: "yellow",
-    link: "https://example.com/bear-questions",
-    recentlyAdded: true,
-    materials: "태블릿 또는 전자칠판 · 질문카드 PDF · 그림책 「곰돌이의 질문」",
-    howToUse:
-      "① 그림책을 함께 천천히 읽어요. ② 질문카드를 한 장씩 펼쳐 이야기를 나눠요. ③ 우리만의 새로운 질문을 만들어 빈 카드에 적어봐요.",
-    teacherTip:
-      "정답을 찾기보다 유아의 표현을 끝까지 들어주세요. \"왜 그렇게 생각했어?\"라는 후속 질문이 생각을 확장해줍니다.",
-  },
-  {
-    id: 2,
-    title: "AI 동물 탐험가 웹앱",
-    description: "사진을 찍으면 AI가 동물 친구를 알려주는 탐구 웹앱",
-    longDescription:
-      "유아가 직접 찍은 동물 사진이나 그림을 AI가 인식하여 이름과 특징을 들려주는 탐구 중심 웹앱입니다. 동물에 대한 호기심을 즉각적으로 확장할 수 있도록 설계되었습니다.",
-    tags: ["AI", "동물", "탐구", "웹앱", "사진"],
-    age: "5세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["태블릿", "PC", "카메라"],
-    playOnStage: "A",
-    icon: "🦊",
-    accent: "green",
-    link: "https://example.com/ai-animal",
-    recentlyAdded: true,
-    materials: "태블릿 또는 PC · 인터넷 연결 · 동물 사진 또는 그림",
-    howToUse:
-      "① 산책길이나 책 속 동물 사진을 찍어요. ② 웹앱에 사진을 올려요. ③ AI 친구가 알려준 정보를 함께 듣고 더 궁금한 점을 적어봐요.",
-    teacherTip:
-      "AI가 알려주는 정보를 정답처럼 받아들이지 말고, 「진짜 그럴까?」 함께 확인해보는 과정으로 안내해주세요.",
-  },
-  {
-    id: 3,
-    title: "우리동네 가게놀이 활동안",
-    description: "동네 가게를 탐색하고 교실에서 펼쳐보는 통합 활동안",
-    longDescription:
-      "우리 동네 가게를 직접 탐방하고, 교실에서 가게놀이로 확장하는 5차시 통합 활동안입니다. 사회·언어·수학적 경험이 자연스럽게 어우러집니다.",
-    tags: ["가게놀이", "사회", "통합활동", "지역사회"],
-    age: "4세",
-    type: "활동안",
-    topic: "가게놀이",
-    device: ["전자칠판", "PC"],
-    playOnStage: "A",
-    icon: "🏪",
-    accent: "pink",
-    link: "https://example.com/store-play",
-    recentlyAdded: false,
-    materials: "활동안 PDF · 가게 간판 도안 · 모형 화폐 · 역할 명찰",
-    howToUse:
-      "① 동네 산책으로 가게를 살펴봐요. ② 어떤 가게를 만들지 의논해요. ③ 간판과 물건을 만들어요. ④ 손님과 주인이 되어 놀이해요. ⑤ 놀이 후 이야기 나눠요.",
-    teacherTip:
-      "유아가 만들고 싶어하는 가게가 따로 있다면 활동안의 순서를 자유롭게 바꿔도 좋습니다.",
-  },
-  {
-    id: 4,
-    title: "유아 생태놀이 카메라 미션",
-    description: "산책길에서 만나는 작은 생명을 카메라에 담아보는 미션 카드",
-    longDescription:
-      "산책길에서 유아가 카메라로 자연을 관찰하고 기록할 수 있도록 안내하는 미션 카드 세트입니다. 자연을 자세히 들여다보는 시선을 길러줍니다.",
-    tags: ["생태", "산책", "카메라", "관찰", "자연"],
-    age: "혼합연령",
-    type: "놀이자료",
-    topic: "생태놀이",
-    device: ["카메라", "태블릿"],
-    playOnStage: "A",
-    icon: "🌿",
-    accent: "green",
-    link: "https://example.com/eco-camera",
-    recentlyAdded: false,
-    materials: "어린이용 카메라 또는 태블릿 · 미션 카드 PDF · 산책 가방",
-    howToUse:
-      "① 미션 카드를 한 장 뽑아요. ② 산책길에서 미션을 수행하며 사진을 찍어요. ③ 교실에 돌아와 사진을 함께 보며 이야기 나눠요.",
-    teacherTip:
-      "「가장 작은 것」, 「가장 푸른 것」처럼 비교 미션을 추가하면 관찰력이 훨씬 풍부해집니다.",
-  },
-  {
-    id: 5,
-    title: "그림책 「내 마음의 색깔」 감정카드",
-    description: "그림책 속 색깔로 내 마음을 표현해보는 감정 카드",
-    longDescription:
-      "그림책 「내 마음의 색깔」을 읽고, 자신의 감정을 색깔로 표현하며 친구의 마음도 함께 들여다볼 수 있도록 돕는 감정 카드입니다.",
-    tags: ["그림책", "감정", "표현", "사회정서"],
-    age: "4세",
-    type: "질문카드",
-    topic: "그림책",
-    device: ["전자칠판"],
-    playOnStage: "P",
-    icon: "🎨",
-    accent: "pink",
-    link: "https://example.com/feeling-colors",
-    recentlyAdded: false,
-    materials: "전자칠판 · 감정카드 PDF · 색연필 · 그림책",
-    howToUse:
-      "① 그림책을 함께 읽어요. ② 오늘 내 마음의 색깔을 골라요. ③ 친구의 마음 색깔도 들어보고 함께 이야기 나눠요.",
-    teacherTip:
-      "유아가 고른 색깔에 대해 「왜 그 색이야?」 묻기보다, 「그 색은 어떤 느낌이야?」로 물으면 표현이 풍부해집니다.",
-  },
-  {
-    id: 6,
-    title: "신체놀이 음악 영상 모음",
-    description: "교실에서 바로 따라할 수 있는 짧은 신체놀이 영상 자료",
-    longDescription:
-      "전자칠판으로 함께 보며 따라할 수 있는 5분 내외의 신체놀이 영상 모음입니다. 비 오는 날, 짧은 전이시간 등에 활용하기 좋습니다.",
-    tags: ["신체놀이", "음악", "영상", "전이활동"],
-    age: "3세",
-    type: "영상자료",
-    topic: "신체놀이",
-    device: ["전자칠판"],
-    playOnStage: "P",
-    icon: "🎵",
-    accent: "sky",
-    link: "https://example.com/movement-videos",
-    recentlyAdded: true,
-    materials: "전자칠판 또는 TV · 충분한 활동 공간",
-    howToUse:
-      "① 영상 목록에서 오늘의 활동을 골라요. ② 다같이 따라해봐요. ③ 우리만의 동작을 추가해 변형해봐요.",
-    teacherTip:
-      "유아가 만든 동작을 영상처럼 촬영해 학급 영상으로 만들어보면 표현활동으로 확장됩니다.",
-  },
-  {
-    id: 7,
-    title: "우리들의 그림책 만들기",
-    description: "학급의 이야기를 모아 한 권의 그림책으로 엮어내는 활동",
-    longDescription:
-      "유아들이 함께 만든 이야기를 모아 한 권의 학급 그림책으로 엮어내는 통합 언어 활동입니다. 자신의 표현이 의미 있게 공유되는 경험을 제공합니다.",
-    tags: ["언어", "그림책 만들기", "표현", "공유"],
-    age: "5세",
-    type: "활동안",
-    topic: "언어놀이",
-    device: ["태블릿", "PC"],
-    playOnStage: "Y",
-    icon: "📖",
-    accent: "yellow",
-    link: "https://example.com/our-storybook",
-    recentlyAdded: false,
-    materials: "태블릿 또는 PC · 그림 도구 · 인쇄용 종이 · 제본 도구",
-    howToUse:
-      "① 우리 반의 이야기 주제를 정해요. ② 각자 한 장면을 그리고 글을 써요. ③ 한 권으로 엮어 모두에게 읽어줘요.",
-    teacherTip:
-      "글을 쓰기 어려운 유아는 음성으로 녹음한 뒤 교사가 옆에 적어주는 방식이 좋습니다.",
-  },
-  {
-    id: 8,
-    title: "AI 그림 친구 만들기 웹앱",
-    description: "내가 그린 그림을 AI 친구로 만들어 대화해보는 웹앱",
-    longDescription:
-      "유아가 그린 캐릭터에 이름과 성격을 붙이면 AI 친구가 되어 짧은 대화를 나눌 수 있는 웹앱입니다. 표현과 상상력을 자극합니다.",
-    tags: ["AI", "그림", "캐릭터", "대화", "상상"],
-    age: "5세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["태블릿"],
-    playOnStage: "A",
-    icon: "🤖",
-    accent: "purple",
-    link: "https://example.com/ai-friend",
-    recentlyAdded: true,
-    materials: "태블릿 · 인터넷 연결 · 유아의 그림",
-    howToUse:
-      "① 종이에 친구를 그려요. ② 사진을 찍어 웹앱에 올려요. ③ 이름·성격을 입력하고 친구와 대화해요.",
-    teacherTip:
-      "AI 친구의 답변을 그대로 받아들이기보다, 「우리는 어떻게 답할까?」 함께 비교해보세요.",
-  },
-  {
-    id: 9,
-    title: "로봇과 함께하는 길찾기 놀이",
-    description: "교실 바닥에 그린 길을 로봇과 함께 따라가보는 코딩놀이",
-    longDescription:
-      "교실 바닥에 그린 길을 따라 로봇을 움직여보는 신체·코딩 통합 놀이입니다. 방향과 순서 개념을 자연스럽게 익힙니다.",
-    tags: ["로봇", "코딩", "방향", "신체"],
-    age: "5세",
-    type: "놀이자료",
-    topic: "디지털놀이",
-    device: ["로봇", "태블릿"],
-    playOnStage: "ON",
-    icon: "🤖",
-    accent: "sky",
-    link: "https://example.com/robot-path",
-    recentlyAdded: false,
-    materials: "교육용 로봇 · 마스킹 테이프 · 길 카드 · 태블릿",
-    howToUse:
-      "① 바닥에 길을 만들어요. ② 로봇이 갈 길을 함께 의논해요. ③ 명령을 입력하고 결과를 확인해요.",
-    teacherTip:
-      "로봇이 길을 벗어나도 「왜 그랬을까?」 함께 살펴보는 과정이 가장 큰 배움이 됩니다.",
-  },
-  {
-    id: 10,
-    title: "가정연계 안내문 - 그림책 놀이",
-    description: "가정에서 부모님과 함께 이어갈 수 있는 그림책 놀이 안내문",
-    longDescription:
-      "유치원에서 한 그림책 놀이를 가정에서도 자연스럽게 이어갈 수 있도록 안내하는 부모용 자료입니다. 인쇄 또는 모바일 발송 모두 가능합니다.",
-    tags: ["가정연계", "그림책", "부모", "안내문"],
-    age: "혼합연령",
-    type: "안내문",
-    topic: "그림책",
-    device: ["PC"],
-    playOnStage: "ON",
-    icon: "💌",
-    accent: "pink",
-    link: "https://example.com/home-guide",
-    recentlyAdded: false,
-    materials: "안내문 PDF · 인쇄 또는 모바일 전송",
-    howToUse:
-      "① 이번 주 그림책 놀이를 안내문에 정리해요. ② 가정에 발송해요. ③ 가정의 이야기를 다시 학급으로 가져와 나눠요.",
-    teacherTip:
-      "안내문에 부모님께 드리는 짧은 「열린 질문」을 함께 넣으면 가정과의 대화가 더 풍성해집니다.",
-  },
-];
-
-/* ===== 필터 옵션 ===== */
-const FILTER_OPTIONS = {
-  age: ["전체", "3세", "4세", "5세", "혼합연령"],
-  topic: [
-    "전체",
-    "그림책",
-    "질문놀이",
-    "디지털놀이",
-    "생태놀이",
-    "언어놀이",
-    "신체놀이",
-    "가게놀이",
-  ],
-};
-
-const FILTER_LABELS = {
-  age: "연령",
-  topic: "주제",
-};
-
-/* ===== PLAY-ON 단계 정보 ===== */
-const PLAY_ON_STAGES = [
-  {
-    key: "P",
-    name: "그림책 만나기",
-    desc: "그림책과 놀이로 새로운 세계를 만나요.",
-    color: COLORS.pink,
-    soft: COLORS.pinkSoft,
-    icon: BookOpen,
-  },
-  {
-    key: "L",
-    name: "질문하기",
-    desc: "궁금한 점을 자유롭게 묻고 함께 이야기 나눠요.",
-    color: COLORS.yellow,
-    soft: COLORS.yellowSoft,
-    icon: Lightbulb,
-  },
-  {
-    key: "A",
-    name: "탐구하기",
-    desc: "AI·디지털 도구로 깊이 있게 탐구하고 표현해요.",
-    color: COLORS.green,
-    soft: COLORS.greenSoft,
-    icon: Compass,
-  },
-  {
-    key: "Y",
-    name: "나누기",
-    desc: "친구와 가족, 지역사회와 함께 이야기를 나눠요.",
-    color: COLORS.sky,
-    soft: COLORS.skySoft,
-    icon: Share2,
-  },
-  {
-    key: "ON",
-    name: "일반화하기",
-    desc: "배움을 일상의 놀이와 삶으로 이어가요.",
-    color: COLORS.purple,
-    soft: COLORS.purpleSoft,
-    icon: Repeat,
-  },
-];
-
-/* ===== 액센트 색상 매핑 ===== */
-const ACCENT_MAP = {
-  yellow: { bg: COLORS.yellowSoft, dot: COLORS.yellow },
-  green: { bg: COLORS.greenSoft, dot: COLORS.green },
-  sky: { bg: COLORS.skySoft, dot: COLORS.sky },
-  pink: { bg: COLORS.pinkSoft, dot: COLORS.pink },
-  purple: { bg: COLORS.purpleSoft, dot: COLORS.purple },
-};
-
-const DEVICE_ICON = {
-  태블릿: Tablet,
-  전자칠판: Monitor,
-  PC: Laptop,
-  로봇: Bot,
-  카메라: Camera,
-};
-
-/* =========================================================
-   메인 컴포넌트
-   ========================================================= */
-export default function YeongilShareSite() {
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({
-    age: "전체",
-    topic: "전체",
-  });
-  const [activeModal, setActiveModal] = useState(null);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
-
-  const resourcesRef = useRef(null);
-  const latestRef = useRef(null);
-  const guideRef = useRef(null);
-  const homeRef = useRef(null);
-
-  /* 모달 열렸을 때 esc 키, 스크롤 잠금 */
-  useEffect(() => {
-    if (!activeModal) return;
-    const handler = (e) => {
-      if (e.key === "Escape") setActiveModal(null);
-    };
-    document.addEventListener("keydown", handler);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handler);
-      document.body.style.overflow = prev;
-    };
-  }, [activeModal]);
-
-  /* Google Fonts (Gowun Dodum + Jua) 동적 로드 */
-  useEffect(() => {
-    if (document.querySelector('link[data-yeongil-font="1"]')) return;
-    const preconnect1 = document.createElement("link");
-    preconnect1.rel = "preconnect";
-    preconnect1.href = "https://fonts.googleapis.com";
-    preconnect1.setAttribute("data-yeongil-font", "1");
-    const preconnect2 = document.createElement("link");
-    preconnect2.rel = "preconnect";
-    preconnect2.href = "https://fonts.gstatic.com";
-    preconnect2.crossOrigin = "anonymous";
-    preconnect2.setAttribute("data-yeongil-font", "1");
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap";
-    link.setAttribute("data-yeongil-font", "1");
-    document.head.append(preconnect1, preconnect2, link);
-  }, []);
-
-  const scrollTo = (ref) => {
-    setMobileNavOpen(false);
-    if (ref?.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  /* 필터 적용 */
-  const filtered = useMemo(() => {
-    return sampleResources.filter((r) => {
-      if (filters.age !== "전체" && r.age !== filters.age) return false;
-      if (filters.topic !== "전체" && r.topic !== filters.topic) return false;
-      if (search.trim()) {
-        const q = search.trim().toLowerCase();
-        const hay =
-          r.title.toLowerCase() +
-          " " +
-          r.description.toLowerCase() +
-          " " +
-          (r.tags || []).join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [filters, search]);
-
-  const recent = useMemo(
-    () => sampleResources.filter((r) => r.recentlyAdded),
-    []
-  );
-
-  const activeFilterChips = Object.entries(filters)
-    .filter(([, v]) => v !== "전체")
-    .map(([k, v]) => ({ key: k, value: v }));
-
-  const resetFilters = () => {
-    setFilters({
-      age: "전체",
-      topic: "전체",
-    });
-    setSearch("");
-  };
-
-  const openResource = (link) => {
-    if (link) window.open(link, "_blank", "noopener,noreferrer");
-  };
-
-  return (
-    <div
-      style={{
-        backgroundColor: COLORS.bg,
-        color: COLORS.text,
-        fontFamily: FONT_STACK,
-      }}
-      className="min-h-screen w-full"
-      ref={homeRef}
-    >
-      {/* ============== 상단 고정 메뉴 ============== */}
-      <Header
-        onMenuClick={() => setMobileNavOpen((v) => !v)}
-        mobileNavOpen={mobileNavOpen}
-        scrollTo={scrollTo}
-        targets={{
-          home: homeRef,
-          latest: latestRef,
-          resources: resourcesRef,
-          guide: guideRef,
-        }}
-      />
-
-      {/* ============== Hero ============== */}
-      <Hero
-        onPrimary={() => scrollTo(latestRef)}
-        onSecondary={() => scrollTo(guideRef)}
-      />
-
-      {/* ============== 자료 특징 3카드 ============== */}
-      <FeatureCards />
-
-      {/* ============== 새로 올라온 자료 ============== */}
-      <section ref={latestRef} className="px-5 sm:px-8 lg:px-16 pt-16 pb-6">
-        <div className="max-w-7xl mx-auto">
-          <SectionTitle
-            kicker="LATEST"
-            title="새로 올라온 자료"
-            sub="가장 최근에 추가된 따끈따끈한 자료들이에요."
-            color={COLORS.pink}
-          />
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {recent.map((r) => (
-              <ResourceCard
-                key={r.id}
-                resource={r}
-                onDetail={() => setActiveModal(r)}
-                onRun={() => openResource(r.link)}
-                isNewBadge
-              />
-            ))}
-          </div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영일유치원 - 꿈과 희망이 자라는 곳</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: #FFF9E6;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        .font-pen { font-family: 'Nanum Pen Script', cursive; }
+ 
+        .bounce-slow { animation: bounce 3s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(0); }
+        }
+ 
+        .play-card {
+            transition: all 0.3s ease;
+        }
+        .play-card:hover {
+            transform: translateY(-6px);
+        }
+        .play-card:hover .arrow {
+            transform: translateX(8px);
+        }
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+ 
+    <!-- 네비게이션 -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center">
+        <a href="index.html" class="text-3xl font-bold text-yellow-500 flex items-center gap-2">
+            <span class="text-4xl">☀️</span> 영일유치원
+        </a>
+        <div class="hidden md:flex gap-6 text-xl">
+            <a href="#play-list" class="hover:text-yellow-500 transition">놀이 목록</a>
         </div>
-      </section>
-
-      {/* ============== 검색 + 필터 + 자료 그리드 ============== */}
-      <section ref={resourcesRef} className="px-5 sm:px-8 lg:px-16 pt-16 pb-12">
-        <div className="max-w-7xl mx-auto">
-          <SectionTitle
-            kicker="RESOURCES"
-            title="자료 찾아보기"
-            sub="검색과 필터로 우리 반에 꼭 맞는 자료를 빠르게 찾아보세요."
-            color={COLORS.green}
-          />
-
-          <SearchAndFilter
-            search={search}
-            setSearch={setSearch}
-            filters={filters}
-            setFilters={setFilters}
-            activeChips={activeFilterChips}
-            resetFilters={resetFilters}
-            filterPanelOpen={filterPanelOpen}
-            setFilterPanelOpen={setFilterPanelOpen}
-          />
-
-          <div className="mt-6 flex items-center justify-between text-sm">
-            <p style={{ color: COLORS.textMuted }}>
-              총 <strong style={{ color: COLORS.text }}>{filtered.length}</strong>개의
-              자료가 있어요
-            </p>
-          </div>
-
-          <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.length > 0 ? (
-              filtered.map((r) => (
-                <ResourceCard
-                  key={r.id}
-                  resource={r}
-                  onDetail={() => setActiveModal(r)}
-                  onRun={() => openResource(r.link)}
-                />
-              ))
-            ) : (
-              <EmptyState onReset={resetFilters} />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ============== 활용안내 ============== */}
-      <section ref={guideRef} className="px-5 sm:px-8 lg:px-16 py-16">
-        <div className="max-w-7xl mx-auto">
-          <SectionTitle
-            kicker="HOW TO USE"
-            title="자료는 이렇게 활용해요"
-            sub="누구나 쉽게 따라 할 수 있는 3단계 활용 흐름이에요."
-            color={COLORS.sky}
-          />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "원하는 자료를 검색해요",
-                desc: "주제, 그림책, 연령으로 필요한 자료를 빠르게 찾아보세요.",
-                color: COLORS.yellow,
-                soft: COLORS.yellowSoft,
-                icon: Search,
-              },
-              {
-                step: "02",
-                title: "실행하기 버튼을 눌러 자료를 열어요",
-                desc: "태블릿·전자칠판·PC 어디서든 바로 실행할 수 있어요.",
-                color: COLORS.green,
-                soft: COLORS.greenSoft,
-                icon: PlayCircle,
-              },
-              {
-                step: "03",
-                title: "우리 반 놀이 상황에 맞게 활용해요",
-                desc: "유아의 흥미와 학급의 상황에 따라 자유롭게 변형해보세요.",
-                color: COLORS.pink,
-                soft: COLORS.pinkSoft,
-                icon: PartyPopper,
-              },
-            ].map((g) => {
-              const Icon = g.icon;
-              return (
-                <div
-                  key={g.step}
-                  className="rounded-3xl p-7 transition-transform duration-200 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: COLORS.card,
-                    boxShadow: "0 10px 28px rgba(120, 100, 60, 0.08)",
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-5">
-                    <div
-                      className="px-3 py-1 rounded-full text-xs font-bold tracking-widest"
-                      style={{ backgroundColor: g.soft, color: COLORS.text }}
-                    >
-                      STEP {g.step}
-                    </div>
-                    <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                      style={{ backgroundColor: g.soft }}
-                    >
-                      <Icon size={22} strokeWidth={2.2} />
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-bold mb-2 leading-snug">
-                    {g.title}
-                  </h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: COLORS.textMuted }}
-                  >
-                    {g.desc}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <div
-            className="mt-8 rounded-2xl px-5 py-4 flex items-start gap-3 text-sm leading-relaxed"
-            style={{
-              backgroundColor: COLORS.yellowSoft,
-              color: COLORS.text,
-            }}
-          >
-            <Info size={18} className="mt-0.5 flex-shrink-0" />
-            <p>
-              자료는 유아의 놀이 흐름과 학급 상황에 맞게 자유롭게 변형하여
-              활용할 수 있습니다.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ============== Footer ============== */}
-      <Footer />
-
-      {/* ============== 상세 모달 ============== */}
-      {activeModal && (
-        <DetailModal
-          resource={activeModal}
-          onClose={() => setActiveModal(null)}
-          onRun={() => openResource(activeModal.link)}
-        />
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
-   헤더
-   ========================================================= */
-function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
-  const navItems = [
-    { label: "홈", ref: targets.home },
-    { label: "최신자료", ref: targets.latest },
-    { label: "자료찾기", ref: targets.resources },
-    { label: "활용안내", ref: targets.guide },
-  ];
-
-  return (
-    <header
-      className="sticky top-0 z-40 w-full backdrop-blur-md"
-      style={{
-        backgroundColor: "rgba(255, 248, 236, 0.85)",
-        borderBottom: `1px solid ${COLORS.border}`,
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-16 h-16 flex items-center justify-between">
-        {/* 로고 */}
-        <button
-          onClick={() => scrollTo(targets.home)}
-          className="flex items-center gap-2 group focus:outline-none focus-visible:ring-2 rounded-xl px-2 py-1"
-          style={{ color: COLORS.text }}
-        >
-          <span
-            className="w-9 h-9 rounded-2xl flex items-center justify-center text-lg shadow-sm group-hover:rotate-6 transition-transform"
-            style={{ backgroundColor: COLORS.yellow }}
-          >
-            🌼
-          </span>
-          <span className="font-extrabold text-[15px] sm:text-base whitespace-nowrap">
-            영일유치원 <span className="hidden sm:inline">교육자료 </span>나눔터
-          </span>
+        <button class="bg-yellow-400 text-white px-6 py-2 rounded-full text-lg hover:bg-yellow-500 transition shadow-md">
+            입학상담
         </button>
-
-        {/* 데스크탑 메뉴 */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => scrollTo(item.ref)}
-              className="px-3 py-2 rounded-full text-sm font-medium hover:bg-white/70 transition-colors focus:outline-none focus-visible:ring-2"
-              style={{ color: COLORS.text }}
-            >
-              {item.label}
-            </button>
-          ))}
-          <button
-            onClick={() => scrollTo(targets.resources)}
-            className="ml-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2"
-            style={{
-              backgroundColor: COLORS.text,
-              color: "#FFFFFF",
-            }}
-          >
-            자료 바로 보기
-            <ArrowRight size={16} />
-          </button>
-        </nav>
-
-        {/* 모바일 햄버거 */}
-        <button
-          onClick={onMenuClick}
-          className="md:hidden p-2 rounded-xl focus:outline-none focus-visible:ring-2"
-          style={{ color: COLORS.text }}
-          aria-label="메뉴 열기"
-        >
-          {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
-
-      {/* 모바일 펼침 메뉴 */}
-      {mobileNavOpen && (
-        <div
-          className="md:hidden border-t"
-          style={{
-            backgroundColor: COLORS.bg,
-            borderColor: COLORS.border,
-          }}
-        >
-          <div className="px-5 py-4 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => scrollTo(item.ref)}
-                className="text-left px-4 py-3 rounded-xl font-medium hover:bg-white"
-              >
-                {item.label}
-              </button>
-            ))}
-            <button
-              onClick={() => scrollTo(targets.resources)}
-              className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold"
-              style={{ backgroundColor: COLORS.text, color: "#FFFFFF" }}
-            >
-              자료 바로 보기 <ArrowRight size={16} />
-            </button>
-          </div>
+    </nav>
+ 
+    <!-- 메인 히어로 섹션 -->
+    <header class="h-screen flex flex-col items-center justify-center text-center px-4 pt-16 relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-64 h-64 bg-pink-200 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute bottom-20 -right-10 w-80 h-80 bg-blue-200 rounded-full blur-3xl opacity-50"></div>
+ 
+        <h1 class="text-6xl md:text-8xl font-bold text-yellow-500 mb-6 drop-shadow-sm bounce-slow">
+            안녕! 영일유치원에 온 걸 <br>환영해! 🎈
+        </h1>
+        <p class="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl">
+            매일매일이 즐거운 모험과 배움으로 가득한 <br>우리들의 행복한 놀이터입니다.
+        </p>
+        <div class="flex gap-4">
+            <a href="#play-list" class="bg-pink-400 text-white text-xl px-8 py-4 rounded-3xl hover:bg-pink-500 transition shadow-xl">
+                놀이 보러가기! 🎨
+            </a>
         </div>
-      )}
+ 
+        <div class="mt-12 text-6xl">
+            🐥 👧 👦 🌈 🍎
+        </div>
     </header>
-  );
-}
-
-/* =========================================================
-   Hero
-   ========================================================= */
-function Hero({ onPrimary, onSecondary }) {
-  return (
-    <section className="relative overflow-hidden px-5 sm:px-8 lg:px-16 pt-12 pb-20 sm:pt-16 sm:pb-28">
-      {/* 배경 장식 */}
-      <DecorBlob
-        className="hidden md:block absolute -top-10 -left-10 w-72 h-72 rounded-full opacity-60"
-        color={COLORS.pinkSoft}
-      />
-      <DecorBlob
-        className="absolute -bottom-16 right-0 w-80 h-80 rounded-full opacity-50"
-        color={COLORS.skySoft}
-      />
-      <DecorBlob
-        className="hidden lg:block absolute top-32 right-72 w-40 h-40 rounded-full opacity-50"
-        color={COLORS.greenSoft}
-      />
-
-      <div className="relative max-w-7xl mx-auto">
-        {/* 텍스트 - 모바일 풀폭, lg+ 일러스트와 겹치도록 */}
-        <div className="relative z-10 lg:pr-44 xl:pr-56">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6"
-            style={{
-              backgroundColor: COLORS.yellowSoft,
-              color: COLORS.text,
-            }}
-          >
-            <Sparkles size={14} />
-            영일유치원 선생님들이 함께 만드는 교육자료
-          </div>
-
-          <h1
-            className="text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight"
-            style={{ color: COLORS.text, fontFamily: FONT_DISPLAY }}
-          >
-            아이들의 놀이가
-            <br />
-            <span className="relative inline-block">
-              배움이 되는
-              <span
-                className="absolute -bottom-1 left-0 right-0 h-3 -z-10 rounded-full"
-                style={{ backgroundColor: COLORS.yellow, opacity: 0.6 }}
-                aria-hidden
-              />
-            </span>{" "}
-            나눔의 공간
-          </h1>
-
-          <p
-            className="mt-6 text-base sm:text-lg leading-relaxed max-w-xl"
-            style={{ color: COLORS.textMuted }}
-          >
-            아이들의 놀이와 배움이 이어지는 AI·디지털 기반 교육자료를 함께
-            나눕니다. 그림책 질문놀이, 디지털 놀이자료, 웹앱까지 한곳에서
-            만나보세요.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              onClick={onPrimary}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm sm:text-base transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 shadow-md"
-              style={{ backgroundColor: COLORS.text, color: "#FFFFFF" }}
-            >
-              최신 자료 보기
-              <ArrowRight size={18} />
-            </button>
-            <button
-              onClick={onSecondary}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm sm:text-base transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2"
-              style={{
-                backgroundColor: "#FFFFFF",
-                color: COLORS.text,
-                border: `2px solid ${COLORS.text}`,
-              }}
-            >
-              활용 방법 보기
-            </button>
-          </div>
+ 
+    <!-- 놀이 목록 섹션 -->
+    <section id="play-list" class="py-24 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-5xl md:text-6xl font-bold text-center text-yellow-500 mb-4">🎨 놀이 목록</h2>
+            <p class="text-2xl text-gray-600 text-center mb-12">어떤 놀이가 궁금한가요? 카드를 눌러보세요!</p>
+ 
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 체조놀이 -->
+                <a href="gym.html" class="play-card block bg-blue-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-blue-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🤸</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-blue-600">영차영차 체조놀이</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">선생님과 함께 튼튼하게 몸을 움직여요!</p>
+                        <div class="arrow text-4xl text-blue-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 퍼즐놀이 -->
+                <a href="puzzle.html" class="play-card block bg-yellow-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-yellow-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🧩</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-orange-500">조각조각 퍼즐놀이</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">알록달록 퍼즐을 맞춰서 완성해 봐요!</p>
+                        <div class="arrow text-4xl text-orange-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 글자놀이 -->
+                <a href="cards.html" class="play-card block bg-pink-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-pink-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🔤</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-pink-600">뒤죽박죽 글자카드</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">카드를 뒤집어 숨은 단어를 찾아봐요!</p>
+                        <div class="arrow text-4xl text-pink-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 글자친구 -->
+                <a href="글자친구.html" class="play-card block bg-rose-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-rose-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🗣️</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-rose-600">글자 친구</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">말한 대로 글자가 되는 신기한 놀이!</p>
+                        <div class="arrow text-4xl text-rose-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 글자친구 모바일 -->
+                <a href="글자친구_모바일.html" class="play-card block bg-teal-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-teal-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">📱</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-teal-600">글자 친구 (모바일)</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">휴대폰으로도 즐기는 글자놀이!</p>
+                        <div class="arrow text-4xl text-teal-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 쏙쏙 글친구 -->
+                <a href="쏙쏙_글친구_글쓰기_도우미_.html" class="play-card block bg-violet-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-violet-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">✏️</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-violet-600">쏙쏙 글친구</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">글쓰기를 즐겁게 도와줄게요!</p>
+                        <div class="arrow text-4xl text-violet-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 같은 카드 찾기 -->
+                <a href="같은_카드_찾기_전담.html" class="play-card block bg-emerald-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-emerald-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🎴</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-emerald-600">같은 카드 찾기</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">짝꿍 카드를 찾아 맞춰봐요!</p>
+                        <div class="arrow text-4xl text-emerald-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 질문게임 -->
+                <a href="질문게임.html" class="play-card block bg-purple-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-purple-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">❓</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-purple-600">질문 게임</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">재미있는 질문에 대답해 봐요!</p>
+                        <div class="arrow text-4xl text-purple-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 딸기게임 -->
+                <a href="딸기게임.html" class="play-card block bg-red-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-red-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🍓</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-red-500">딸기 게임</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">달콤한 딸기를 모아봐요!</p>
+                        <div class="arrow text-4xl text-red-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 모종심기 -->
+                <a href="모종심기_순서_알아보기.html" class="play-card block bg-lime-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-lime-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🌱</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-lime-700">모종 심기</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">모종을 심는 순서를 배워봐요!</p>
+                        <div class="arrow text-4xl text-lime-500 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 장수풍뎅이 -->
+                <a href="장수풍뎅이_성장게임.html" class="play-card block bg-amber-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-amber-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🪲</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-amber-700">장수풍뎅이 키우기</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">장수풍뎅이를 무럭무럭 키워봐요!</p>
+                        <div class="arrow text-4xl text-amber-500 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 상자 던지기 -->
+                <a href="상자를_던져요_전담.html" class="play-card block bg-orange-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-orange-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🎯</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-orange-600">상자를 던져요</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">상자를 정확하게 던져봐요!</p>
+                        <div class="arrow text-4xl text-orange-400 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 상자 쌓기 -->
+                <a href="상자를_쌓아요_전담.html" class="play-card block bg-yellow-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-yellow-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🏗️</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-yellow-600">높이높이 상자쌓기</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">가장 긴 상자를 골라 높이 쌓아봐요!</p>
+                        <div class="arrow text-4xl text-yellow-500 mt-2">→</div>
+                    </div>
+                </a>
+ 
+                <!-- 소리 자동차 -->
+                <a href="소리로_달리는_자동차_전담.html" class="play-card block bg-sky-50 rounded-3xl p-8 shadow-md hover:shadow-2xl border-4 border-sky-200">
+                    <div class="flex flex-col items-center text-center gap-4">
+                        <div class="text-7xl md:text-8xl">🚗</div>
+                        <h3 class="text-3xl md:text-4xl font-bold text-sky-600">소리로 달리는 자동차</h3>
+                        <p class="text-xl md:text-2xl text-gray-600">소리로 자동차를 움직여봐요!</p>
+                        <div class="arrow text-4xl text-sky-400 mt-2">→</div>
+                    </div>
+                </a>
+            </div>
         </div>
-
-        {/* 일러스트 - 모바일은 텍스트 아래, lg+는 텍스트와 자연스럽게 겹치는 배경 장식 */}
-        <div
-          className="relative z-20 mt-12 mx-auto max-w-xs sm:max-w-sm lg:mt-0 lg:mx-0 lg:absolute lg:right-0 lg:top-4 xl:-top-2 lg:max-w-none lg:w-80 xl:w-96"
-        >
-          <HeroIllustration />
-        </div>
-      </div>
     </section>
-  );
-}
-
-function HeroIllustration() {
-  /* 카드 묶음 일러스트 - 텍스트 옆 작은 배경 장식 */
-  const cards = [
-    { emoji: "📚", bg: COLORS.pinkSoft, label: "그림책", rotate: "-6deg" },
-    { emoji: "❓", bg: COLORS.yellowSoft, label: "질문놀이", rotate: "4deg" },
-    { emoji: "🤖", bg: COLORS.skySoft, label: "AI 도구", rotate: "-3deg" },
-    { emoji: "🌱", bg: COLORS.greenSoft, label: "생태놀이", rotate: "6deg" },
-  ];
-  return (
-    <div className="relative h-64 sm:h-72 lg:h-80 flex items-center justify-center">
-      {/* 큰 원 - 부드럽게 */}
-      <div
-        className="absolute inset-6 rounded-full opacity-60"
-        style={{
-          background: `radial-gradient(circle at 30% 30%, ${COLORS.yellowSoft}, ${COLORS.pinkSoft})`,
-        }}
-        aria-hidden
-      />
-      {/* 점선 원 - 작게 */}
-      <div
-        className="absolute w-52 h-52 sm:w-56 sm:h-56 rounded-full"
-        style={{
-          border: `2px dashed ${COLORS.yellow}`,
-          opacity: 0.55,
-        }}
-        aria-hidden
-      />
-
-      {/* 카드 4개 - 작은 사이즈 */}
-      <div className="relative grid grid-cols-2 gap-3">
-        {cards.map((c) => (
-          <div
-            key={c.label}
-            className="rounded-2xl px-3 py-3 text-center"
-            style={{
-              backgroundColor: COLORS.card,
-              boxShadow: "0 10px 22px rgba(120, 100, 60, 0.12)",
-              transform: `rotate(${c.rotate})`,
-              minWidth: 90,
-            }}
-          >
-            <div
-              className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center text-xl mb-1"
-              style={{ backgroundColor: c.bg }}
-            >
-              {c.emoji}
+ 
+    <!-- 푸터 -->
+    <footer class="bg-gray-800 text-white py-12 px-4 text-center">
+        <div class="container mx-auto">
+            <h3 class="text-3xl font-bold mb-4 text-yellow-400">영일유치원</h3>
+            <p class="text-lg mb-2">부산광역시 행복구 희망동 123-45 (꿈자람길 7)</p>
+            <p class="text-lg mb-6">전화문의: 02-1234-5678</p>
+            <div class="flex justify-center gap-6 mb-8 text-3xl">
+                <span>📸</span> <span>📺</span> <span>💌</span>
             </div>
-            <div className="font-bold text-xs">{c.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* 작은 장식 - 위치 조정 */}
-      <FloatDot
-        className="top-4 right-6 w-5 h-5"
-        color={COLORS.green}
-        emoji="✨"
-      />
-      <FloatDot
-        className="bottom-6 left-2 w-6 h-6"
-        color={COLORS.pink}
-        emoji="❤"
-      />
-      <FloatDot
-        className="top-20 left-0 w-4 h-4"
-        color={COLORS.sky}
-      />
-      <FloatDot
-        className="bottom-16 right-1 w-4 h-4"
-        color={COLORS.yellow}
-      />
-    </div>
-  );
-}
-
-function FloatDot({ className, color, emoji }) {
-  return (
-    <span
-      className={`absolute rounded-full flex items-center justify-center text-xs ${className}`}
-      style={{ backgroundColor: color }}
-      aria-hidden
-    >
-      {emoji}
-    </span>
-  );
-}
-
-function DecorBlob({ className, color }) {
-  return (
-    <div
-      className={className}
-      style={{ backgroundColor: color, filter: "blur(4px)" }}
-      aria-hidden
-    />
-  );
-}
-
-/* =========================================================
-   3가지 특징 카드
-   ========================================================= */
-function FeatureCards() {
-  const features = [
-    {
-      title: "놀이에서 시작해요",
-      desc: "유아의 질문과 흥미에서 자연스럽게 출발하여 몰입을 돕는 교육자료입니다.",
-      color: COLORS.pink,
-      soft: COLORS.pinkSoft,
-      icon: Sparkles,
-    },
-    {
-      title: "바로 실행할 수 있어요",
-      desc: "복잡한 설치 없이 태블릿, 전자칠판, PC에서 링크 클릭 한 번으로 실행됩니다.",
-      color: COLORS.sky,
-      soft: COLORS.skySoft,
-      icon: PlayCircle,
-    },
-    {
-      title: "함께 나누고 확장해요",
-      desc: "학급의 놀이가 가정과 지역사회로 이어질 수 있도록 공유와 소통을 지원합니다.",
-      color: COLORS.green,
-      soft: COLORS.greenSoft,
-      icon: Share2,
-    },
-  ];
-  return (
-    <section className="px-5 sm:px-8 lg:px-16 -mt-6 sm:-mt-10 mb-4">
-      <div className="max-w-5xl mx-auto flex flex-col gap-4">
-        {features.map((f) => {
-          const Icon = f.icon;
-          return (
-            <div
-              key={f.title}
-              className="rounded-3xl px-6 py-7 sm:px-10 text-center transition-transform duration-200 hover:-translate-y-0.5"
-              style={{
-                backgroundColor: COLORS.card,
-                boxShadow: "0 10px 30px rgba(120, 100, 60, 0.08)",
-              }}
-            >
-              <div
-                className="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-4"
-                style={{ backgroundColor: f.soft, color: f.color }}
-              >
-                <Icon size={24} strokeWidth={2.4} />
-              </div>
-              <h3
-                className="text-lg sm:text-xl mb-2"
-                style={{ fontFamily: FONT_DISPLAY }}
-              >
-                {f.title}
-              </h3>
-              <p
-                className="text-sm sm:text-base leading-relaxed sm:whitespace-nowrap"
-                style={{ color: COLORS.textMuted }}
-              >
-                {f.desc}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* =========================================================
-   섹션 타이틀
-   ========================================================= */
-function SectionTitle({ kicker, title, sub, color }) {
-  return (
-    <div className="text-center max-w-2xl mx-auto">
-      <div
-        className="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold tracking-[0.2em] mb-3"
-        style={{
-          backgroundColor: COLORS.card,
-          color: COLORS.text,
-          border: `1.5px solid ${color}`,
-        }}
-      >
-        {kicker}
-      </div>
-      <h2
-        className="text-2xl sm:text-3xl tracking-tight"
-        style={{ fontFamily: FONT_DISPLAY }}
-      >
-        {title}
-      </h2>
-      {sub && (
-        <p
-          className="mt-3 text-sm sm:text-base leading-relaxed"
-          style={{ color: COLORS.textMuted }}
-        >
-          {sub}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
-   검색 + 필터
-   ========================================================= */
-function SearchAndFilter({
-  search,
-  setSearch,
-  filters,
-  setFilters,
-  activeChips,
-  resetFilters,
-  filterPanelOpen,
-  setFilterPanelOpen,
-}) {
-  return (
-    <div
-      className="mt-10 rounded-3xl p-5 sm:p-7"
-      style={{
-        backgroundColor: COLORS.card,
-        boxShadow: "0 10px 28px rgba(120, 100, 60, 0.08)",
-      }}
-    >
-      {/* 검색창 */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div
-          className="flex-1 flex items-center gap-2 rounded-full px-4 py-3"
-          style={{ backgroundColor: COLORS.bg }}
-        >
-          <Search size={18} style={{ color: COLORS.textMuted }} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="자료명, 그림책 제목, 놀이 주제를 검색해보세요"
-            className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-gray-400"
-            style={{ color: COLORS.text }}
-            aria-label="자료 검색"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="p-1 rounded-full hover:bg-white/60"
-              aria-label="검색어 지우기"
-            >
-              <X size={16} />
-            </button>
-          )}
+            <p class="text-gray-400 text-sm">© 2024 Yeong-il Kindergarten. All rights reserved.</p>
         </div>
-
-        <button
-          onClick={() => setFilterPanelOpen((v) => !v)}
-          className="sm:hidden inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full font-bold text-sm"
-          style={{
-            backgroundColor: filterPanelOpen ? COLORS.text : COLORS.yellow,
-            color: filterPanelOpen ? "#FFFFFF" : COLORS.text,
-          }}
-        >
-          <FilterIcon size={16} />
-          필터 {filterPanelOpen ? "접기" : "열기"}
-        </button>
-
-        <button
-          onClick={resetFilters}
-          className="hidden sm:inline-flex items-center gap-2 px-4 py-3 rounded-full font-medium text-sm hover:bg-gray-50"
-          style={{
-            color: COLORS.text,
-            border: `1.5px solid ${COLORS.border}`,
-          }}
-        >
-          <RotateCcw size={15} />
-          초기화
-        </button>
-      </div>
-
-      {/* 활성 필터 칩 */}
-      {(activeChips.length > 0 || search) && (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {search && (
-            <FilterChip
-              label={`검색: ${search}`}
-              onRemove={() => setSearch("")}
-              tone="text"
-            />
-          )}
-          {activeChips.map((c) => (
-            <FilterChip
-              key={c.key}
-              label={`${FILTER_LABELS[c.key]}: ${c.value}`}
-              onRemove={() =>
-                setFilters((f) => ({ ...f, [c.key]: "전체" }))
-              }
-            />
-          ))}
-          <button
-            onClick={resetFilters}
-            className="text-xs font-bold px-2 py-1 rounded-full underline underline-offset-2"
-            style={{ color: COLORS.textMuted }}
-          >
-            전체 초기화
-          </button>
-        </div>
-      )}
-
-      {/* 필터 그룹 (PC 항상 / 모바일 토글) */}
-      <div
-        className={`${
-          filterPanelOpen ? "block" : "hidden"
-        } sm:block mt-5 pt-5 border-t`}
-        style={{ borderColor: COLORS.border }}
-      >
-        <div className="grid sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-1 gap-5">
-          {Object.entries(FILTER_OPTIONS).map(([key, options]) => (
-            <FilterGroup
-              key={key}
-              label={FILTER_LABELS[key]}
-              options={options}
-              value={filters[key]}
-              onChange={(val) =>
-                setFilters((f) => ({ ...f, [key]: val }))
-              }
-            />
-          ))}
-        </div>
-
-        <div className="sm:hidden mt-4">
-          <button
-            onClick={resetFilters}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full font-medium text-sm"
-            style={{
-              color: COLORS.text,
-              border: `1.5px solid ${COLORS.border}`,
-            }}
-          >
-            <RotateCcw size={15} />
-            필터 초기화
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FilterChip({ label, onRemove, tone }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-xs font-bold"
-      style={{
-        backgroundColor: tone === "text" ? COLORS.text : COLORS.yellow,
-        color: tone === "text" ? "#FFFFFF" : COLORS.text,
-      }}
-    >
-      {label}
-      <button
-        onClick={onRemove}
-        className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-black/10"
-        aria-label={`${label} 제거`}
-      >
-        <X size={11} />
-      </button>
-    </span>
-  );
-}
-
-function FilterGroup({ label, options, value, onChange }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <span
-          className="text-xs font-extrabold tracking-wider"
-          style={{ color: COLORS.textMuted }}
-        >
-          {label.toUpperCase()}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {options.map((opt) => {
-          const active = value === opt;
-          return (
-            <button
-              key={opt}
-              onClick={() => onChange(opt)}
-              className="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all focus:outline-none focus-visible:ring-2"
-              style={{
-                backgroundColor: active ? COLORS.text : COLORS.bg,
-                color: active ? "#FFFFFF" : COLORS.text,
-                border: active ? "none" : `1.5px solid ${COLORS.border}`,
-              }}
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   자료 카드
-   ========================================================= */
-function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
-  const accent = ACCENT_MAP[resource.accent] || ACCENT_MAP.yellow;
-  const stage = PLAY_ON_STAGES.find((s) => s.key === resource.playOnStage);
-
-  return (
-    <article
-      className="rounded-3xl overflow-hidden flex flex-col transition-transform duration-200 hover:-translate-y-1"
-      style={{
-        backgroundColor: COLORS.card,
-        boxShadow: "0 10px 24px rgba(120, 100, 60, 0.08)",
-      }}
-    >
-      {/* 썸네일 */}
-      <div
-        className="relative h-36 flex items-center justify-center overflow-hidden"
-        style={{ backgroundColor: accent.bg }}
-      >
-        <div
-          className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full opacity-50"
-          style={{ backgroundColor: accent.dot }}
-          aria-hidden
-        />
-        <div
-          className="absolute -top-4 -left-4 w-16 h-16 rounded-full opacity-40"
-          style={{ backgroundColor: COLORS.card }}
-          aria-hidden
-        />
-        <span className="text-5xl relative z-10">{resource.icon}</span>
-
-        {isNewBadge && resource.recentlyAdded && (
-          <span
-            className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold"
-            style={{ backgroundColor: COLORS.text, color: "#FFFFFF" }}
-          >
-            <Sparkles size={11} />
-            NEW
-          </span>
-        )}
-
-        {stage && (
-          <span
-            className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold"
-            style={{
-              backgroundColor: COLORS.card,
-              color: COLORS.text,
-              border: `1.5px solid ${stage.color}`,
-            }}
-          >
-            <span style={{ color: stage.color }}>●</span>
-            {resource.playOnStage}
-          </span>
-        )}
-      </div>
-
-      {/* 본문 */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-bold text-base leading-snug mb-1.5">
-          {resource.title}
-        </h3>
-        <p
-          className="text-sm leading-relaxed mb-4"
-          style={{ color: COLORS.textMuted }}
-        >
-          {resource.description}
-        </p>
-
-        {/* 메타 정보 */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <MetaPill label={resource.age} color={COLORS.pinkSoft} />
-          <MetaPill label={resource.type} color={COLORS.yellowSoft} />
-          {resource.device.slice(0, 2).map((d) => {
-            const Ic = DEVICE_ICON[d];
-            return (
-              <span
-                key={d}
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: COLORS.skySoft,
-                  color: COLORS.text,
-                }}
-              >
-                {Ic && <Ic size={11} />}
-                {d}
-              </span>
-            );
-          })}
-        </div>
-
-        {/* 태그 */}
-        {resource.tags && resource.tags.length > 0 && (
-          <div
-            className="flex flex-wrap gap-1.5 mb-5 text-[11px]"
-            style={{ color: COLORS.textMuted }}
-          >
-            {resource.tags.map((t) => (
-              <span key={t}>#{t}</span>
-            ))}
-          </div>
-        )}
-
-        {/* 버튼 */}
-        <div className="mt-auto flex gap-2">
-          <button
-            onClick={onRun}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-bold transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2"
-            style={{ backgroundColor: COLORS.text, color: "#FFFFFF" }}
-          >
-            실행하기
-            <ExternalLink size={14} />
-          </button>
-          <button
-            onClick={onDetail}
-            className="px-4 py-2.5 rounded-full text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2"
-            style={{
-              backgroundColor: COLORS.bg,
-              color: COLORS.text,
-              border: `1.5px solid ${COLORS.border}`,
-            }}
-          >
-            자세히
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function MetaPill({ label, color }) {
-  return (
-    <span
-      className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-      style={{ backgroundColor: color, color: COLORS.text }}
-    >
-      {label}
-    </span>
-  );
-}
-
-/* =========================================================
-   비어있을 때
-   ========================================================= */
-function EmptyState({ onReset }) {
-  return (
-    <div
-      className="col-span-full text-center py-16 rounded-3xl"
-      style={{ backgroundColor: COLORS.card }}
-    >
-      <div
-        className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-3xl mb-3"
-        style={{ backgroundColor: COLORS.yellowSoft }}
-      >
-        🔎
-      </div>
-      <h3 className="font-bold mb-1">조건에 맞는 자료가 없어요</h3>
-      <p className="text-sm" style={{ color: COLORS.textMuted }}>
-        검색어나 필터를 변경해보세요.
-      </p>
-      <button
-        onClick={onReset}
-        className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm"
-        style={{ backgroundColor: COLORS.yellow, color: COLORS.text }}
-      >
-        <RotateCcw size={14} />
-        필터 초기화
-      </button>
-    </div>
-  );
-}
-
-/* =========================================================
-   상세 모달
-   ========================================================= */
-function DetailModal({ resource, onClose, onRun }) {
-  const accent = ACCENT_MAP[resource.accent] || ACCENT_MAP.yellow;
-  const stage = PLAY_ON_STAGES.find((s) => s.key === resource.playOnStage);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-      style={{ backgroundColor: "rgba(40, 30, 10, 0.45)" }}
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      <div
-        className="relative w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl"
-        style={{ backgroundColor: COLORS.card }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 헤더 (썸네일) */}
-        <div
-          className="relative px-7 pt-8 pb-6"
-          style={{ backgroundColor: accent.bg }}
-        >
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/70 focus:outline-none focus-visible:ring-2"
-            style={{ backgroundColor: "rgba(255,255,255,0.6)" }}
-            aria-label="닫기"
-          >
-            <X size={18} />
-          </button>
-
-          <div className="flex items-start gap-4">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-              style={{ backgroundColor: COLORS.card }}
-            >
-              {resource.icon}
-            </div>
-            <div className="flex-1 pr-8">
-              {stage && (
-                <span
-                  className="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1 rounded-full mb-2"
-                  style={{
-                    backgroundColor: COLORS.card,
-                    color: COLORS.text,
-                  }}
-                >
-                  <span style={{ color: stage.color }}>●</span>
-                  PLAY-ON · {resource.playOnStage} {stage.name}
-                </span>
-              )}
-              <h2
-                id="modal-title"
-                className="text-xl sm:text-2xl font-extrabold leading-tight"
-              >
-                {resource.title}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        {/* 본문 */}
-        <div className="px-6 sm:px-7 py-6 space-y-6">
-          <p
-            className="text-sm sm:text-base leading-relaxed"
-            style={{ color: COLORS.text }}
-          >
-            {resource.longDescription}
-          </p>
-
-          {/* 메타 그리드 */}
-          <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl"
-            style={{ backgroundColor: COLORS.bg }}
-          >
-            <ModalMeta label="대상 연령" value={resource.age} />
-            <ModalMeta label="자료 유형" value={resource.type} />
-            <ModalMeta label="활용 주제" value={resource.topic} />
-            <ModalMeta
-              label="활용 기기"
-              value={resource.device.join(", ")}
-            />
-          </div>
-
-          {/* 준비물 */}
-          <ModalSection
-            title="준비물"
-            color={COLORS.yellow}
-            text={resource.materials}
-          />
-
-          {/* 활용 방법 */}
-          <ModalSection
-            title="활용 방법"
-            color={COLORS.green}
-            text={resource.howToUse}
-          />
-
-          {/* 교사용 팁 */}
-          <ModalSection
-            title="교사용 팁"
-            color={COLORS.pink}
-            text={resource.teacherTip}
-          />
-
-          {/* 태그 */}
-          {resource.tags && (
-            <div
-              className="flex flex-wrap gap-1.5 text-xs"
-              style={{ color: COLORS.textMuted }}
-            >
-              {resource.tags.map((t) => (
-                <span key={t}>#{t}</span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 푸터 액션 */}
-        <div
-          className="sticky bottom-0 px-6 sm:px-7 py-4 border-t flex flex-col sm:flex-row gap-2"
-          style={{
-            backgroundColor: COLORS.card,
-            borderColor: COLORS.border,
-          }}
-        >
-          <button
-            onClick={onClose}
-            className="sm:flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm"
-            style={{
-              backgroundColor: COLORS.bg,
-              color: COLORS.text,
-              border: `1.5px solid ${COLORS.border}`,
-            }}
-          >
-            닫기
-          </button>
-          <button
-            onClick={onRun}
-            className="sm:flex-[2] inline-flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm"
-            style={{ backgroundColor: COLORS.text, color: "#FFFFFF" }}
-          >
-            실행하기
-            <ExternalLink size={15} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ModalMeta({ label, value }) {
-  return (
-    <div>
-      <div
-        className="text-[11px] font-bold mb-0.5 tracking-wider"
-        style={{ color: COLORS.textMuted }}
-      >
-        {label.toUpperCase()}
-      </div>
-      <div className="text-sm font-bold leading-snug">{value}</div>
-    </div>
-  );
-}
-
-function ModalSection({ title, color, text }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <span
-          className="w-1.5 h-5 rounded-full"
-          style={{ backgroundColor: color }}
-        />
-        <h3 className="font-extrabold text-sm tracking-tight">{title}</h3>
-      </div>
-      <p
-        className="text-sm leading-relaxed pl-3.5"
-        style={{ color: COLORS.text }}
-      >
-        {text}
-      </p>
-    </div>
-  );
-}
-
-/* =========================================================
-   푸터
-   ========================================================= */
-function Footer() {
-  return (
-    <footer
-      className="px-5 sm:px-8 lg:px-16 py-12 mt-4"
-      style={{
-        backgroundColor: COLORS.text,
-        color: "#FFFFFF",
-      }}
-    >
-      <div className="max-w-7xl mx-auto grid gap-8 md:grid-cols-2 items-start">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span
-              className="w-9 h-9 rounded-2xl flex items-center justify-center text-lg"
-              style={{ backgroundColor: COLORS.yellow }}
-            >
-              🌼
-            </span>
-            <span className="font-extrabold text-base">
-              영일유치원 교육자료 나눔터
-            </span>
-          </div>
-          <p className="text-sm opacity-80 leading-relaxed max-w-md">
-            아이들의 놀이와 배움이 이어지는 자료를 함께 나눕니다. 선생님들의
-            작은 자료가 모여 더 풍성한 배움이 됩니다.
-          </p>
-        </div>
-        <div className="md:text-right">
-          <div className="text-xs opacity-60 leading-relaxed">
-            © 영일유치원 교육자료 나눔터
-            <br />
-            본 자료는 교육적 활용을 목적으로 제작되었습니다.
-            <br />
-            상업적 사용 및 무단 배포를 금합니다.
-          </div>
-        </div>
-      </div>
     </footer>
-  );
-}
+ 
+</body>
+</html>
