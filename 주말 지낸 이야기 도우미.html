@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주말지낸이야기 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+        
+        :root {
+            --primary-pink: #FF85B3;
+            --soft-pink: #FFE4EE;
+            --bg-yellow: #FFF9E6;
+        }
+
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: var(--bg-yellow);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 96vw; /* 너비 확장 */
+            margin: 0 auto;
+            padding: 1vh 0;
+            overflow: hidden;
+        }
+
+        header {
+            height: 12vh; /* 헤더 높이 살짝 축소 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 2rem;
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            padding: 1.2vh 3vw;
+            font-size: 2rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .active-tab {
+            background-color: var(--primary-pink);
+            color: white;
+            border-radius: 25px 25px 0 0;
+        }
+        .inactive-tab {
+            background-color: var(--soft-pink);
+            color: var(--primary-pink);
+            border-radius: 25px 25px 0 0;
+        }
+
+        .content-board {
+            background-color: white;
+            border: 6px solid #FFD1E3;
+            border-radius: 0 45px 45px 45px;
+            margin: 0 1rem 1.5vh 1rem;
+            padding: 2.5vh 3vw; /* 여백 최적화 */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 12px 35px rgba(255, 182, 193, 0.2);
+            overflow: hidden;
+        }
+
+        /* 문장 미리보기 영역 확대 */
+        .preview-box {
+            background-color: #FFF9FB;
+            border: 3.5px solid #FFD1E3;
+            border-radius: 35px;
+            padding: 3vh 2vw;
+            margin-bottom: 2.5vh;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sentence-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2.1vw; /* 글자 크기 최적화 */
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .fixed-text {
+            font-weight: bold;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        .input-slot {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            position: relative;
+        }
+
+        .guide-placeholder {
+            color: #E0E0E0;
+            font-size: 0.75em;
+            margin-bottom: -2px;
+        }
+
+        .actual-text {
+            color: #FF4D94;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+
+        .dot-line {
+            width: 100%;
+            border-bottom: 2.5px dashed #FFD1E3;
+            margin-top: 2px;
+        }
+
+        /* 팔레트 내부 크기 확대 및 여백 제거 */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 3.5fr; /* 이름칸 비율 조정 */
+            gap: 1.5vw;
+            flex: 1; /* 팔레트가 남은 공간을 더 차지하도록 */
+            margin-bottom: 2vh;
+            min-height: 0;
+        }
+
+        .name-section {
+            background-color: #FFF0F5;
+            border-radius: 30px;
+            padding: 2vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #FFE4EE;
+        }
+
+        .name-section input {
+            font-size: 3.5rem; /* 이름 입력창 크게 */
+            padding: 1.5vh;
+            margin-top: 1vh;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5vh 1.2vw;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 100%; /* 높이 가득 채우기 */
+            padding: 18px 20px;
+            border-radius: 22px;
+            border: 3px solid #FFE4EE;
+            font-size: 1.8rem; /* 입력 글자 크게 */
+            outline: none;
+            transition: all 0.2s;
+            background-color: #fafafa;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-pink);
+            background-color: white;
+            transform: translateY(-2px);
+        }
+
+        .save-btn {
+            background: linear-gradient(to right, #FF85B3, #FFA07A);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            padding: 1.8vh 0;
+            border-radius: 40px;
+            box-shadow: 0 8px 20px rgba(255, 133, 179, 0.3);
+            cursor: pointer;
+            flex-shrink: 0;
+            border: none;
+        }
+
+        /* 보관함 */
+        #section-list {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .list-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto !important;
+            padding: 10px 10px 10px 5px;
+        }
+
+        .story-card {
+            background-color: #FFF9FB;
+            border: 2.5px solid #FFE4EE;
+            border-radius: 25px;
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .story-content-text {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <header>
+            <h1 class="font-bold text-pink-500">🌈 주말지낸이야기 도우미</h1>
+            <p class="text-orange-400 font-bold text-2xl">친구들의 이야기를 들려주세요 📔</p>
+        </header>
+
+        <div class="tabs">
+            <button onclick="switchTab('write')" id="tab-write" class="tab-btn active-tab">✏️ 이야기 만들기</button>
+            <button onclick="switchTab('list')" id="tab-list" class="tab-btn inactive-tab">🎁 보관함</button>
+        </div>
+
+        <div class="content-board">
+            <div id="section-write" class="flex-1 flex flex-col">
+                <div class="preview-box">
+                    <div id="result-display" class="sentence-row">
+                        <span class="fixed-text">나는</span>
+                        <div class="input-slot"><span id="p-when" class="guide-placeholder">언제</span><div id="line-when" class="dot-line"></div></div>
+                        <div class="input-slot"><span id="p-where" class="guide-placeholder">어디서</span><div id="line-where" class="dot-line"></div></div>
+                        <div class="input-slot"><span id="p-who" class="guide-placeholder">누구와</span><div id="line-who" class="dot-line"></div></div>
+                        <div class="input-slot"><span id="p-what" class="guide-placeholder">무엇을</span><div id="line-what" class="dot-line"></div></div>
+                        <div class="input-slot"><span id="p-feeling" class="guide-placeholder">기분</span><div id="line-feeling" class="dot-line"></div></div>
+                        <span class="fixed-text">어요. 왜냐하면</span> 
+                        <div class="input-slot"><span id="p-why" class="guide-placeholder">이유</span><div id="line-why" class="dot-line"></div></div>
+                        <span class="fixed-text">때문이에요.</span>
+                    </div>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="name-section">
+                        <label class="text-pink-500 text-3xl font-bold">🎈 이름</label>
+                        <input id="name" type="text" placeholder="이름" class="w-full rounded-2xl border-2 border-white text-center outline-none bg-white shadow-sm">
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-group"><input id="when" type="text" placeholder="언제?" oninput="updateText()" class="input-field"></div>
+                        <div class="input-group"><input id="where" type="text" placeholder="어디서?" oninput="updateText()" class="input-field"></div>
+                        <div class="input-group"><input id="who" type="text" placeholder="누구와?" oninput="updateText()" class="input-field"></div>
+                        <div class="input-group"><input id="what" type="text" placeholder="무엇을?" oninput="updateText()" class="input-field"></div>
+                        <div class="input-group"><input id="feeling" type="text" placeholder="기분은?" oninput="updateText()" class="input-field"></div>
+                        <div class="input-group"><input id="why" type="text" placeholder="이유는?" oninput="updateText()" class="input-field"></div>
+                    </div>
+                </div>
+                <button onclick="saveStory()" class="save-btn">저장하기 ✨</button>
+            </div>
+
+            <div id="section-list">
+                <div class="list-header">
+                    <h3 class="text-3xl font-bold text-pink-600">💖 저장된 이야기 보따리</h3>
+                    <span id="story-count" class="bg-white px-6 py-2 rounded-full text-pink-500 font-bold text-2xl border-2 border-pink-200">0개</span>
+                </div>
+                <div id="savedList" class="list-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-weekend-v5';
+
+        let user = null;
+        let unsubscribeStories = null;
+
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) listenToStories();
+        });
+
+        initAuth();
+
+        window.switchTab = function(tab) {
+            const writeSection = document.getElementById('section-write');
+            const listSection = document.getElementById('section-list');
+            const writeTabBtn = document.getElementById('tab-write');
+            const listTabBtn = document.getElementById('tab-list');
+
+            if (tab === 'write') {
+                writeSection.style.display = 'flex';
+                listSection.style.display = 'none';
+                writeTabBtn.className = 'tab-btn active-tab';
+                listTabBtn.className = 'tab-btn inactive-tab';
+            } else {
+                writeSection.style.display = 'none';
+                listSection.style.display = 'flex';
+                writeTabBtn.className = 'tab-btn inactive-tab';
+                listTabBtn.className = 'tab-btn active-tab';
+            }
+        }
+
+        window.updateText = function() {
+            const fields = ['when', 'where', 'who', 'what', 'feeling', 'why'];
+            const labels = {when:'언제', where:'어디서', who:'누구와', what:'무엇을', feeling:'기분', why:'이유'};
+
+            fields.forEach(id => {
+                const val = document.getElementById(id).value.trim();
+                const display = document.getElementById('p-' + id);
+                const line = document.getElementById('line-' + id);
+                
+                if (val !== "") {
+                    display.innerText = val;
+                    display.className = "actual-text";
+                    if(line) line.style.display = "none";
+                } else {
+                    display.innerText = labels[id];
+                    display.className = "guide-placeholder";
+                    if(line) line.style.display = "block";
+                }
+            });
+        }
+
+        window.saveStory = async function() {
+            if (!user) return;
+            const nameInput = document.getElementById("name");
+            const name = nameInput.value.trim() || "친구";
+            const vals = {};
+            ['when', 'where', 'who', 'what', 'feeling', 'why'].forEach(id => vals[id] = document.getElementById(id).value.trim());
+
+            if (!vals.when || !vals.where || !vals.what) return;
+
+            const sentence = `나는 ${vals.when} ${vals.where} ${vals.who ? vals.who + '와 ' : ''}${vals.what} ${vals.feeling ? vals.feeling + ' ' : ''}어요. 왜냐하면 ${vals.why || '즐거웠기'} 때문이에요.`;
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
+                    name: name,
+                    content: sentence,
+                    createdAt: serverTimestamp(),
+                    uid: user.uid
+                });
+                nameInput.value = '';
+                ['when', 'where', 'who', 'what', 'feeling', 'why'].forEach(id => document.getElementById(id).value = '');
+                updateText();
+                switchTab('list');
+            } catch (error) { console.error(error); }
+        }
+
+        window.deleteStory = async function(id) {
+            if (!user) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stories', id));
+            } catch (error) { console.error(error); }
+        }
+
+        function listenToStories() {
+            if (!user) return;
+            if (unsubscribeStories) unsubscribeStories();
+
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
+            unsubscribeStories = onSnapshot(q, (snapshot) => {
+                const list = document.getElementById("savedList");
+                const countLabel = document.getElementById("story-count");
+                list.innerHTML = "";
+                
+                const stories = snapshot.docs.sort((a, b) => (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0));
+                countLabel.innerText = `${stories.length}개`;
+                
+                stories.forEach((doc) => {
+                    const data = doc.data();
+                    const card = document.createElement("div");
+                    card.className = "story-card";
+                    card.innerHTML = `
+                        <div class="flex items-center flex-1 overflow-hidden">
+                            <span class="user-tag font-bold">💎 ${data.name}</span>
+                            <p class="story-content-text text-gray-700 flex-1 truncate">${data.content}</p>
+                        </div>
+                        <button onclick="deleteStory('${doc.id}')" class="ml-4 text-red-200 hover:text-red-400 flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        </button>
+                    `;
+                    list.appendChild(card);
+                });
+            }, (error) => console.error(error));
+        }
+    </script>
+</body>
+</html>

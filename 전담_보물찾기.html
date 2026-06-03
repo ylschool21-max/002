@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말랑말랑 선물 찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+        
+        :root {
+            --bg-color: #e0f2fe;
+        }
+
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#ffffff 2px, transparent 2px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        /* 3D Puffy Clouds */
+        .cloud-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .puffy-cloud {
+            position: absolute;
+            background: white;
+            width: 100px;
+            height: 40px;
+            border-radius: 100px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+            animation: float-horizontal linear infinite;
+        }
+
+        .puffy-cloud::after, .puffy-cloud::before {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .puffy-cloud::after { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .puffy-cloud::before { width: 40px; height: 40px; top: -15px; left: 45px; }
+
+        @keyframes float-horizontal {
+            from { transform: translateX(-200px); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* 3D Scene Setup */
+        .box-scene {
+            width: 140px;
+            height: 140px;
+            perspective: 1000px;
+            margin: 30px;
+        }
+
+        .cube {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(20deg);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        /* Soft Rounded Faces */
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: inherit;
+            border: 4px solid rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+            font-weight: bold;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .face-front  { transform: rotateY(0deg) translateZ(50px); }
+        .face-back   { transform: rotateY(180deg) translateZ(50px); filter: brightness(0.9); }
+        .face-right  { transform: rotateY(90deg) translateZ(50px); filter: brightness(0.95); }
+        .face-left   { transform: rotateY(-90deg) translateZ(50px); filter: brightness(0.95); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(50px); filter: brightness(0.8); }
+
+        .inner-base {
+            position: absolute;
+            width: 92px;
+            height: 92px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            transform: rotateX(90deg) translateZ(48px);
+            left: 4px;
+            top: 4px;
+        }
+
+        .inner-gift {
+            position: absolute;
+            width: 100px;
+            text-align: center;
+            font-size: 3.8rem;
+            transform: translateZ(0) translateY(0);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            z-index: 5;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
+        }
+
+        .cube.revealed {
+            transform: rotateX(-10deg) rotateY(10deg) scale(1.08);
+        }
+
+        /* 팝업 효과가 한 번만 일어나도록 수정 */
+        .cube.revealed .inner-gift {
+            opacity: 1;
+            transform: translateZ(35px) translateY(-70px) scale(1.4);
+        }
+
+        .cube.revealed .face-front {
+            color: transparent;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .bouncing { animation: bounce 2.5s infinite ease-in-out; }
+
+        /* 찾았을 때 점프 애니메이션 삭제 (시야 방해 방지) */
+        .winner-found { transform: rotateX(-10deg) rotateY(10deg) scale(1.15) !important; }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotateX(-20deg) rotateY(20deg) rotateZ(0); }
+            25% { transform: rotateX(-20deg) rotateY(20deg) rotateZ(-12deg); }
+            75% { transform: rotateX(-20deg) rotateY(20deg) rotateZ(12deg); }
+        }
+        .wrong-shake { animation: wiggle 0.4s; }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        /* Selection Screen */
+        #setup-screen {
+            background: rgba(224, 242, 254, 0.95);
+            backdrop-filter: blur(15px);
+        }
+
+        .btn-select {
+            transition: all 0.3s;
+            box-shadow: 0 6px 0px #ea580c;
+        }
+        .btn-select:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0px #ea580c;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 select-none">
+
+    <!-- Puffy Clouds Background -->
+    <div class="cloud-container">
+        <div class="puffy-cloud" style="top: 15%; left: -10%; animation-duration: 40s;"></div>
+        <div class="puffy-cloud" style="top: 40%; left: -25%; animation-duration: 55s; animation-delay: -10s; transform: scale(1.5);"></div>
+        <div class="puffy-cloud" style="top: 75%; left: -15%; animation-duration: 45s; animation-delay: -20s; transform: scale(0.8);"></div>
+    </div>
+
+    <!-- 1. Selection Screen -->
+    <div id="setup-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="bg-white rounded-[40px] p-10 shadow-2xl border-[10px] border-orange-100 max-w-sm w-full">
+            <h2 class="text-5xl font-bold text-orange-600 mb-6">반가워요!</h2>
+            <p class="text-2xl text-orange-400 mb-10 font-bold leading-relaxed">상자에 보물을<br>몇 개 숨길까요?</p>
+            <div class="flex gap-5 justify-center">
+                <button onclick="startGame(1)" class="btn-select w-20 h-20 bg-orange-500 text-white rounded-3xl text-4xl font-bold hover:bg-orange-600">1</button>
+                <button onclick="startGame(2)" class="btn-select w-20 h-20 bg-orange-500 text-white rounded-3xl text-4xl font-bold hover:bg-orange-600">2</button>
+                <button onclick="startGame(3)" class="btn-select w-20 h-20 bg-orange-500 text-white rounded-3xl text-4xl font-bold hover:bg-orange-600">3</button>
+            </div>
+            <p class="mt-8 text-gray-400 font-bold">숫자를 콕! 눌러주세요</p>
+        </div>
+    </div>
+
+    <!-- 2. Game Screen -->
+    <div class="text-center mb-16 mt-8">
+        <h1 id="status-text" class="text-5xl md:text-7xl font-bold text-orange-600 mb-6 drop-shadow-md">🎁 보물을 숨겨요!</h1>
+        <p id="sub-text" class="text-2xl md:text-3xl text-orange-400 font-bold bg-white/80 px-8 py-3 rounded-full inline-block shadow-sm">상자를 눌러 보물을 숨겨주세요</p>
+    </div>
+
+    <div id="game-board" class="flex flex-wrap justify-center max-w-5xl px-4"></div>
+
+    <button id="reset-btn" class="mt-16 px-12 py-5 bg-orange-500 text-white rounded-full text-3xl font-bold hover:bg-orange-600 transition-all shadow-xl active:scale-95 hidden">
+        한 번 더 할래요! ✨
+    </button>
+
+    <script>
+        const pastelColors = ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF'];
+        const giftEmojis = ['🍭', '🧸', '🍦', '🎈', '🍰', '⭐', '🌈', '🎨', '🎠', '👑'];
+        
+        let targetIndices = [];
+        let totalGifts = 1;
+        let foundGifts = 0;
+        let isHidingMode = true;
+        let isGameOver = false;
+        let fireworkTimer = null;
+
+        const board = document.getElementById('game-board');
+        const statusText = document.getElementById('status-text');
+        const subText = document.getElementById('sub-text');
+        const resetBtn = document.getElementById('reset-btn');
+        const setupScreen = document.getElementById('setup-screen');
+
+        function startGame(count) {
+            totalGifts = count;
+            setupScreen.classList.add('hidden');
+            initGame();
+        }
+
+        function initGame() {
+            // 폭죽 청소
+            clearFireworks();
+            
+            board.innerHTML = '';
+            targetIndices = [];
+            foundGifts = 0;
+            isHidingMode = true;
+            isGameOver = false;
+            statusText.innerText = `🎁 보물 ${totalGifts}개를 숨겨요!`;
+            subText.innerText = `상자 ${totalGifts}개를 콕콕 골라주세요`;
+            resetBtn.classList.add('hidden');
+
+            for (let i = 0; i < 8; i++) {
+                const scene = document.createElement('div');
+                scene.className = 'box-scene bouncing';
+                scene.style.animationDelay = `${i * 0.15}s`;
+                
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                cube.style.backgroundColor = pastelColors[i];
+                
+                ['back', 'bottom', 'left', 'right', 'front'].forEach(side => {
+                    const face = document.createElement('div');
+                    face.className = `face face-${side}`;
+                    face.style.backgroundColor = pastelColors[i];
+                    if (side === 'front') face.innerText = (i + 1);
+                    cube.appendChild(face);
+                });
+
+                const innerBase = document.createElement('div');
+                innerBase.className = 'inner-base';
+                cube.appendChild(innerBase);
+
+                const gift = document.createElement('div');
+                gift.className = 'inner-gift';
+                gift.id = `gift-${i}`;
+                gift.innerText = giftEmojis[Math.floor(Math.random() * giftEmojis.length)];
+                cube.appendChild(gift);
+
+                scene.appendChild(cube);
+                board.appendChild(scene);
+                cube.addEventListener('click', () => handleBoxClick(i));
+            }
+        }
+
+        function handleBoxClick(index) {
+            if (isGameOver) return;
+            const cubes = document.querySelectorAll('.cube');
+            const clickedCube = cubes[index];
+
+            if (isHidingMode) {
+                if (targetIndices.includes(index)) return;
+                
+                targetIndices.push(index);
+                clickedCube.classList.add('revealed');
+                
+                if (targetIndices.length === totalGifts) {
+                    isGameOver = true; 
+                    setTimeout(() => {
+                        document.querySelectorAll('.cube').forEach(c => c.classList.remove('revealed'));
+                        isGameOver = false;
+                        isHidingMode = false;
+                        statusText.innerText = "🔍 어디에 숨었을까요?";
+                        subText.innerText = "보물이 들어있는 상자를 모두 찾아보세요!";
+                    }, 1000);
+                }
+            } else {
+                if (clickedCube.classList.contains('revealed')) return;
+                
+                const giftElement = document.getElementById(`gift-${index}`);
+                
+                if (targetIndices.includes(index)) {
+                    // 보물을 찾았을 때
+                    clickedCube.classList.add('revealed', 'winner-found');
+                    clickedCube.parentElement.classList.remove('bouncing'); // 튀어나온 후에는 배경 흔들림 멈춤
+                    foundGifts++;
+                    
+                    if (foundGifts === totalGifts) {
+                        isGameOver = true;
+                        statusText.innerText = "✨ 우와! 전부 다 찾았다! ✨";
+                        subText.innerText = "정말 대단해요! 보물찾기 왕이에요!";
+                        fireworks();
+                        resetBtn.classList.remove('hidden');
+                    } else {
+                        statusText.innerText = `👏 남은 보물: ${totalGifts - foundGifts}개`;
+                    }
+                } else {
+                    // 꽝 상자
+                    giftElement.innerText = '❌';
+                    giftElement.style.color = '#ff6b6b';
+                    clickedCube.classList.add('revealed', 'wrong-shake');
+                    setTimeout(() => clickedCube.classList.remove('wrong-shake'), 400);
+                }
+            }
+        }
+
+        function clearFireworks() {
+            if (fireworkTimer) cancelAnimationFrame(fireworkTimer);
+            document.querySelectorAll('.confetti').forEach(c => c.remove());
+        }
+
+        function fireworks() {
+            const duration = 2500; // 폭죽 지속 시간을 5초에서 2.5초로 단축
+            const end = Date.now() + duration;
+            const icons = ['✨', '💖', '⭐', '🎈', '🍭', '🎉', '🌈', '🌸'];
+
+            (function frame() {
+                if (Date.now() > end) return;
+
+                for(let i=0; i<8; i++) { // 생성량 조절
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.innerText = icons[Math.floor(Math.random() * icons.length)];
+                    confetti.style.fontSize = Math.random() * 25 + 20 + 'px';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '100vh';
+                    document.body.appendChild(confetti);
+
+                    const destX = (Math.random() - 0.5) * 600;
+                    const destY = -(Math.random() * 700 + 400);
+
+                    confetti.animate([
+                        { transform: 'translate(0, 0) rotate(0deg) scale(0)', opacity: 1 },
+                        { transform: `translate(${destX}px, ${destY}px) rotate(${Math.random() * 1080}deg) scale(1.5)`, opacity: 0 }
+                    ], {
+                        duration: 1500 + Math.random() * 800,
+                        easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
+                    }).onfinish = () => confetti.remove();
+                }
+                fireworkTimer = requestAnimationFrame(frame);
+            }());
+        }
+
+        resetBtn.addEventListener('click', () => {
+            setupScreen.classList.remove('hidden');
+            board.innerHTML = '';
+        });
+    </script>
+</body>
+</html>

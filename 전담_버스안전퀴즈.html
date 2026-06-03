@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유치원 버스 안전 지킴이 O/X 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #f0f9ff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            position: relative;
+        }
+
+        .zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .zone:active {
+            filter: brightness(0.9);
+            transform: scale(0.98);
+        }
+
+        .o-zone {
+            background-color: #e8fdf0;
+            color: #22c55e;
+            border-right: 12px dashed #bbf7d0;
+        }
+
+        .x-zone {
+            background-color: #fff1f1;
+            color: #ef4444;
+        }
+
+        .zone-label {
+            font-size: 40rem;
+            font-weight: bold;
+            line-height: 0.7;
+            text-shadow: 15px 15px 0px rgba(255,255,255,0.8);
+            margin-top: 5rem;
+        }
+
+        .zone-text {
+            font-size: 8rem;
+            margin-top: -4rem;
+            background: white;
+            padding: 0.5rem 4rem;
+            border-radius: 4rem;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .question-box {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: white;
+            padding: 2rem;
+            border-radius: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 20px solid #fde047;
+            z-index: 60;
+        }
+
+        .question-img {
+            font-size: 8rem;
+            background: #fff9db;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4rem;
+            border: 8px solid #fef3c7;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 4.5rem;
+            line-height: 1.3;
+            text-align: left;
+            flex: 1;
+            color: #334155;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .message-box {
+            background: white;
+            padding: 4rem;
+            border-radius: 6rem;
+            text-align: center;
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 35px 70px rgba(0,0,0,0.5);
+            border: 15px solid #f1f5f9;
+        }
+
+        .start-container {
+            background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%);
+            border: 20px solid #fbbf24;
+            display: flex;
+            flex-direction: column; /* 세로 배치로 변경하여 가로 길이를 넓게 사용 */
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+        }
+
+        .start-bus-icon {
+            font-size: 12rem;
+            margin-top: 2rem;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+            animation: moveBus 3s ease-in-out infinite;
+        }
+
+        @keyframes moveBus {
+            0%, 100% { transform: translateX(-20px); }
+            50% { transform: translateX(20px); }
+        }
+
+        .btn {
+            background: #facc15;
+            padding: 1.5rem 6rem;
+            border-radius: 9999px;
+            font-size: 4rem;
+            color: #854d0e;
+            box-shadow: 0 12px 0 #ca8a04;
+            transition: all 0.1s;
+            margin-top: 2rem;
+        }
+
+        .btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 4px 0 #ca8a04;
+        }
+
+        .btn-next {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 12px 0 #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="zone o-zone" onclick="showAnswer()">
+        <span class="zone-label">O</span>
+        <span class="zone-text">맞아요!</span>
+    </div>
+    
+    <div class="zone x-zone" onclick="showAnswer()">
+        <span class="zone-label">X</span>
+        <span class="zone-text">아니에요!</span>
+    </div>
+    
+    <div class="question-box">
+        <div class="question-img" id="qImg">🚌</div>
+        <div class="question-text" id="question">안전 퀴즈를 시작해요!</div>
+    </div>
+</div>
+
+<!-- 결과 팝업 -->
+<div class="modal" id="modal">
+    <div class="message-box" id="msgBox">
+        <h2 id="modalTitle" class="text-[12rem] mb-6">정답</h2>
+        <p id="modalText" class="text-6xl mb-12 leading-snug text-gray-700"></p>
+        <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">다음 문제</button>
+    </div>
+</div>
+
+<div class="modal" id="startModal" style="display: flex;">
+    <div class="message-box start-container">
+        <!-- 메인 제목 -->
+        <h1 class="text-[8rem] text-yellow-900 mb-2">부릉부릉~</h1>
+        
+        <!-- 제목 아래 글자 한 줄 배열 -->
+        <div class="flex flex-row items-center gap-4 text-5xl text-yellow-800 mb-8">
+            <span>🚌 안전 버스 퀴즈!</span>
+            <span class="text-yellow-600">함께 맞춰볼까요?</span>
+        </div>
+
+        <!-- 버튼 -->
+        <button class="btn" onclick="startGame()">퀴즈 시작!</button>
+
+        <!-- 버스 그림 하단 배치 -->
+        <div class="start-bus-icon">🚌</div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { text: "유치원 버스가 도착하기 전에 줄을 서서 기다려요.", answer: "O", desc: "미리 줄 서서 기다려요!", img: "🏃‍♂️" },
+        { text: "버스에 탈 때는 앞 친구를 밀지 않고 차례차례 타요.", answer: "O", desc: "차례차례 타야 안전해요!", img: "🚶‍♂️" },
+        { text: "버스에서 자리를 마음대로 옮기고 싶을 때 옮겨요.", answer: "X", desc: "자리에 꼭 앉아 있어요!", img: "💺" },
+        { text: "자리에 앉으면 딸깍! 안전벨트를 매요.", answer: "O", desc: "안전벨트는 꼭 매야 해요!", img: "🎗️" },
+        { text: "친구가 내 옆에 앉으려고 하면 싫어! 하고 말해요.", answer: "X", desc: "사이좋게 같이 앉아요!", img: "🤝" },
+        { text: "버스 창문을 열고 손을 밖으로 흔들어요.", answer: "X", desc: "손은 버스 안에 두어야 해요!", img: "👋" },
+        { text: "유치원 버스가 멈춘 것 같으면 바로 벨트를 풀어요.", answer: "X", desc: "선생님이 말씀하실 때까지 기다려요!", img: "⚠️" },
+        { text: "버스를 타고 내릴 때는 손잡이를 꼭 잡고 타요.", answer: "O", desc: "손잡이를 잡아야 안전해요!", img: "✊" },
+        { text: "버스가 완전히 멈춘 뒤에 일어나서 내려요.", answer: "O", desc: "멈춘 뒤에 일어나요!", img: "🛑" },
+        { text: "버스 바퀴 근처나 뒤에서 숨바꼭질을 해요.", answer: "X", desc: "버스 주변은 위험해요!", img: "🙈" },
+        { text: "버스 안에 나 혼자 남으면 빵빵(경적)을 눌러요.", answer: "O", desc: "엉덩이로 크게 빵빵 눌러요!", img: "📢" },
+        { text: "버스 안에서 장난감을 가지고 놀아요.", answer: "X", desc: "장난감은 가방 안에 넣어요!", img: "🧸" },
+        { text: "버스가 올 때 반가워서 차도로 뛰어 나가요.", answer: "X", desc: "안전한 곳에서 기다려요!", img: "🚫" },
+        { text: "버스 안에서 간식을 먹으며 돌아다녀요.", answer: "X", desc: "음식은 내린 뒤에 먹어요!", img: "🍭" },
+        { text: "내릴 때 가방 끈이 문에 걸리지 않게 조심해요.", answer: "O", desc: "가방 끈을 잘 챙겨요!", img: "🎒" },
+        { text: "버스에서 내린 직후에 바로 버스 앞으로 뛰어가요.", answer: "X", desc: "멀리 떨어져서 기다려요!", img: "🏃" },
+        { text: "더울 때는 버스 안에서 안전벨트를 조금 풀어도 돼요.", answer: "X", desc: "벨트는 끝까지 매야 해요!", img: "🔥" },
+        { text: "버스 안에서는 친구와 작은 소리로 이야기해요.", answer: "O", desc: "작은 소리로 말해요!", img: "🤫" }
+    ];
+
+    let currentIdx = 0;
+    const questionEl = document.getElementById('question');
+    const qImgEl = document.getElementById('qImg');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const msgBox = document.getElementById('msgBox');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function startGame() {
+        document.getElementById('startModal').style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentIdx >= questions.length) {
+            modalTitle.innerText = "참 잘했어요!";
+            modalTitle.style.fontSize = "8rem";
+            modalTitle.style.color = "#3b82f6";
+            modalText.innerText = "안전 퀴즈 박사님!\n다음에 또 만나요!";
+            msgBox.style.borderColor = "#3b82f6";
+            nextBtn.innerText = "다시 하기";
+            nextBtn.onclick = () => location.reload();
+            modal.style.display = 'flex';
+            return;
+        }
+        questionEl.innerText = `${currentIdx + 1}. ${questions[currentIdx].text}`;
+        qImgEl.innerText = questions[currentIdx].img;
+    }
+
+    function showAnswer() {
+        const correct = questions[currentIdx].answer;
+        
+        if (correct === "O") {
+            modalTitle.innerText = "정답 O";
+            modalTitle.style.color = "#16a34a";
+            msgBox.style.borderColor = "#16a34a";
+        } else {
+            modalTitle.innerText = "정답 X";
+            modalTitle.style.color = "#dc2626";
+            msgBox.style.borderColor = "#dc2626";
+        }
+        
+        modalText.innerText = questions[currentIdx].desc;
+        modal.style.display = 'flex';
+    }
+
+    function nextQuestion() {
+        modal.style.display = 'none';
+        currentIdx++;
+        loadQuestion();
+    }
+</script>
+
+</body>
+</html>
