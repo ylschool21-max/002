@@ -1,6 +1,3 @@
-
-raw
-Index · HTML
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,10 +5,10 @@ Index · HTML
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="description" content="영일유치원 선생님들이 함께 만드는 AI·디지털 기반 교육자료 나눔 공간" />
 <title>영일유치원 교육자료 나눔터</title>
- 
+
 <!-- Tailwind CSS Play CDN (브라우저 JIT) -->
 <script src="https://cdn.tailwindcss.com"></script>
- 
+
 <!-- Google Fonts: 부드러운 한글 폰트 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,12 +16,12 @@ Index · HTML
   href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap"
   rel="stylesheet"
 />
- 
+
 <!-- React 18 (UMD) + Babel Standalone (JSX 변환) -->
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
- 
+
 <style>
   html, body { margin: 0; padding: 0; }
   body {
@@ -48,10 +45,10 @@ Index · HTML
 </head>
 <body>
 <div id="root"></div>
- 
+
 <script type="text/babel" data-presets="react">
 const { useState, useMemo, useRef, useEffect } = React;
- 
+
 /* ================== Lucide Icons (인라인 SVG) ================== */
 const ICON_PATHS = {
   Search:       '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
@@ -76,7 +73,7 @@ const ICON_PATHS = {
   PlayCircle:   '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
   Info:         '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
 };
- 
+
 const makeIcon = (name) => ({ size = 20, strokeWidth = 2, className, color, style, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -95,7 +92,7 @@ const makeIcon = (name) => ({ size = 20, strokeWidth = 2, className, color, styl
     {...rest}
   />
 );
- 
+
 const Search       = makeIcon('Search');
 const X            = makeIcon('X');
 const ExternalLink = makeIcon('ExternalLink');
@@ -117,14 +114,14 @@ const Camera       = makeIcon('Camera');
 const PartyPopper  = makeIcon('PartyPopper');
 const PlayCircle   = makeIcon('PlayCircle');
 const Info         = makeIcon('Info');
- 
+
 /* =========================================================
    영일유치원 교육자료 나눔터
    - 단일 React 컴포넌트
    - Tailwind core utilities 사용
    - 외부 이미지 없이 구성 (이모지 + CSS 도형)
    ========================================================= */
- 
+
 const COLORS = {
   bg: "#FFF8EC",
   bgSoft: "#FFFDF6",
@@ -143,13 +140,13 @@ const COLORS = {
   card: "#FFFFFF",
   border: "#F1E7CF",
 };
- 
+
 const FONT_STACK =
   "'Gowun Dodum', 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', system-ui, sans-serif";
- 
+
 const FONT_DISPLAY =
   "'Jua', 'Gowun Dodum', 'Apple SD Gothic Neo', 'Pretendard', sans-serif";
- 
+
 /* ===== 자료 데이터 =====
    새 자료를 추가하려면 이 배열에 객체를 하나 추가하세요. */
 const sampleResources = [
@@ -167,7 +164,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🖼️",
     accent: "yellow",
-    link: "./games/전담_같은_카드_찾기.html",
+    link: "./전담_같은 카드 찾기.html",
     recentlyAdded: true,
     materials: "태블릿 또는 전자칠판",
     howToUse:
@@ -189,7 +186,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🗣️",
     accent: "sky",
-    link: "./games/글자친구.html",
+    link: "./글자친구.html",
     recentlyAdded: true,
     materials: "태블릿 · 마이크 권한 허용 · 손가락 또는 디지털 펜",
     howToUse:
@@ -211,7 +208,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🍓",
     accent: "pink",
-    link: "./games/딸기게임.html",
+    link: "./딸기게임.html",
     recentlyAdded: true,
     materials: "태블릿 또는 PC · 카메라 권한 허용 · 충분한 활동 공간",
     howToUse:
@@ -233,7 +230,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🛍️",
     accent: "pink",
-    link: "./games/가게놀이_키오스크.html",
+    link: "./가게놀이 키오스크.html",
     recentlyAdded: true,
     materials: "태블릿 · (선택) 모형 화폐 · 명찰",
     howToUse:
@@ -255,7 +252,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🌱",
     accent: "green",
-    link: "./games/식물_키우기_레이스.html",
+    link: "./식물 키우기 레이스.html",
     recentlyAdded: true,
     materials: "태블릿 또는 PC · 마이크 권한 허용",
     howToUse:
@@ -277,7 +274,7 @@ const sampleResources = [
     playOnStage: "Y",
     icon: "💎",
     accent: "yellow",
-    link: "./games/우리반_미덕_보석함.html",
+    link: "./우리반 미덕 보석함.html",
     recentlyAdded: true,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -299,7 +296,7 @@ const sampleResources = [
     playOnStage: "L",
     icon: "🤔",
     accent: "purple",
-    link: "./games/일곱_고개_놀이.html",
+    link: "./일곱 고개 놀이.html",
     recentlyAdded: false,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -321,7 +318,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🎁",
     accent: "pink",
-    link: "./games/전담_보물찾기.html",
+    link: "./전담_보물찾기.html",
     recentlyAdded: true,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -343,7 +340,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🚚",
     accent: "pink",
-    link: "./games/전담_상자를_던져요.html",
+    link: "./전담_상자를 던져요.html",
     recentlyAdded: false,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -365,7 +362,7 @@ const sampleResources = [
     playOnStage: "L",
     icon: "❓",
     accent: "yellow",
-    link: "./games/재미있는_질문놀이_까바__까만_.html",
+    link: "./재미있는 질문놀이(까바, 까만).html",
     recentlyAdded: false,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -387,7 +384,7 @@ const sampleResources = [
     playOnStage: "L",
     icon: "🎲",
     accent: "pink",
-    link: "./games/질문보드게임.html",
+    link: "./질문보드게임.html",
     recentlyAdded: true,
     materials: "전자칠판 · 함께 읽은 그림책",
     howToUse:
@@ -409,7 +406,7 @@ const sampleResources = [
     playOnStage: "Y",
     icon: "🌈",
     accent: "sky",
-    link: "./games/주말_지낸_이야기_도우미.html",
+    link: "./주말 지낸 이야기 도우미.html",
     recentlyAdded: true,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -431,7 +428,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🚌",
     accent: "sky",
-    link: "./games/전담_버스안전퀴즈.html",
+    link: "./전담_버스안전퀴즈.html",
     recentlyAdded: true,
     materials: "전자칠판 · (선택) 안전벨트 모형",
     howToUse:
@@ -453,7 +450,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "📦",
     accent: "yellow",
-    link: "./games/전담_상자를_쌓아요.html",
+    link: "./상자를 쌓아요_전담.html",
     recentlyAdded: false,
     materials: "전자칠판 또는 태블릿",
     howToUse:
@@ -475,7 +472,7 @@ const sampleResources = [
     playOnStage: "A",
     icon: "🪲",
     accent: "green",
-    link: "./games/장수풍뎅이_성장게임.html",
+    link: "./장수풍뎅이 성장게임.html",
     recentlyAdded: false,
     materials: "전자칠판 또는 태블릿 · 스피커",
     howToUse:
@@ -484,7 +481,7 @@ const sampleResources = [
       "실제 장수풍뎅이 사육 활동과 연계하면 책과 경험이 만나는 깊이 있는 배움이 됩니다.",
   },
 ];
- 
+
 /* ===== 필터 옵션 ===== */
 const FILTER_OPTIONS = {
   age: ["전체", "3세", "4세", "5세", "혼합연령"],
@@ -499,12 +496,12 @@ const FILTER_OPTIONS = {
     "가게놀이",
   ],
 };
- 
+
 const FILTER_LABELS = {
   age: "연령",
   topic: "주제",
 };
- 
+
 /* ===== PLAY-ON 단계 정보 ===== */
 const PLAY_ON_STAGES = [
   {
@@ -548,7 +545,7 @@ const PLAY_ON_STAGES = [
     icon: Repeat,
   },
 ];
- 
+
 /* ===== 액센트 색상 매핑 ===== */
 const ACCENT_MAP = {
   yellow: { bg: COLORS.yellowSoft, dot: COLORS.yellow },
@@ -557,7 +554,7 @@ const ACCENT_MAP = {
   pink: { bg: COLORS.pinkSoft, dot: COLORS.pink },
   purple: { bg: COLORS.purpleSoft, dot: COLORS.purple },
 };
- 
+
 const DEVICE_ICON = {
   태블릿: Tablet,
   전자칠판: Monitor,
@@ -565,12 +562,11 @@ const DEVICE_ICON = {
   로봇: Bot,
   카메라: Camera,
 };
- 
+
 /* =========================================================
    메인 컴포넌트
    ========================================================= */
 function YeongilShareSite() {
-  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     age: "전체",
     topic: "전체",
@@ -578,10 +574,10 @@ function YeongilShareSite() {
   const [activeModal, setActiveModal] = useState(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
- 
+
   const resourcesRef = useRef(null);
   const homeRef = useRef(null);
- 
+
   /* 모달 열렸을 때 esc 키, 스크롤 잠금 */
   useEffect(() => {
     if (!activeModal) return;
@@ -596,49 +592,41 @@ function YeongilShareSite() {
       document.body.style.overflow = prev;
     };
   }, [activeModal]);
- 
+
   const scrollTo = (ref) => {
     setMobileNavOpen(false);
     if (ref?.current) {
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
- 
+
   /* 필터 적용 */
   const filtered = useMemo(() => {
     return sampleResources.filter((r) => {
       if (filters.age !== "전체" && r.age !== filters.age) return false;
       if (filters.topic !== "전체" && r.topic !== filters.topic) return false;
-      if (search.trim()) {
-        const q = search.trim().toLowerCase();
-        const hay =
-          r.title.toLowerCase() +
-          " " +
-          r.description.toLowerCase() +
-          " " +
-          (r.tags || []).join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
       return true;
     });
-  }, [filters, search]);
- 
+  }, [filters]);
+
   const activeFilterChips = Object.entries(filters)
     .filter(([, v]) => v !== "전체")
     .map(([k, v]) => ({ key: k, value: v }));
- 
+
   const resetFilters = () => {
     setFilters({
       age: "전체",
       topic: "전체",
     });
-    setSearch("");
   };
- 
+
   const openResource = (link) => {
-    if (link) window.open(link, "_blank", "noopener,noreferrer");
+    if (!link) return;
+    // 한글 파일명을 모든 환경(file://, GitHub Pages 등)에서 안정적으로 열기 위한 인코딩
+    const safe = /^https?:\/\//i.test(link) ? link : encodeURI(link);
+    window.open(safe, "_blank", "noopener,noreferrer");
   };
- 
+
   return (
     <div
       style={{
@@ -659,29 +647,27 @@ function YeongilShareSite() {
           resources: resourcesRef,
         }}
       />
- 
+
       {/* ============== Hero ============== */}
       <Hero
         onPrimary={() => scrollTo(resourcesRef)}
         onSecondary={() => scrollTo(resourcesRef)}
       />
- 
+
       {/* ============== 자료 특징 3카드 ============== */}
       <FeatureCards />
- 
+
       {/* ============== 검색 + 필터 + 자료 그리드 ============== */}
       <section ref={resourcesRef} className="px-5 sm:px-8 lg:px-16 pt-16 pb-12">
         <div className="max-w-7xl mx-auto">
           <SectionTitle
             kicker="RESOURCES"
             title="자료 찾아보기"
-            sub="검색과 필터로 우리 반에 꼭 맞는 자료를 빠르게 찾아보세요."
+            sub="연령과 주제로 우리 반에 꼭 맞는 자료를 골라보세요."
             color={COLORS.green}
           />
- 
-          <SearchAndFilter
-            search={search}
-            setSearch={setSearch}
+
+          <FilterPanel
             filters={filters}
             setFilters={setFilters}
             activeChips={activeFilterChips}
@@ -689,14 +675,14 @@ function YeongilShareSite() {
             filterPanelOpen={filterPanelOpen}
             setFilterPanelOpen={setFilterPanelOpen}
           />
- 
+
           <div className="mt-6 flex items-center justify-between text-sm">
             <p style={{ color: COLORS.textMuted }}>
               총 <strong style={{ color: COLORS.text }}>{filtered.length}</strong>개의
               자료가 있어요
             </p>
           </div>
- 
+
           <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filtered.length > 0 ? (
               filtered.map((r) => (
@@ -713,10 +699,10 @@ function YeongilShareSite() {
           </div>
         </div>
       </section>
- 
+
       {/* ============== Footer ============== */}
       <Footer />
- 
+
       {/* ============== 상세 모달 ============== */}
       {activeModal && (
         <DetailModal
@@ -728,7 +714,7 @@ function YeongilShareSite() {
     </div>
   );
 }
- 
+
 /* =========================================================
    헤더
    ========================================================= */
@@ -737,7 +723,7 @@ function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
     { label: "홈", ref: targets.home },
     { label: "자료찾기", ref: targets.resources },
   ];
- 
+
   return (
     <header
       className="sticky top-0 z-40 w-full backdrop-blur-md"
@@ -763,7 +749,7 @@ function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
             영일유치원 <span className="hidden sm:inline">교육자료 </span>나눔터
           </span>
         </button>
- 
+
         {/* 데스크탑 메뉴 */}
         <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
@@ -788,7 +774,7 @@ function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
             <ArrowRight size={16} />
           </button>
         </nav>
- 
+
         {/* 모바일 햄버거 */}
         <button
           onClick={onMenuClick}
@@ -799,7 +785,7 @@ function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
           {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
- 
+
       {/* 모바일 펼침 메뉴 */}
       {mobileNavOpen && (
         <div
@@ -832,7 +818,7 @@ function Header({ onMenuClick, mobileNavOpen, scrollTo, targets }) {
     </header>
   );
 }
- 
+
 /* =========================================================
    Hero
    ========================================================= */
@@ -852,7 +838,7 @@ function Hero({ onPrimary, onSecondary }) {
         className="hidden lg:block absolute top-32 right-72 w-40 h-40 rounded-full opacity-50"
         color={COLORS.greenSoft}
       />
- 
+
       <div className="relative max-w-7xl mx-auto">
         {/* 텍스트 - 모바일 풀폭, lg+ 일러스트와 겹치도록 */}
         <div className="relative z-10">
@@ -866,7 +852,7 @@ function Hero({ onPrimary, onSecondary }) {
             <Sparkles size={14} />
             영일유치원 선생님들이 함께 만드는 교육자료
           </div>
- 
+
           <h1
             className="text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight"
             style={{ color: COLORS.text, fontFamily: FONT_DISPLAY }}
@@ -883,7 +869,7 @@ function Hero({ onPrimary, onSecondary }) {
             </span>{" "}
             나눔의 공간
           </h1>
- 
+
           <p
             className="mt-6 text-base sm:text-lg leading-relaxed max-w-xl"
             style={{ color: COLORS.textMuted }}
@@ -892,7 +878,7 @@ function Hero({ onPrimary, onSecondary }) {
             나눕니다. 그림책 질문놀이, 디지털 놀이자료, 웹앱까지 한곳에서
             만나보세요.
           </p>
- 
+
           <div className="mt-8 flex flex-wrap gap-3">
             <button
               onClick={onPrimary}
@@ -915,14 +901,14 @@ function Hero({ onPrimary, onSecondary }) {
             </button>
           </div>
         </div>
- 
+
       </div>
     </section>
   );
 }
- 
- 
- 
+
+
+
 function DecorBlob({ className, color }) {
   return (
     <div
@@ -932,7 +918,7 @@ function DecorBlob({ className, color }) {
     />
   );
 }
- 
+
 /* =========================================================
    3가지 특징 카드
    ========================================================= */
@@ -999,7 +985,7 @@ function FeatureCards() {
     </section>
   );
 }
- 
+
 /* =========================================================
    섹션 타이틀
    ========================================================= */
@@ -1033,13 +1019,11 @@ function SectionTitle({ kicker, title, sub, color }) {
     </div>
   );
 }
- 
+
 /* =========================================================
-   검색 + 필터
+   필터 패널
    ========================================================= */
-function SearchAndFilter({
-  search,
-  setSearch,
+function FilterPanel({
   filters,
   setFilters,
   activeChips,
@@ -1055,67 +1039,43 @@ function SearchAndFilter({
         boxShadow: "0 10px 28px rgba(120, 100, 60, 0.08)",
       }}
     >
-      {/* 검색창 */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div
-          className="flex-1 flex items-center gap-2 rounded-full px-4 py-3"
-          style={{ backgroundColor: COLORS.bg }}
-        >
-          <Search size={18} style={{ color: COLORS.textMuted }} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="자료명, 그림책 제목, 놀이 주제를 검색해보세요"
-            className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-gray-400"
-            style={{ color: COLORS.text }}
-            aria-label="자료 검색"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="p-1 rounded-full hover:bg-white/60"
-              aria-label="검색어 지우기"
-            >
-              <X size={16} />
-            </button>
-          )}
+      {/* 상단 컨트롤 — 모바일 필터 토글 + 데스크탑 초기화 */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-bold" style={{ color: COLORS.text }}>
+          <FilterIcon size={18} />
+          연령과 주제로 자료를 골라보세요
         </div>
- 
-        <button
-          onClick={() => setFilterPanelOpen((v) => !v)}
-          className="sm:hidden inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full font-bold text-sm"
-          style={{
-            backgroundColor: filterPanelOpen ? COLORS.text : COLORS.yellow,
-            color: filterPanelOpen ? "#FFFFFF" : COLORS.text,
-          }}
-        >
-          <FilterIcon size={16} />
-          필터 {filterPanelOpen ? "접기" : "열기"}
-        </button>
- 
-        <button
-          onClick={resetFilters}
-          className="hidden sm:inline-flex items-center gap-2 px-4 py-3 rounded-full font-medium text-sm hover:bg-gray-50"
-          style={{
-            color: COLORS.text,
-            border: `1.5px solid ${COLORS.border}`,
-          }}
-        >
-          <RotateCcw size={15} />
-          초기화
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setFilterPanelOpen((v) => !v)}
+            className="sm:hidden inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm flex-1"
+            style={{
+              backgroundColor: filterPanelOpen ? COLORS.text : COLORS.yellow,
+              color: filterPanelOpen ? "#FFFFFF" : COLORS.text,
+            }}
+          >
+            <FilterIcon size={15} />
+            필터 {filterPanelOpen ? "접기" : "열기"}
+          </button>
+
+          <button
+            onClick={resetFilters}
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-medium text-sm hover:bg-gray-50"
+            style={{
+              color: COLORS.text,
+              border: `1.5px solid ${COLORS.border}`,
+            }}
+          >
+            <RotateCcw size={15} />
+            초기화
+          </button>
+        </div>
       </div>
- 
+
       {/* 활성 필터 칩 */}
-      {(activeChips.length > 0 || search) && (
+      {activeChips.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          {search && (
-            <FilterChip
-              label={`검색: ${search}`}
-              onRemove={() => setSearch("")}
-              tone="text"
-            />
-          )}
           {activeChips.map((c) => (
             <FilterChip
               key={c.key}
@@ -1134,7 +1094,7 @@ function SearchAndFilter({
           </button>
         </div>
       )}
- 
+
       {/* 필터 그룹 (PC 항상 / 모바일 토글) */}
       <div
         className={`${
@@ -1155,7 +1115,7 @@ function SearchAndFilter({
             />
           ))}
         </div>
- 
+
         <div className="sm:hidden mt-4">
           <button
             onClick={resetFilters}
@@ -1173,7 +1133,7 @@ function SearchAndFilter({
     </div>
   );
 }
- 
+
 function FilterChip({ label, onRemove, tone }) {
   return (
     <span
@@ -1194,7 +1154,7 @@ function FilterChip({ label, onRemove, tone }) {
     </span>
   );
 }
- 
+
 function FilterGroup({ label, options, value, onChange }) {
   return (
     <div>
@@ -1228,14 +1188,14 @@ function FilterGroup({ label, options, value, onChange }) {
     </div>
   );
 }
- 
+
 /* =========================================================
    자료 카드
    ========================================================= */
 function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
   const accent = ACCENT_MAP[resource.accent] || ACCENT_MAP.yellow;
   const stage = PLAY_ON_STAGES.find((s) => s.key === resource.playOnStage);
- 
+
   return (
     <article
       className="rounded-3xl overflow-hidden flex flex-col transition-transform duration-200 hover:-translate-y-1"
@@ -1260,7 +1220,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
           aria-hidden
         />
         <span className="text-5xl relative z-10">{resource.icon}</span>
- 
+
         {isNewBadge && resource.recentlyAdded && (
           <span
             className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold"
@@ -1270,7 +1230,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
             NEW
           </span>
         )}
- 
+
         {stage && (
           <span
             className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold"
@@ -1285,7 +1245,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
           </span>
         )}
       </div>
- 
+
       {/* 본문 */}
       <div className="p-5 flex flex-col flex-1">
         <h3 className="font-bold text-base leading-snug mb-1.5">
@@ -1297,7 +1257,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
         >
           {resource.description}
         </p>
- 
+
         {/* 메타 정보 */}
         <div className="flex flex-wrap gap-1.5 mb-3">
           <MetaPill label={resource.age} color={COLORS.pinkSoft} />
@@ -1319,7 +1279,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
             );
           })}
         </div>
- 
+
         {/* 태그 */}
         {resource.tags && resource.tags.length > 0 && (
           <div
@@ -1331,7 +1291,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
             ))}
           </div>
         )}
- 
+
         {/* 버튼 */}
         <div className="mt-auto flex gap-2">
           <button
@@ -1358,7 +1318,7 @@ function ResourceCard({ resource, onDetail, onRun, isNewBadge }) {
     </article>
   );
 }
- 
+
 function MetaPill({ label, color }) {
   return (
     <span
@@ -1369,7 +1329,7 @@ function MetaPill({ label, color }) {
     </span>
   );
 }
- 
+
 /* =========================================================
    비어있을 때
    ========================================================= */
@@ -1400,14 +1360,14 @@ function EmptyState({ onReset }) {
     </div>
   );
 }
- 
+
 /* =========================================================
    상세 모달
    ========================================================= */
 function DetailModal({ resource, onClose, onRun }) {
   const accent = ACCENT_MAP[resource.accent] || ACCENT_MAP.yellow;
   const stage = PLAY_ON_STAGES.find((s) => s.key === resource.playOnStage);
- 
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
@@ -1435,7 +1395,7 @@ function DetailModal({ resource, onClose, onRun }) {
           >
             <X size={18} />
           </button>
- 
+
           <div className="flex items-start gap-4">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
@@ -1465,7 +1425,7 @@ function DetailModal({ resource, onClose, onRun }) {
             </div>
           </div>
         </div>
- 
+
         {/* 본문 */}
         <div className="px-6 sm:px-7 py-6 space-y-6">
           <p
@@ -1474,7 +1434,7 @@ function DetailModal({ resource, onClose, onRun }) {
           >
             {resource.longDescription}
           </p>
- 
+
           {/* 메타 그리드 */}
           <div
             className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl"
@@ -1488,28 +1448,28 @@ function DetailModal({ resource, onClose, onRun }) {
               value={resource.device.join(", ")}
             />
           </div>
- 
+
           {/* 준비물 */}
           <ModalSection
             title="준비물"
             color={COLORS.yellow}
             text={resource.materials}
           />
- 
+
           {/* 활용 방법 */}
           <ModalSection
             title="활용 방법"
             color={COLORS.green}
             text={resource.howToUse}
           />
- 
+
           {/* 교사용 팁 */}
           <ModalSection
             title="교사용 팁"
             color={COLORS.pink}
             text={resource.teacherTip}
           />
- 
+
           {/* 태그 */}
           {resource.tags && (
             <div
@@ -1522,7 +1482,7 @@ function DetailModal({ resource, onClose, onRun }) {
             </div>
           )}
         </div>
- 
+
         {/* 푸터 액션 */}
         <div
           className="sticky bottom-0 px-6 sm:px-7 py-4 border-t flex flex-col sm:flex-row gap-2"
@@ -1555,7 +1515,7 @@ function DetailModal({ resource, onClose, onRun }) {
     </div>
   );
 }
- 
+
 function ModalMeta({ label, value }) {
   return (
     <div>
@@ -1569,7 +1529,7 @@ function ModalMeta({ label, value }) {
     </div>
   );
 }
- 
+
 function ModalSection({ title, color, text }) {
   return (
     <div>
@@ -1589,7 +1549,7 @@ function ModalSection({ title, color, text }) {
     </div>
   );
 }
- 
+
 /* =========================================================
    푸터
    ========================================================= */
@@ -1633,7 +1593,7 @@ function Footer() {
     </footer>
   );
 }
- 
+
 /* ================== Render ================== */
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<YeongilShareSite />);
