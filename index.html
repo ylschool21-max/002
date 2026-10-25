@@ -1,443 +1,669 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="영일유치원 선생님들이 함께 만드는 AI·디지털 기반 교육자료 나눔 공간" />
-<title>영일유치원 교육자료 나눔터</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>놀이앱 나눔터</title>
 <style>
-:root{--bg:#fff8ec;--soft:#fffdf6;--yellow:#ffd86b;--yellowSoft:#ffefc2;--green:#9ddc9a;--greenSoft:#d6f0d5;--sky:#9edcff;--skySoft:#dcf2ff;--pink:#ffb7c5;--pinkSoft:#ffe3ea;--purple:#c9b8f2;--purpleSoft:#e7defb;--text:#333;--muted:#6b6b6b;--card:#fff;--border:#f1e7cf;--shadow:0 10px 28px rgba(120,100,60,.08);--strong:0 18px 45px rgba(80,60,30,.16)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:"Apple SD Gothic Neo","Pretendard","Malgun Gothic",system-ui,sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.container{width:min(1180px,calc(100% - 32px));margin:auto}.header{position:sticky;top:0;z-index:20;background:rgba(255,248,236,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font-weight:900}.mark{width:40px;height:40px;border-radius:16px;background:var(--yellow);display:grid;place-items:center;font-size:22px}.actions{display:flex;gap:8px}.btn{border:0;border-radius:999px;min-height:42px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;background:var(--text);color:white;transition:.16s}.btn:hover{transform:translateY(-1px)}.secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border)}.yellow{background:var(--yellow);color:var(--text)}.hero{position:relative;padding:58px 0 68px;overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;border-radius:999px;opacity:.55}.hero:before{width:260px;height:260px;background:var(--skySoft);right:-80px;top:30px}.hero:after{width:220px;height:220px;background:var(--pinkSoft);left:-90px;bottom:-70px}.heroGrid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);align-items:center;gap:42px}.kicker{display:inline-flex;border-radius:999px;background:var(--card);border:1.5px solid var(--border);padding:8px 13px;font-size:13px;font-weight:900;color:var(--muted)}h1{margin:18px 0 14px;font-size:clamp(34px,5vw,64px);line-height:1.05;letter-spacing:0}.hero p{margin:0;color:var(--muted);font-size:18px;line-height:1.75;max-width:650px}.heroBtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.panel{background:var(--card);border:1.5px solid var(--border);border-radius:28px;padding:26px;box-shadow:var(--strong)}.search{height:54px;display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:999px;padding:0 16px}.search input{width:100%;border:0;outline:0;background:transparent;font-size:16px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{border-radius:18px;padding:16px 12px;background:var(--soft);border:1px solid var(--border);text-align:center}.stat strong{display:block;font-size:24px;line-height:1}.stat span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:8px}.section{padding:46px 0}.title{text-align:center;max-width:720px;margin:0 auto 28px}.label{display:inline-block;padding:7px 12px;border-radius:999px;border:1.5px solid var(--yellow);background:var(--card);font-size:11px;font-weight:900;letter-spacing:.16em}.title h2{margin:14px 0 10px;font-size:clamp(24px,3vw,36px);line-height:1.2}.title p{margin:0;color:var(--muted);line-height:1.7}.stageGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stage{background:var(--card);border:1.5px solid var(--border);border-radius:24px;padding:22px;box-shadow:var(--shadow)}.stageTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.stageKey{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;font-weight:900}.stage h3{margin:0 0 8px;font-size:18px}.stage p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}.library{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}.filters{position:sticky;top:88px;background:var(--card);border-radius:24px;padding:22px;box-shadow:var(--shadow);border:1px solid var(--border)}.filters h3{margin:0 0 14px;font-size:17px}.filterGroup{padding:16px 0;border-top:1px solid var(--border)}.filterGroup:first-of-type{border-top:0}.filterLabel{display:block;color:var(--muted);font-size:12px;font-weight:900;margin-bottom:9px}.chips,.activeChips{display:flex;flex-wrap:wrap;gap:7px}.chip,.activeChip{border:1.5px solid var(--border);background:var(--bg);color:var(--text);border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800}.chip.active{background:var(--text);color:white;border-color:var(--text)}.activeChip{border:0;background:var(--yellow);font-size:12px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.count{color:var(--muted);font-size:14px;font-weight:800}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.card{overflow:hidden;background:var(--card);border-radius:24px;box-shadow:var(--shadow);border:1px solid rgba(241,231,207,.7);display:flex;flex-direction:column;transition:.18s}.card:hover{transform:translateY(-3px);box-shadow:0 16px 35px rgba(120,100,60,.12)}.thumb{position:relative;height:146px;display:grid;place-items:center;overflow:hidden}.thumb:before,.thumb:after{content:"";position:absolute;border-radius:999px;opacity:.55;background:rgba(255,255,255,.7)}.thumb:before{width:118px;height:118px;right:-30px;bottom:-34px}.thumb:after{width:74px;height:74px;left:-24px;top:-20px}.emoji{position:relative;z-index:1;font-size:50px}.badge{position:absolute;z-index:2;top:12px;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;background:var(--text);color:white}.new{left:12px}.stageBadge{right:12px;background:var(--card);color:var(--text);border:1.5px solid rgba(0,0,0,.05)}.body{padding:20px;display:flex;flex-direction:column;flex:1}.body h3{margin:0 0 8px;font-size:17px;line-height:1.35}.desc{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.6}.meta,.tags{display:flex;flex-wrap:wrap;gap:6px}.meta span{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;background:var(--skySoft)}.tags{margin:13px 0 18px;color:var(--muted);font-size:12px}.cardBtns{margin-top:auto;display:flex;gap:8px}.cardBtns .btn{flex:1;min-height:40px;padding:0 12px;font-size:14px}.empty{grid-column:1/-1;text-align:center;background:var(--card);border-radius:24px;padding:54px 20px;border:1px solid var(--border)}.empty h3{margin:12px 0 6px}.empty p{margin:0 0 18px;color:var(--muted)}.modalBg{position:fixed;inset:0;z-index:100;background:rgba(40,30,10,.48);display:grid;place-items:center;padding:20px}.modal{width:min(680px,100%);max-height:min(760px,92vh);overflow:auto;background:var(--card);border-radius:28px;box-shadow:0 24px 80px rgba(0,0,0,.28)}.modalHead{position:relative;padding:28px;display:flex;gap:16px;align-items:flex-start}.modalIcon{width:64px;height:64px;display:grid;place-items:center;border-radius:20px;background:var(--card);font-size:34px;flex:0 0 auto}.modalHead h2{margin:34px 44px 0 0;font-size:24px;line-height:1.25}.close{position:absolute;right:18px;top:18px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.7);font-size:22px}.modalBody{padding:24px 28px}.modalBody p{line-height:1.75}.modalMeta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 22px;padding:16px;background:var(--bg);border-radius:18px}.modalMeta span{display:block;color:var(--muted);font-size:11px;font-weight:900;margin-bottom:5px}.modalMeta strong{font-size:13px;line-height:1.35}.modalSection{margin-top:18px}.modalSection h3{margin:0 0 7px;display:flex;align-items:center;gap:8px;font-size:15px}.bar{display:inline-block;width:6px;height:20px;border-radius:999px}.modalSection p{margin:0;font-size:14px}.modalFoot{position:sticky;bottom:0;display:flex;gap:8px;background:var(--card);border-top:1px solid var(--border);padding:16px 28px}.footer{margin-top:34px;padding:42px 0;background:var(--text);color:white}.footerGrid{display:grid;grid-template-columns:1fr auto;gap:24px}.footer p{margin:10px 0 0;color:rgba(255,255,255,.78);line-height:1.7}.copy{color:rgba(255,255,255,.68);font-size:12px;line-height:1.8;text-align:right}.yellowBg{background:var(--yellowSoft)}.greenBg{background:var(--greenSoft)}.skyBg{background:var(--skySoft)}.pinkBg{background:var(--pinkSoft)}.purpleBg{background:var(--purpleSoft)}.yellowDot{color:#d7a900}.greenDot{color:#4fa64b}.skyDot{color:#2998d8}.pinkDot{color:#d95d76}.purpleDot{color:#8268ce}@media(max-width:980px){.heroGrid,.library{grid-template-columns:1fr}.filters{position:static}.stageGrid{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.container{width:min(100% - 24px,1180px)}.actions .secondary{display:none}.hero{padding:36px 0 44px}.panel{padding:18px}.stats,.stageGrid,.grid{grid-template-columns:1fr}.toolbar{align-items:flex-start;flex-direction:column}.cardBtns,.modalFoot{flex-direction:column}.modalBg{align-items:end;padding:0}.modal{max-height:92vh;border-radius:26px 26px 0 0}.modalHead,.modalBody{padding-left:20px;padding-right:20px}.modalMeta{grid-template-columns:repeat(2,1fr)}.footerGrid{grid-template-columns:1fr}.copy{text-align:left}}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#fff;
+  color:#203f41;
+  font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+}
+button,input,a{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+button:focus-visible,a:focus-visible{
+  outline:3px solid #9969cf;
+  outline-offset:3px;
+}
+.page{
+  max-width:1200px;
+  margin:16px auto;
+  padding:0 20px;
+}
+
+/* 선택하신 이미지를 그대로 사용하는 시작화면 */
+.hero{
+  position:relative;
+  aspect-ratio:467 / 146;
+  overflow:hidden;
+  background:#e4f7ef;
+}
+.hero-art{
+  display:block;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:auto;
+}
+.share{
+  position:absolute;
+  z-index:2;
+  left:81.4%;
+  top:4%;
+  width:15.8%;
+  height:16%;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+}
+.share:hover{background:#ffffff20}
+.search-box{
+  position:absolute;
+  z-index:2;
+  left:42.6%;
+  top:77.9%;
+  width:43.7%;
+  height:14.9%;
+  display:flex;
+  align-items:center;
+  border-radius:999px;
+  background:#fafffd;
+  overflow:hidden;
+}
+.search-box:focus-within{
+  outline:2px solid #176c5e;
+  outline-offset:1px;
+}
+.search-icon{
+  width:12%;
+  padding-left:4%;
+  flex-shrink:0;
+  color:#159b87;
+  font-size:clamp(13px,2.4vw,26px);
+  line-height:1;
+}
+.search-box input{
+  width:88%;
+  min-width:0;
+  height:100%;
+  border:0;
+  outline:none;
+  padding:0 4% 0 0;
+  color:#345957;
+  background:transparent;
+  font-size:clamp(8px,1.35vw,15px);
+}
+.search-box input::placeholder{color:#7b8c88}
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+
+/* 시작화면 이미지가 없을 때만 표시 */
+.missing-image{
+  display:none;
+  padding:25px;
+  background:#e4f7ef;
+}
+.hero.image-missing{aspect-ratio:auto;min-height:240px}
+.hero.image-missing .missing-image{display:block}
+.hero.image-missing .hero-art{display:none}
+.hero.image-missing .share{
+  top:auto;
+  bottom:20px;
+  left:20px;
+  width:150px;
+  height:40px;
+  background:#176c5e;
+  color:#fff;
+}
+.hero.image-missing .share::after{content:"＋ 내 웹앱 나누기"}
+.hero.image-missing .search-box{
+  left:190px;
+  right:20px;
+  top:auto;
+  bottom:20px;
+  width:auto;
+  height:40px;
+}
+
+.library{
+  padding:14px 20px 24px;
+  background:linear-gradient(#f7f9ff,#fafaff);
+  border-radius:0 0 24px 24px;
+}
+.filters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:5px;
+  margin-bottom:12px;
+}
+.filters button{
+  flex-shrink:0;
+  border:0;
+  border-radius:999px;
+  padding:8px 15px;
+  min-height:34px;
+  background:#e2f5ee;
+  color:#345b51;
+  font-size:12px;
+  font-weight:bold;
+}
+.filters button.active{background:#176c5e;color:white}
+h2{margin:0 0 14px;font-size:19px}
+#count{font-size:13px;color:#708078}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.card{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border-radius:16px;
+  background:#fff;
+}
+.picture{
+  height:115px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(110deg,#eadfff,#f1e9ff);
+}
+.card:nth-child(4n+2) .picture{
+  background:linear-gradient(110deg,#ffe9ad,#fff0c4);
+}
+.card:nth-child(4n+3) .picture{background:#dceef9}
+.card:nth-child(4n) .picture{background:#ddf2e4}
+.icon{font-size:54px}
+.picture img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+.content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:13px 18px 15px;
+}
+h3{
+  margin:0 0 5px;
+  font-size:17px;
+  line-height:1.5;
+  word-break:keep-all;
+}
+.desc{
+  flex:1;
+  margin:0 0 12px;
+  font-size:13px;
+  line-height:1.6;
+  color:#6a7e75;
+}
+.run{
+  display:block;
+  padding:10px;
+  min-height:38px;
+  border-radius:999px;
+  text-align:center;
+  text-decoration:none;
+  background:#1b7869;
+  color:#fff;
+  font-size:13px;
+  font-weight:bold;
+}
+.empty{
+  grid-column:1/-1;
+  padding:35px;
+  text-align:center;
+}
+.status{font-size:13px;color:#6a7e75;line-height:1.6}
+.status:empty{display:none}
+footer{
+  padding:26px 12px;
+  text-align:center;
+  font-size:13px;
+  line-height:1.9;
+  color:#64796f;
+}
+dialog{
+  width:calc(100% - 32px);
+  max-width:480px;
+  padding:28px;
+  border:0;
+  border-radius:24px;
+  color:#203f41;
+  box-shadow:0 20px 80px #0003;
+}
+dialog::backdrop{background:#153b3577}
+dialog h2{padding-right:35px}
+dialog p{line-height:1.8;font-size:14px}
+.close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:#eef5f2;
+  font-size:24px;
+}
+.contact{
+  padding:16px;
+  border-radius:14px;
+  background:#eff8f3;
+  line-height:2;
+  overflow-wrap:anywhere;
+}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.button{
+  display:inline-block;
+  border:0;
+  padding:12px 18px;
+  border-radius:999px;
+  background:#176c5e;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  font-size:14px;
+}
+.secondary{background:#e5f2ed;color:#286b58}
+#copy-status{min-height:20px;font-size:13px}
+body:has(dialog[open]){overflow:hidden}
+
+@media(min-width:1100px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .picture{height:140px}
+}
+@media(max-width:760px){
+  .page{margin:10px auto;padding:0 12px}
+  .library{padding:10px 12px 20px}
+  .grid{gap:12px}
+  .picture{height:95px}
+  .icon{font-size:44px}
+  .content{padding:11px 12px}
+  h3{font-size:14px}
+  .desc{font-size:12px}
+}
+@media(max-width:480px){
+  .page{margin:8px auto;padding:0 8px}
+  .library{padding:10px 8px 16px}
+  .grid{gap:10px}
+  .picture{height:85px}
+  .content{padding:10px}
+  h3{font-size:13px}
+  .desc,.run{font-size:11px}
+  .search-box input{font-size:clamp(7px,1.8vw,9px)}
+  .search-icon{font-size:14px}
+  .hero.image-missing{min-height:300px}
+  .hero.image-missing .search-box{
+    left:20px;
+    bottom:70px;
+  }
+}
+@media(max-width:360px){
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
-<body><div id="root"></div>
+<body>
+<div class="page">
+
+<header class="hero" id="hero">
+  <img
+    class="hero-art"
+    id="hero-art"
+    src="시작화면.png"
+    alt="놀이앱 나눔터. 선생님의 아이디어가 우리 모두의 놀이가 됩니다. 선생님이 만들고, 함께 나누는 교육자료."
+  >
+
+  <div class="missing-image">
+    <h1>놀이앱 나눔터</h1>
+    <p>선택하신 이미지를 <strong>시작화면.png</strong>로 저장하여
+    preview.html과 같은 폴더에 넣어 주세요.</p>
+  </div>
+
+  <button
+    class="share"
+    id="share"
+    type="button"
+    aria-label="내 웹앱 나누기"
+  ></button>
+
+  <div class="search-box">
+    <label class="sr-only" for="search">어떤 놀이자료를 찾으세요?</label>
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input
+      id="search"
+      type="search"
+      placeholder="어떤 놀이자료를 찾으세요?"
+      autocomplete="off"
+    >
+  </div>
+</header>
+
+<main class="library">
+  <div class="filters" id="filters" aria-label="놀이 주제 선택"></div>
+  <h2>웹앱 둘러보기 <small id="count" aria-live="polite"></small></h2>
+  <div class="grid" id="grid"></div>
+  <p class="status" id="status" role="status"></p>
+  <noscript>자료 목록을 보려면 브라우저의 JavaScript를 켜 주세요.</noscript>
+</main>
+
+<footer>
+  함께 만들고, 함께 나누는 교사들의 놀이 공간<br>
+  <strong>영일유치원에서 시작합니다.</strong>
+</footer>
+</div>
+
+<dialog id="share-dialog" aria-labelledby="dialog-title">
+  <button class="close" id="close" type="button" aria-label="닫기">×</button>
+  <h2 id="dialog-title">내 웹앱 나누기</h2>
+  <p>
+    선생님이 만든 놀이자료를 이메일로 보내 주세요.<br>
+    자료 이름, 간단한 활용 방법, 웹앱 주소 또는 HTML 파일을
+    함께 보내 주시면 확인하겠습니다.
+  </p>
+  <div class="contact">
+    이메일 <a href="mailto:ylschool21@gmail.com">ylschool21@gmail.com</a><br>
+    문의 전화 <a href="tel:0514150679">051-415-0679</a>
+  </div>
+  <div class="actions">
+    <a class="button"
+       href="mailto:ylschool21@gmail.com?subject=놀이앱%20나눔%20신청">
+      이메일 작성하기 ↗
+    </a>
+    <button class="button secondary" id="copy" type="button">
+      이메일 주소 복사
+    </button>
+  </div>
+  <p>메일 앱이 열리지 않으면 주소를 복사해 사용 중인 이메일에서 보내 주세요.</p>
+  <p id="copy-status" role="status"></p>
+</dialog>
+
 <script>
-const sampleResources = [
-  {
-    id: 1,
-    title: "같은 그림을 찾아봐!",
-    description: "시간 안에 짝꿍 그림을 모두 찾아보는 메모리 매칭 놀이",
-    longDescription:
-      "유아의 집중력과 기억력을 자연스럽게 길러주는 메모리 카드 매칭 게임입니다. 카드를 한 장씩 뒤집으며 같은 그림을 찾는 과정에서 시각 인지력과 차례를 기다리는 사회성이 함께 자라요.",
-    tags: ["메모리", "카드", "집중력", "짝맞추기"],
-    age: "4세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["태블릿", "전자칠판"],
-    playOnStage: "A",
-    icon: "🖼️",
-    accent: "yellow",
-    link: "./전담_같은 카드 찾기.html",
-    recentlyAdded: true,
-    materials: "태블릿 또는 전자칠판",
-    howToUse:
-      "① 게임을 실행해요. ② 카드를 한 장씩 뒤집어 같은 그림을 찾아요. ③ 모두 찾으면 성공! 친구와 차례로 도전해봐요.",
-    teacherTip:
-      "처음에는 카드 수를 적게 두고 시작해 성공 경험을 쌓아주세요. \"어디서 봤더라?\"를 함께 떠올리면 기억 전략이 자라납니다.",
-  },
-  {
-    id: 2,
-    title: "글자 친구",
-    description: "마이크에 말하면 글자가 나타나 따라써 보는 음성 글자 놀이",
-    longDescription:
-      "유아가 마이크에 말하면 음성 인식으로 글자가 화면에 나타나고, 따라써볼 수 있는 음성 기반 글자 놀이입니다. 말과 글의 연결을 자연스럽게 경험할 수 있어요.",
-    tags: ["AI", "음성인식", "글자", "쓰기"],
-    age: "5세",
-    type: "웹앱",
-    topic: "언어놀이",
-    device: ["태블릿"],
-    playOnStage: "A",
-    icon: "🗣️",
-    accent: "sky",
-    link: "./글자친구.html",
-    recentlyAdded: true,
-    materials: "태블릿 · 마이크 권한 허용 · 손가락 또는 디지털 펜",
-    howToUse:
-      "① 마이크 버튼을 눌러요. ② 쓰고 싶은 말을 또박또박 말해요. ③ 화면에 나타난 글자를 따라써봐요.",
-    teacherTip:
-      "처음에는 한 글자나 짧은 단어부터 시작해주세요. 잘 인식되지 않을 때는 \"천천히 한 번 더\" 해보면 됩니다.",
-  },
-  {
-    id: 3,
-    title: "AI 딸기 잡기",
-    description: "AI 카메라로 손을 인식해 딸기를 잡고 애벌레를 피하는 신체 놀이",
-    longDescription:
-      "AI 카메라가 유아의 손동작을 인식해 화면 속 딸기를 잡고 애벌레를 피하는 동작 인식 게임입니다. 60초 동안 딸기 20개 따기 미션을 통해 신체 조절력과 순발력을 길러요.",
-    tags: ["AI", "카메라", "신체", "동작인식", "딸기"],
-    age: "5세",
-    type: "웹앱",
-    topic: "신체놀이",
-    device: ["태블릿", "PC", "카메라"],
-    playOnStage: "A",
-    icon: "🍓",
-    accent: "pink",
-    link: "./딸기게임.html",
-    recentlyAdded: true,
-    materials: "태블릿 또는 PC · 카메라 권한 허용 · 충분한 활동 공간",
-    howToUse:
-      "① 카메라 권한을 허용해요. ② 화면 앞에서 손을 움직여 딸기를 잡아요. ③ 애벌레는 살짝 피해요!",
-    teacherTip:
-      "유아가 너무 가까이 서면 인식이 어려울 수 있어요. 카메라 앞에 적정 거리를 표시해두면 좋습니다.",
-  },
-  {
-    id: 4,
-    title: "가게 놀이 키오스크",
-    description: "팔고 싶은 물건을 골라 우리만의 가게를 만들어보는 키오스크 앱",
-    longDescription:
-      "유아가 팔고 싶은 물건을 직접 골라 우리 반만의 가게를 만들 수 있는 키오스크 형태의 가게놀이 웹앱입니다. 손님과 주인 역할 모두를 한 화면에서 자연스럽게 경험해요.",
-    tags: ["가게놀이", "역할놀이", "키오스크", "사회"],
-    age: "5세",
-    type: "웹앱",
-    topic: "가게놀이",
-    device: ["태블릿"],
-    playOnStage: "A",
-    icon: "🛍️",
-    accent: "pink",
-    link: "./가게놀이 키오스크.html",
-    recentlyAdded: true,
-    materials: "태블릿 · (선택) 모형 화폐 · 명찰",
-    howToUse:
-      "① 무슨 가게를 열지 의논해요. ② 팔 물건을 최대 6개 골라 진열해요. ③ 손님·주인이 되어 가게 놀이를 펼쳐요.",
-    teacherTip:
-      "유아가 만들고 싶어하는 가게가 따로 있다면 가게 종류를 자유롭게 정해보세요. 놀이가 깊어질수록 가격·계산까지 자연스럽게 연결됩니다.",
-  },
-  {
-    id: 5,
-    title: "식물 키우기 레이스",
-    description: "박수 소리로 바람을 날려 아기 새싹을 자라게 하는 생태 놀이",
-    longDescription:
-      "「짝짝!」 박수를 치면 바람이 날아가고 아기 새싹이 무럭무럭 자라는 음성 인식 생태 놀이입니다. 친구들과 함께 박수 칠수록 식물이 빨리 자라요.",
-    tags: ["생태", "박수", "음성인식", "식물", "협력"],
-    age: "4세",
-    type: "웹앱",
-    topic: "생태놀이",
-    device: ["태블릿", "PC"],
-    playOnStage: "A",
-    icon: "🌱",
-    accent: "green",
-    link: "./식물 키우기 레이스.html",
-    recentlyAdded: true,
-    materials: "태블릿 또는 PC · 마이크 권한 허용",
-    howToUse:
-      "① 마이크 권한을 허용해요. ② 다같이 「짝짝!」 박수를 쳐요. ③ 바람이 날아가고 새싹이 자라나는 모습을 함께 응원해요.",
-    teacherTip:
-      "다같이 박수칠 때 가장 잘 자라는 모습을 보여줘요. 친구와 함께해야 한다는 협력의 의미를 자연스럽게 느낄 수 있어요.",
-  },
-  {
-    id: 6,
-    title: "우리반 미덕보석함",
-    description: "친구의 마음 속 미덕 보석을 깨워주는 사회·정서 활동",
-    longDescription:
-      "친구와 나의 마음 속 미덕 보석(친절, 용기, 배려 등)을 발견하고 깨워주는 사회·정서 발달 놀이입니다. 학급의 따뜻한 분위기를 만들어가는 데 좋아요.",
-    tags: ["미덕", "사회정서", "관계", "감정"],
-    age: "5세",
-    type: "웹앱",
-    topic: "질문놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "Y",
-    icon: "💎",
-    accent: "yellow",
-    link: "./우리반 미덕 보석함.html",
-    recentlyAdded: true,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 친구의 좋은 점을 떠올려요. ② 보석함의 보석을 깨워 친구에게 선물해요. ③ 받은 보석에 대해 함께 이야기 나눠요.",
-    teacherTip:
-      "받은 보석에 대해 \"왜 그렇게 생각했어?\" 물어보면 표현 능력이 자라요. 일주일 단위로 한 명씩 \"오늘의 보석\"을 정해도 좋아요.",
-  },
-  {
-    id: 7,
-    title: "알쏭달쏭 일곱고개 놀이",
-    description: "일곱 번의 질문으로 정답을 맞혀보는 사고력 질문 놀이",
-    longDescription:
-      "단 일곱 번의 질문만으로 정답을 추리해보는 질문 놀이입니다. 좋은 질문이 무엇인지 자연스럽게 익히고, 친구의 답을 듣고 다음 질문을 이어가는 사고력을 길러요.",
-    tags: ["질문놀이", "추리", "사고력", "스무고개"],
-    age: "5세",
-    type: "웹앱",
-    topic: "질문놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "L",
-    icon: "🤔",
-    accent: "purple",
-    link: "./일곱 고개 놀이.html",
-    recentlyAdded: false,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 정답을 맞힐 사람을 정해요. ② 일곱 번의 질문 안에서 단서를 모아요. ③ 답을 추리해 외쳐봐요!",
-    teacherTip:
-      "\"좋은 질문은 어떤 질문일까?\" 놀이 후 함께 이야기 나누면 메타인지가 자라납니다.",
-  },
-  {
-    id: 8,
-    title: "말랑말랑 선물 찾기",
-    description: "보물을 숨기고 친구가 찾아보는 짝꿍 추리 놀이",
-    longDescription:
-      "한 친구가 보물을 숨기면 다른 친구가 숫자 칸을 눌러 찾아가는 짝꿍 추리 놀이입니다. 차례 지키기와 위치·공간 감각을 자연스럽게 익혀요.",
-    tags: ["보물찾기", "짝꿍", "위치", "추리"],
-    age: "4세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "A",
-    icon: "🎁",
-    accent: "pink",
-    link: "./전담_보물찾기.html",
-    recentlyAdded: true,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 한 친구가 보물을 숨겨요. ② 다른 친구가 숫자를 콕! 눌러 찾아요. ③ 역할을 바꿔서 한 번 더 해봐요.",
-    teacherTip:
-      "\"왜 거기 숨겼어?\" 숨긴 친구의 전략을 들어보세요. 공간을 말로 설명하는 경험이 큰 배움이 됩니다.",
-  },
-  {
-    id: 9,
-    title: "팡팡 상자 놀이 - 트럭에 싣기",
-    description: "트럭 뒤에 상자를 던져 정확하게 실어보는 신체 놀이",
-    longDescription:
-      "달리는 트럭 뒤에 상자를 던져 정확하게 실어보는 신체 조절 놀이입니다. 10개 중 8개 이상 성공이 목표! 눈과 손의 협응력, 거리 가늠 능력을 길러요.",
-    tags: ["상자", "트럭", "조준", "신체조절"],
-    age: "4세",
-    type: "웹앱",
-    topic: "신체놀이",
-    device: ["태블릿", "전자칠판"],
-    playOnStage: "A",
-    icon: "🚚",
-    accent: "pink",
-    link: "./전담_상자를 던져요.html",
-    recentlyAdded: false,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 게임을 실행해요. ② 트럭이 다가올 때 상자를 던져 실어요. ③ 10개 중 8개 이상 성공해봐요!",
-    teacherTip:
-      "한 명씩 도전하면 차분히 집중할 수 있고, 모둠 도전으로 순서를 정해도 즐거워요.",
-  },
-  {
-    id: 10,
-    title: "재미있는 질문놀이 (까바·까만)",
-    description: "「~까?」 「~까!」 말놀이로 자유롭게 질문을 주고받는 놀이",
-    longDescription:
-      "「~까?」 묻기, 「~까!」 답하기 말놀이로 자유롭게 질문을 주고받는 언어 기반 질문 놀이입니다. 유아가 가볍게 질문을 만드는 경험을 쌓아요.",
-    tags: ["질문놀이", "말놀이", "언어", "표현"],
-    age: "5세",
-    type: "웹앱",
-    topic: "질문놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "L",
-    icon: "❓",
-    accent: "yellow",
-    link: "./재미있는 질문놀이(까바, 까만).html",
-    recentlyAdded: false,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 「~까?」 질문을 만들어 친구에게 던져요. ② 친구는 「~까!」로 답해요. ③ 누구의 질문이 가장 재미있었는지 이야기 나눠요.",
-    teacherTip:
-      "엉뚱한 질문도 환영해주세요. 정답보다 \"질문이 가진 재미\"를 함께 발견하는 것이 핵심이에요.",
-  },
-  {
-    id: 11,
-    title: "PLAY-ON 질문 보드게임",
-    description: "주사위를 굴려 칸마다 질문 보물을 찾는 그림책 질문 여행",
-    longDescription:
-      "주사위를 굴려 보드 위 칸마다 숨겨진 질문 보물을 찾으며 여행하는 그림책 기반 질문 보드게임입니다. 함께 읽은 그림책을 더 깊이 음미하고 친구와 생각을 나누기에 좋아요.",
-    tags: ["그림책", "질문놀이", "보드게임", "주사위"],
-    age: "5세",
-    type: "웹앱",
-    topic: "그림책",
-    device: ["전자칠판"],
-    playOnStage: "L",
-    icon: "🎲",
-    accent: "pink",
-    link: "./질문보드게임.html",
-    recentlyAdded: true,
-    materials: "전자칠판 · 함께 읽은 그림책",
-    howToUse:
-      "① 그림책을 함께 읽어요. ② 주사위를 굴려 보드 칸으로 이동해요. ③ 그 칸의 질문에 자유롭게 답하며 이야기 나눠요.",
-    teacherTip:
-      "정답이 정해져 있지 않은 질문이에요. 친구의 답을 들으며 \"나는 다르게 생각해\"라고 표현하는 경험이 자라납니다.",
-  },
-  {
-    id: 12,
-    title: "주말지낸이야기 도우미",
-    description: "친구들의 주말 이야기를 모아 함께 나누는 이야기 공유 앱",
-    longDescription:
-      "유아들이 주말에 보낸 이야기를 모아 학급에서 함께 나누고 들어보는 이야기 공유 도우미입니다. 월요일 아침 활동으로 활용하면 자연스럽게 학급의 대화가 풍성해져요.",
-    tags: ["이야기나누기", "주말", "공유", "월요일"],
-    age: "5세",
-    type: "웹앱",
-    topic: "언어놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "Y",
-    icon: "🌈",
-    accent: "sky",
-    link: "./주말 지낸 이야기 도우미.html",
-    recentlyAdded: true,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 한 명씩 주말 이야기를 들려줘요. ② 도우미 앱에 이야기를 기록해요. ③ 친구의 이야기에 \"궁금한 점\"을 질문해봐요.",
-    teacherTip:
-      "이야기를 잘 못하는 친구에게는 \"가장 기억에 남는 한 장면\"부터 물어보세요. 작은 장면이 좋은 시작이 됩니다.",
-  },
-  {
-    id: 13,
-    title: "유치원 버스 안전 O/X 퀴즈",
-    description: "통학버스 안전 규칙을 O/X로 함께 익히는 안전 교육 퀴즈",
-    longDescription:
-      "유치원 통학버스 안전 규칙을 O/X 퀴즈 형식으로 익히는 안전 교육 자료입니다. 줄서기·안전벨트·하차 후 행동 등 18가지 실제 상황을 다뤄요.",
-    tags: ["안전교육", "버스", "통학", "OX퀴즈"],
-    age: "4세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["전자칠판"],
-    playOnStage: "A",
-    icon: "🚌",
-    accent: "sky",
-    link: "./전담_버스안전퀴즈.html",
-    recentlyAdded: true,
-    materials: "전자칠판 · (선택) 안전벨트 모형",
-    howToUse:
-      "① 다같이 화면을 보며 문제를 읽어요. ② O/X 중 하나를 골라 외쳐요. ③ 정답과 함께 \"왜 그런지\" 이야기 나눠요.",
-    teacherTip:
-      "한 차시에 모두 하기보다 매일 1~2문제씩 꾸준히 해보세요. 안전 습관은 반복에서 자라납니다.",
-  },
-  {
-    id: 14,
-    title: "높이높이 상자쌓기",
-    description: "가장 길쭉한 상자를 골라 15층 탑을 쌓아보는 길이 비교 놀이",
-    longDescription:
-      "여러 상자 중 가장 길쭉한 상자를 골라 차근차근 쌓아 15층 탑을 완성하는 놀이입니다. 길이를 시각적으로 비교하는 인지 능력을 자연스럽게 키워요.",
-    tags: ["상자쌓기", "길이비교", "관찰", "수학"],
-    age: "4세",
-    type: "웹앱",
-    topic: "디지털놀이",
-    device: ["태블릿", "전자칠판"],
-    playOnStage: "A",
-    icon: "📦",
-    accent: "yellow",
-    link: "./상자를 쌓아요_전담.html",
-    recentlyAdded: false,
-    materials: "전자칠판 또는 태블릿",
-    howToUse:
-      "① 네 개의 상자 중 가장 길쭉한 상자를 찾아요. ② 콕! 눌러 탑에 쌓아요. ③ 15층까지 차근차근 쌓아봐요.",
-    teacherTip:
-      "\"어떻게 알았어?\"라고 물어주세요. 비교 전략을 말로 설명하는 경험이 큰 배움이 됩니다.",
-  },
-  {
-    id: 15,
-    title: "장수풍뎅이의 세계 - 한살이 탐험",
-    description: "알·애벌레·번데기·성충까지 장수풍뎅이 한살이를 탐험하는 학습 게임",
-    longDescription:
-      "장수풍뎅이가 알에서 애벌레, 번데기를 거쳐 성충이 되기까지의 한살이를 멜로디와 함께 탐험하는 생태 학습 게임입니다. 곤충에 대한 호기심을 깊이 있는 탐구로 이어줘요.",
-    tags: ["생태", "곤충", "한살이", "장수풍뎅이"],
-    age: "혼합연령",
-    type: "웹앱",
-    topic: "생태놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "A",
-    icon: "🪲",
-    accent: "green",
-    link: "./장수풍뎅이 성장게임.html",
-    recentlyAdded: false,
-    materials: "전자칠판 또는 태블릿 · 스피커",
-    howToUse:
-      "① 게임을 실행해요. ② 한살이의 각 단계를 살펴보며 특징을 알아봐요. ③ 자신만의 \"장수풍뎅이 일기\"로 표현 활동을 이어가요.",
-    teacherTip:
-      "실제 장수풍뎅이 사육 활동과 연계하면 책과 경험이 만나는 깊이 있는 배움이 됩니다.",
-  },
-  {
-    id: 16,
-    title: "지구를 지켜라! 최강 지구지킴이",
-    description: "두 친구가 몸으로 협력해 지구를 구하는 AI 동작 인식 생태 게임",
-    longDescription:
-      "AI 카메라가 두 친구의 손과 몸을 인식해 바다 청소·업사이클링·숲 만들기 세 단계를 함께 수행하는 협력 생태 게임입니다. 두 손 모으기·친구에게 쓰레기 넘기기·점프하기까지 몸 전체를 사용해 신나게 환경 보호를 경험해요.",
-    tags: ["AI", "동작인식", "생태", "협력", "환경", "신체"],
-    age: "5세",
-    type: "웹앱",
-    topic: "생태놀이",
-    device: ["태블릿", "PC", "카메라"],
-    playOnStage: "A",
-    icon: "🌍",
-    accent: "green",
-    link: "./우리는%20최강지구지킴이%20!(1).html",
-    recentlyAdded: true,
-    materials: "PC 또는 태블릿 · 웹캠/카메라 권한 허용 · 충분한 활동 공간 · (선택) 스피커",
-    howToUse:
-      "① 두 친구가 카메라 앞에 나란히 서요. ② 1단계: 두 손을 짝! 모아 바다 쓰레기를 수거해요. ③ 2단계: 친구1이 친구2에게 쓰레기를 넘겨 초록 수거함에 함께 넣어요. ④ 3단계: 폴짝폴짝 점프해 지구에 숲을 만들어요.",
-    teacherTip:
-      "카메라 앞 적정 거리를 바닥에 표시해두면 인식이 훨씬 안정됩니다. 점수보다 \"우리가 어떻게 도왔지?\" 함께 이야기 나누는 시간이 가장 큰 배움이 돼요.",
-  },
-  {
-    id: 17,
-    title: "가게놀이 키오스크(5세용)",
-    description: "손님과 사장님 역할을 나누어 주문과 계산을 경험하는 5세용 가게놀이 키오스크",
-    longDescription:
-      "유아가 햄버거, 과일, 장난감 가게에서 메뉴를 고르고 주문하거나 직접 가게를 만들어보는 역할놀이 자료입니다. 손님과 사장님 역할을 번갈아 맡으며 수량, 가격, 차례, 의사소통을 자연스럽게 경험할 수 있습니다.",
-    tags: ["가게놀이", "키오스크", "역할놀이", "수학", "의사소통"],
-    age: "5세",
-    type: "활동",
-    topic: "가게놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "A",
-    icon: "🛍️",
-    accent: "pink",
-    link: "./가게놀이 키오스크(5세용).html",
-    recentlyAdded: true,
-    materials: "전자칠판 또는 태블릿 · 역할놀이 소품(선택)",
-    howToUse:
-      "① 가게를 선택하거나 우리 가게 메뉴를 만들어요. ② 손님이 메뉴와 수량을 골라 주문해요. ③ 사장님이 주문 내용을 확인하고 손님을 호출해요. ④ 역할을 바꾸어 다시 놀이해요.",
-    teacherTip:
-      "처음에는 한 가지 가게에서 주문 방법을 함께 익혀보세요. 놀이가 익숙해지면 유아가 직접 메뉴와 가격을 정하도록 지원하면 수 개념과 의사소통 경험이 더욱 풍부해집니다.",
-  },
-  {
-    id: 18,
-    title: "아무질문 대잔치",
-    description: "그림책에서 떠오른 단어와 책 속·책 밖 질문을 모아 함께 답하고 기록하는 질문 놀이",
-    longDescription:
-      "그림책을 읽고 떠오른 단어를 모은 뒤, 책 속에서 답을 찾는 질문과 책 밖으로 생각을 넓히는 질문을 만들어보는 학급 질문 놀이입니다. 질문별로 유아의 이름과 답변을 기록하고, 활동 결과를 글이나 그림 파일로 저장할 수 있습니다.",
-    tags: ["질문놀이", "그림책", "의사소통", "생각나누기", "학급기록"],
-    age: "5세",
-    type: "활동",
-    topic: "질문놀이",
-    device: ["전자칠판", "태블릿"],
-    playOnStage: "L",
-    icon: "🎉",
-    accent: "yellow",
-    link: "./아무질문대잔치 (최종본).html",
-    recentlyAdded: true,
-    materials: "함께 읽을 그림책 · 전자칠판 또는 태블릿",
-    howToUse:
-      "① 함께 읽은 책과 학급 명단을 등록해요. ② 책에서 떠오른 단어를 모아요. ③ 책 속 질문과 책 밖 질문을 만들어요. ④ 질문에 답하고 친구들의 생각을 함께 나눠요. ⑤ 질문 판과 누적 기록을 저장해요.",
-    teacherTip:
-      "책 속 질문은 내용을 다시 살피게 하고, 책 밖 질문은 유아의 경험과 상상을 넓혀줍니다. 질문의 수를 늘리는 데만 집중하지 말고, 서로 다른 질문을 비교하며 왜 궁금했는지 말하게 해보세요.",
-  },
+"use strict";
+
+const repo = "ylschool21-max/002";
+const base = "https://ylschool21-max.github.io/002/";
+
+const priority = [
+  "가게놀이 키오스크.html",
+  "글자친구.html",
+  "질문보드게임.html",
+  "식물 키우기 레이스.html"
 ];
-const UI = {"metaDesc":"영일유치원 선생님들이 함께 만드는 AI·디지털 기반 교육자료 나눔 공간","siteTitle":"영일유치원 교육자료 나눔터","navFind":"자료 찾기","kicker":"AI·디지털 기반 교육자료 나눔 공간","heroA":"영일유치원","heroB":"교육자료 나눔터","heroText":"선생님들이 함께 만드는 놀이 중심 교육자료 공간입니다. 연령, 주제, 기기에 맞는 자료를 빠르게 찾아 수업과 놀이에 바로 활용해보세요.","browse":"자료 둘러보기","playOnView":"PLAY-ON 보기","searchPlaceholder":"자료명, 주제, 태그로 검색","sharedResources":"공유 자료","topics":"활용 주제","newResources":"새 자료","stageTitle":"놀이와 질문이 이어지는 흐름","stageText":"자료마다 표시된 PLAY-ON 단계로 수업 흐름에 맞는 활동을 고를 수 있습니다.","stageP":"그림책 만나기","stagePDesc":"그림책과 놀이로 새로운 세계를 만나요.","stageL":"질문하기","stageLDesc":"궁금한 점을 자유롭게 묻고 함께 이야기 나눠요.","stageA":"탐구하기","stageADesc":"AI·디지털 도구로 깊이 있게 탐구하고 표현해요.","stageY":"나누기","stageYDesc":"친구와 생각을 나누고 함께 성장해요.","libraryTitle":"교육자료 찾아보기","libraryText":"연령과 주제로 필터링하고, 필요한 자료를 바로 실행해보세요.","filterTitle":"자료 필터","age":"연령","topic":"주제","all":"전체","reset":"초기화","allResources":"전체 자료 보기","resultPrefix":"총 ","resultSuffix":"개의 자료가 보입니다.","noResultTitle":"조건에 맞는 자료가 없어요","noResultText":"검색어나 필터를 변경해보세요.","resetFilter":"필터 초기화","run":"실행하기","detail":"자세히","close":"닫기","modalAge":"대상 연령","modalType":"자료 유형","modalTopic":"활용 주제","modalDevice":"활용 기기","materials":"준비물","howToUse":"활용 방법","teacherTip":"교사용 팁","footerText":"아이들의 놀이와 배움이 이어지는 자료를 함께 나눕니다. 선생님들의 작은 자료가 모여 더 풍성한 배움이 됩니다.","copyright1":"© 영일유치원 교육자료 나눔터","copyright2":"본 자료는 교육적 활용을 목적으로 제작되었습니다.","copyright3":"상업적 사용 및 무단 배포를 금합니다."};
-(function app() {
-  const ageOrder = ['3\uC138', '4\uC138', '5\uC138', '\uD63C\uD569\uC5F0\uB839'];
-  const topicOrder = ['\uADF8\uB9BC\uCC45', '\uC9C8\uBB38\uB180\uC774', '\uB514\uC9C0\uD138\uB180\uC774', '\uC0DD\uD0DC\uB180\uC774', '\uC5B8\uC5B4\uB180\uC774', '\uC2E0\uCCB4\uB180\uC774', '\uAC00\uAC8C\uB180\uC774'];
-  const FILTERS = { age: [UI.all, ...ageOrder.filter(v => sampleResources.some(r => r.age === v))], topic: [UI.all, ...topicOrder.filter(v => sampleResources.some(r => r.topic === v))] };
-  const STAGES = [{key:'P',name:UI.stageP,desc:UI.stagePDesc,color:'pink',icon:'P'},{key:'L',name:UI.stageL,desc:UI.stageLDesc,color:'yellow',icon:'L'},{key:'A',name:UI.stageA,desc:UI.stageADesc,color:'sky',icon:'A'},{key:'Y',name:UI.stageY,desc:UI.stageYDesc,color:'green',icon:'Y'}];
-  const DEVICE_ICON = {};
-  const state = { search:'', filters:{ age:UI.all, topic:UI.all } };
-  const root = document.getElementById('root');
-  function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-  function stageFor(k){return STAGES.find(s=>s.key===k)}
-  function cls(r){return (r.accent||'yellow')} function bg(r){return cls(r)+'Bg'} function dot(r){return cls(r)+'Dot'}
-  function uniq(prop){return new Set(sampleResources.map(r=>r[prop]).filter(Boolean)).size}
-  function newer(){return sampleResources.filter(r=>r.recentlyAdded).length}
-  function stageHTML(s){return `<article class="stage"><div class="stageTop"><span class="stageKey ${s.color}Bg">${esc(s.key)}</span><span style="font-size:24px">${s.icon}</span></div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p></article>`}
-  function filterHTML(key,label){return `<div class="filterGroup"><span class="filterLabel">${esc(label)}</span><div class="chips">${FILTERS[key].map(v=>`<button class="chip" type="button" data-filter="${key}" data-value="${esc(v)}">${esc(v)}</button>`).join('')}</div></div>`}
-  function build(){root.innerHTML=`<header class="header"><div class="container nav"><div class="brand"><span class="mark">Y</span><span>${UI.siteTitle}</span></div><div class="actions"><a class="btn secondary" href="#stages">PLAY-ON</a><a class="btn yellow" href="#library">${UI.navFind}</a></div></div></header><main><section class="hero"><div class="container heroGrid"><div><span class="kicker">? ${UI.kicker}</span><h1>${UI.heroA}<br>${UI.heroB}</h1><p>${UI.heroText}</p><div class="heroBtns"><a class="btn yellow" href="#library">${UI.browse}</a><a class="btn secondary" href="#stages">${UI.playOnView}</a></div></div><div class="panel"><label class="search" for="searchInput"><span>Search</span><input id="searchInput" type="search" autocomplete="off" placeholder="${UI.searchPlaceholder}"></label><div class="stats"><div class="stat"><strong>${sampleResources.length}</strong><span>${UI.sharedResources}</span></div><div class="stat"><strong>${uniq('topic')}</strong><span>${UI.topics}</span></div><div class="stat"><strong>${newer()}</strong><span>${UI.newResources}</span></div></div></div></div></section><section id="stages" class="section"><div class="container"><div class="title"><span class="label">PLAY-ON</span><h2>${UI.stageTitle}</h2><p>${UI.stageText}</p></div><div class="stageGrid">${STAGES.map(stageHTML).join('')}</div></div></section><section id="library" class="section"><div class="container"><div class="title"><span class="label">RESOURCE LIBRARY</span><h2>${UI.libraryTitle}</h2><p>${UI.libraryText}</p></div><div class="library"><aside class="filters"><h3>${UI.filterTitle}</h3><div id="activeChips" class="activeChips"></div>${filterHTML('age',UI.age)}${filterHTML('topic',UI.topic)}<button class="btn secondary" type="button" data-action="reset" style="width:100%;margin-top:10px">${UI.reset}</button></aside><div><div class="toolbar"><div id="count" class="count"></div><button class="btn secondary" type="button" data-action="reset">${UI.allResources}</button></div><div id="grid" class="grid"></div></div></div></div></section></main><footer class="footer"><div class="container footerGrid"><div><div class="brand"><span class="mark">Y</span><span>${UI.siteTitle}</span></div><p>${UI.footerText}</p></div><div class="copy">${UI.copyright1}<br>${UI.copyright2}<br>${UI.copyright3}</div></div></footer>`;bind();renderFilters();render()}
-  function bind(){document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value.trim();render()});root.addEventListener('click',e=>{const f=e.target.closest('[data-filter]');if(f){state.filters[f.dataset.filter]=f.dataset.value;renderFilters();render();return}const a=e.target.closest('[data-action]');if(!a)return;if(a.dataset.action==='reset')reset();if(a.dataset.action==='remove'){state.filters[a.dataset.key]=UI.all;renderFilters();render()}if(a.dataset.action==='detail')openModal(Number(a.dataset.id));if(a.dataset.action==='run')run(Number(a.dataset.id));if(a.dataset.action==='close')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()})}
-  function reset(){state.search='';state.filters.age=UI.all;state.filters.topic=UI.all;const i=document.getElementById('searchInput');if(i)i.value='';renderFilters();render()}
-  function renderFilters(){Object.keys(FILTERS).forEach(k=>document.querySelectorAll(`[data-filter="${k}"]`).forEach(b=>b.classList.toggle('active',b.dataset.value===state.filters[k])));const active=Object.keys(state.filters).filter(k=>state.filters[k]!==UI.all);document.getElementById('activeChips').innerHTML=active.map(k=>`<button class="activeChip" type="button" data-action="remove" data-key="${k}">${k==='age'?UI.age:UI.topic}: ${esc(state.filters[k])} x</button>`).join('')}
-  function filtered(){const kw=state.search.toLowerCase();return sampleResources.filter(r=>{if(state.filters.age!==UI.all&&r.age!==state.filters.age)return false;if(state.filters.topic!==UI.all&&r.topic!==state.filters.topic)return false;if(!kw)return true;return [r.title,r.description,r.longDescription,r.topic,r.age,r.type,...(r.tags||[])].join(' ').toLowerCase().includes(kw)})}
-  function render(){const list=filtered();document.getElementById('count').textContent=UI.resultPrefix+list.length+UI.resultSuffix;const g=document.getElementById('grid');if(!list.length){g.innerHTML=`<div class="empty"><div style="font-size:38px">Search</div><h3>${UI.noResultTitle}</h3><p>${UI.noResultText}</p><button class="btn yellow" type="button" data-action="reset">${UI.resetFilter}</button></div>`;return}g.innerHTML=list.map(card).join('')}
-  function card(r){const st=stageFor(r.playOnStage);const devices=(r.device||[]).slice(0,2).map(d=>`<span>${DEVICE_ICON[d]||'?'} ${esc(d)}</span>`).join('');const tags=(r.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join('');return `<article class="card"><div class="thumb ${bg(r)}"><span class="emoji">${esc(r.icon)}</span>${r.recentlyAdded?'<span class="badge new">? NEW</span>':''}${st?`<span class="badge stageBadge"><span class="${dot(r)}">?</span> ${esc(r.playOnStage)}</span>`:''}</div><div class="body"><h3>${esc(r.title)}</h3><p class="desc">${esc(r.description)}</p><div class="meta"><span>${esc(r.age)}</span><span>${esc(r.type)}</span>${devices}</div><div class="tags">${tags}</div><div class="cardBtns"><button class="btn" type="button" data-action="run" data-id="${r.id}">${UI.run}</button><button class="btn secondary" type="button" data-action="detail" data-id="${r.id}">${UI.detail}</button></div></div></article>`}
-  function section(title,color,text){return `<section class="modalSection"><h3><span class="bar" style="background:${color}"></span>${esc(title)}</h3><p>${esc(text)}</p></section>`}
-  function openModal(id){const r=sampleResources.find(x=>x.id===id);if(!r)return;const st=stageFor(r.playOnStage);closeModal();const m=document.createElement('div');m.id='modal';m.className='modalBg';m.dataset.action='close';m.innerHTML=`<div class="modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="modalHead ${bg(r)}"><button class="close" type="button" data-action="close" aria-label="${UI.close}">?</button><div class="modalIcon">${esc(r.icon)}</div><div>${st?`<span class="badge stageBadge">PLAY-ON ? ${esc(r.playOnStage)} ${esc(st.name)}</span>`:''}<h2>${esc(r.title)}</h2></div></div><div class="modalBody"><p>${esc(r.longDescription)}</p><div class="modalMeta"><div><span>${UI.modalAge}</span><strong>${esc(r.age)}</strong></div><div><span>${UI.modalType}</span><strong>${esc(r.type)}</strong></div><div><span>${UI.modalTopic}</span><strong>${esc(r.topic)}</strong></div><div><span>${UI.modalDevice}</span><strong>${esc((r.device||[]).join(', '))}</strong></div></div>${section(UI.materials,'var(--yellow)',r.materials)}${section(UI.howToUse,'var(--green)',r.howToUse)}${section(UI.teacherTip,'var(--pink)',r.teacherTip)}<div class="tags" style="margin-top:20px">${(r.tags||[]).map(t=>`<span>#${esc(t)}</span>`).join('')}</div></div><div class="modalFoot"><button class="btn secondary" type="button" data-action="close">${UI.close}</button><button class="btn" type="button" data-action="run" data-id="${r.id}">${UI.run}</button></div></div>`;document.body.appendChild(m)}
-  function closeModal(){const m=document.getElementById('modal');if(m)m.remove()}
-  function run(id){const r=sampleResources.find(x=>x.id===id);if(r&&r.link)window.open(r.link,'_blank','noopener')}
-  build();
-})();
+
+const examples = {
+  "가게놀이 키오스크.html":
+    ["역할놀이","🛒","가게에서 물건을 고르고 계산해 보는 놀이"],
+  "글자친구.html":
+    ["언어놀이","🔤","글자와 친해지는 즐거운 놀이"],
+  "질문보드게임.html":
+    ["질문놀이","💬","다양한 질문을 나누는 놀이"],
+  "식물 키우기 레이스.html":
+    ["자연탐구","🌱","식물의 성장을 주제로 한 놀이"],
+  "딸기게임.html":
+    ["놀이게임","🍓","딸기를 주제로 즐기는 게임"],
+  "우리반 미덕 보석함.html":
+    ["인성·마음","💎","서로의 좋은 점과 미덕을 알아보는 놀이"],
+  "주말 지낸 이야기 도우미.html":
+    ["언어놀이","🏡","주말 경험을 이야기로 표현하는 활동"],
+  "장수풍뎅이 성장게임.html":
+    ["자연탐구","🪲","장수풍뎅이의 성장을 탐색하는 게임"],
+  "모종심기 순서 알아보기.html":
+    ["자연탐구","🌿","모종을 심는 순서를 알아보는 활동"],
+  "아무질문대잔치 (최종본).html":
+    ["질문놀이","🎉","그림책을 읽고 질문과 생각을 나누는 놀이"],
+  "일곱 고개 놀이.html":
+    ["질문놀이","🤔","질문으로 단서를 모아 정답을 추리하는 놀이"],
+  "재미있는 질문놀이(까바, 까만).html":
+    ["질문놀이","❓","자유롭게 질문을 주고받는 말놀이"],
+  "쏙쏙 글친구(글쓰기 도우미).html":
+    ["언어놀이","✏️","쓰고 싶은 말을 글자로 표현하는 활동"],
+  "전담_버스안전퀴즈.html":
+    ["안전교육","🚌","통학버스 안전 규칙을 알아보는 퀴즈"],
+  "전담_보물찾기.html":
+    ["놀이게임","🎁","숨겨진 보물을 찾는 놀이"],
+  "상자를 쌓아요_전담.html":
+    ["놀이게임","📦","상자를 차근차근 쌓는 놀이"],
+  "소리로 달리는 자동차_전담.html":
+    ["놀이게임","🚗","소리를 내어 자동차를 움직이는 놀이"],
+  "우리는 최강지구지킴이 !.html":
+    ["환경놀이","🌍","친구와 함께 지구를 지키는 놀이"],
+  "지구지킴이.html":
+    ["환경놀이","🌏","환경을 생각하는 지구지킴이 놀이"],
+  "gym.html":
+    ["신체놀이","🏃","몸을 움직이며 즐기는 활동"],
+  "puzzle.html":
+    ["놀이게임","🧩","퍼즐을 맞추는 활동"]
+};
+
+examples["가게놀이 키오스크(5세용).html"] =
+  examples["가게놀이 키오스크.html"];
+examples["글자친구_모바일.html"] =
+  examples["글자친구.html"];
+examples["질문게임.html"] =
+  examples["질문보드게임.html"];
+
+for (const name of [
+  "같은 카드 찾기_전담.html",
+  "전담_같은 카드 찾기.html",
+  "cards.html"
+]) {
+  examples[name] = ["놀이게임","🃏","같은 카드를 찾아보는 놀이"];
+}
+
+for (const name of [
+  "상자를 던져요_전담.html",
+  "전담_상자를 던져요.html"
+]) {
+  examples[name] = ["놀이게임","📦","상자를 던져 목표에 맞히는 놀이"];
+}
+
+/*
+실제 웹앱 화면 이미지는 다음 위치에 저장하면 표시됩니다.
+thumbnails/가게놀이 키오스크.png
+thumbnails/글자친구.png
+thumbnails/질문보드게임.png
+thumbnails/식물 키우기 레이스.png
+
+다른 자료도 HTML 확장자를 뺀 이름에 .png를 붙입니다.
+이미지가 없으면 아이콘으로 표시됩니다.
+*/
+const thumbnailPaths = {
+  "가게놀이 키오스크.html":"thumbnails/가게놀이 키오스크.png",
+  "글자친구.html":"thumbnails/글자친구.png",
+  "질문보드게임.html":"thumbnails/질문보드게임.png",
+  "식물 키우기 레이스.html":"thumbnails/식물 키우기 레이스.png"
+};
+
+const categories = [
+  "전체","언어놀이","질문놀이","자연탐구","역할놀이",
+  "놀이게임","인성·마음","신체놀이","안전교육","환경놀이","기타"
+];
+
+let category = "전체";
+let apps = [];
+
+const search = document.getElementById("search");
+const grid = document.getElementById("grid");
+const filters = document.getElementById("filters");
+const status = document.getElementById("status");
+
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+function encodePath(path) {
+  return path.split("/").map(encodeURIComponent).join("/");
+}
+
+function rank(file) {
+  const n = priority.indexOf(file);
+  return n < 0 ? 99 : n;
+}
+
+function setFiles(files) {
+  apps = files
+    .filter(f =>
+      f.type === "file" &&
+      /\.html$/i.test(f.name) &&
+      !["index.html","preview.html"].includes(f.name)
+    )
+    .map(f => {
+      const info = examples[f.name] ||
+        ["기타","🎲","선생님이 만든 놀이 웹앱"];
+      return {
+        file:f.name,
+        title:f.name.replace(/\.html$/i,""),
+        cat:info[0],
+        icon:info[1],
+        desc:info[2]
+      };
+    })
+    .sort((a,b) =>
+      rank(a.file) - rank(b.file) ||
+      a.title.localeCompare(b.title,"ko")
+    );
+
+  render();
+}
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  const found = apps.filter(a =>
+    (category === "전체" || category === a.cat) &&
+    `${a.title} ${a.desc} ${a.cat}`.toLowerCase().includes(q)
+  );
+
+  document.getElementById("count").textContent = `(${found.length})`;
+
+  grid.innerHTML = found.map(a => `
+    <article class="card">
+      <div class="picture">
+        <span class="icon" aria-hidden="true">${a.icon}</span>
+      </div>
+      <div class="content">
+        <h3>${esc(a.title)}</h3>
+        <p class="desc">${esc(a.desc)}</p>
+        <a class="run"
+           href="${base + encodeURIComponent(a.file)}"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="${esc(a.title)} 실행하기 (새 창)">
+          실행하기 ↗
+        </a>
+      </div>
+    </article>
+  `).join("") || `
+    <p class="empty">찾으시는 자료가 없습니다. 검색어나 주제를 바꿔 주세요.</p>
+  `;
+
+  found.forEach((a,i) => {
+    const path = thumbnailPaths[a.file] ||
+      `thumbnails/${a.title}.png`;
+    const img = new Image();
+    img.alt = `${a.title} 실행 화면`;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.onerror = () => img.remove();
+    img.src = encodePath(path);
+    grid.children[i].querySelector(".picture").appendChild(img);
+  });
+}
+
+filters.innerHTML = categories.map(c => `
+  <button type="button"
+          data-category="${c}"
+          class="${c === category ? "active" : ""}"
+          aria-pressed="${c === category}">
+    ${c}
+  </button>
+`).join("");
+
+filters.addEventListener("click", e => {
+  const button = e.target.closest("button");
+  if (!button) return;
+  category = button.dataset.category;
+  filters.querySelectorAll("button").forEach(b => {
+    const active = b === button;
+    b.classList.toggle("active",active);
+    b.setAttribute("aria-pressed",String(active));
+  });
+  render();
+});
+
+search.addEventListener("input",render);
+
+async function load() {
+  // GitHub 응답이 늦거나 실패해도 저장된 자료를 먼저 표시합니다.
+  setFiles(Object.keys(examples).map(name => ({name,type:"file"})));
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(),8000);
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${repo}/contents/?ref=main`,
+      {signal:controller.signal}
+    );
+    if (!response.ok) throw new Error("목록 불러오기 실패");
+    const files = await response.json();
+    if (!Array.isArray(files)) throw new Error("잘못된 목록");
+    setFiles(files);
+    status.textContent = "";
+  } catch (error) {
+    status.textContent =
+      "최신 목록을 불러오지 못해 저장된 자료 목록을 보여드립니다. 웹앱 실행에는 인터넷 연결이 필요합니다.";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const dialog = document.getElementById("share-dialog");
+document.getElementById("share").onclick = () => dialog.showModal();
+document.getElementById("close").onclick = () => dialog.close();
+
+dialog.addEventListener("click", e => {
+  if (e.target !== dialog) return;
+  const r = dialog.getBoundingClientRect();
+  if (
+    e.clientX < r.left || e.clientX > r.right ||
+    e.clientY < r.top || e.clientY > r.bottom
+  ) dialog.close();
+});
+
+document.getElementById("copy").onclick = async () => {
+  const message = document.getElementById("copy-status");
+  try {
+    await navigator.clipboard.writeText("ylschool21@gmail.com");
+    message.textContent = "이메일 주소를 복사했습니다.";
+  } catch (error) {
+    message.textContent =
+      "위 이메일 주소를 길게 누르거나 선택하여 직접 복사해 주세요.";
+  }
+};
+
+const heroArt = document.getElementById("hero-art");
+function showMissingImage() {
+  document.getElementById("hero").classList.add("image-missing");
+}
+heroArt.addEventListener("error",showMissingImage);
+if (heroArt.complete && heroArt.naturalWidth === 0) showMissingImage();
+
+load();
 </script>
 </body>
 </html>
