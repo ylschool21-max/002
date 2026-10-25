@@ -1,108 +1,668 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>놀이앱 나눔터</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:"Malgun Gothic",sans-serif;background:#f9fcfb;color:#243c37}
-header{background:#e6f5ef;padding:20px}
-nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.logo{font-size:23px;font-weight:bold;color:#247563}
-.hero{text-align:center;padding:60px 20px 45px;background:#e6f5ef}
-h1{font-size:clamp(27px,5vw,42px);line-height:1.4;margin:0}
-.hero p{color:#53786c;font-size:16px}
-main{max-width:1100px;margin:auto;padding:35px 20px}
-.search{width:100%;padding:18px;border:1px solid #cbded6;border-radius:14px;font-size:17px;background:white}
-.filters{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0}
-button,.share{border:0;border-radius:20px;padding:11px 18px;cursor:pointer;background:#e5f2ed;color:#286b58;font-weight:bold;text-decoration:none}
-button.active,.share{background:#27836a;color:white}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.card{background:white;border:1px solid #e4eee9;border-radius:18px;overflow:hidden;box-shadow:0 4px 15px #24472a0a}
-.picture{height:145px;background:linear-gradient(135deg,#dceef8,#e6f7e7);display:grid;place-items:center;font-size:57px}
-.content{padding:19px}
-.tag{font-size:12px;color:#27836a}
-h3{margin:9px 0}
-.desc{font-size:14px;color:#64766f;line-height:1.6;min-height:44px}
-.run{display:block;text-align:center;background:#d9f1e8;padding:12px;border-radius:11px;text-decoration:none;color:#17664f;font-weight:bold}
-footer{text-align:center;padding:40px 16px;color:#71877c}
-@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.grid{grid-template-columns:1fr}nav{flex-wrap:wrap}}
+body{
+  margin:0;
+  background:#fff;
+  color:#203f41;
+  font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+}
+button,input,a{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+button:focus-visible,a:focus-visible{
+  outline:3px solid #9969cf;
+  outline-offset:3px;
+}
+.page{
+  max-width:1200px;
+  margin:16px auto;
+  padding:0 20px;
+}
+
+/* 선택하신 이미지를 그대로 사용하는 시작화면 */
+.hero{
+  position:relative;
+  aspect-ratio:467 / 146;
+  overflow:hidden;
+  background:#e4f7ef;
+}
+.hero-art{
+  display:block;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:auto;
+}
+.share{
+  position:absolute;
+  z-index:2;
+  left:81.4%;
+  top:4%;
+  width:15.8%;
+  height:16%;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+}
+.share:hover{background:#ffffff20}
+.search-box{
+  position:absolute;
+  z-index:2;
+  left:42.6%;
+  top:77.9%;
+  width:43.7%;
+  height:14.9%;
+  display:flex;
+  align-items:center;
+  border-radius:999px;
+  background:#fafffd;
+  overflow:hidden;
+}
+.search-box:focus-within{
+  outline:2px solid #176c5e;
+  outline-offset:1px;
+}
+.search-icon{
+  width:12%;
+  padding-left:4%;
+  flex-shrink:0;
+  color:#159b87;
+  font-size:clamp(13px,2.4vw,26px);
+  line-height:1;
+}
+.search-box input{
+  width:88%;
+  min-width:0;
+  height:100%;
+  border:0;
+  outline:none;
+  padding:0 4% 0 0;
+  color:#345957;
+  background:transparent;
+  font-size:clamp(8px,1.35vw,15px);
+}
+.search-box input::placeholder{color:#7b8c88}
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+
+/* 시작화면 이미지가 없을 때만 표시 */
+.missing-image{
+  display:none;
+  padding:25px;
+  background:#e4f7ef;
+}
+.hero.image-missing{aspect-ratio:auto;min-height:240px}
+.hero.image-missing .missing-image{display:block}
+.hero.image-missing .hero-art{display:none}
+.hero.image-missing .share{
+  top:auto;
+  bottom:20px;
+  left:20px;
+  width:150px;
+  height:40px;
+  background:#176c5e;
+  color:#fff;
+}
+.hero.image-missing .share::after{content:"＋ 내 웹앱 나누기"}
+.hero.image-missing .search-box{
+  left:190px;
+  right:20px;
+  top:auto;
+  bottom:20px;
+  width:auto;
+  height:40px;
+}
+
+.library{
+  padding:14px 20px 24px;
+  background:linear-gradient(#f7f9ff,#fafaff);
+  border-radius:0 0 24px 24px;
+}
+.filters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:5px;
+  margin-bottom:12px;
+}
+.filters button{
+  flex-shrink:0;
+  border:0;
+  border-radius:999px;
+  padding:8px 15px;
+  min-height:34px;
+  background:#e2f5ee;
+  color:#345b51;
+  font-size:12px;
+  font-weight:bold;
+}
+.filters button.active{background:#176c5e;color:white}
+h2{margin:0 0 14px;font-size:19px}
+#count{font-size:13px;color:#708078}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.card{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border-radius:16px;
+  background:#fff;
+}
+.picture{
+  height:115px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(110deg,#eadfff,#f1e9ff);
+}
+.card:nth-child(4n+2) .picture{
+  background:linear-gradient(110deg,#ffe9ad,#fff0c4);
+}
+.card:nth-child(4n+3) .picture{background:#dceef9}
+.card:nth-child(4n) .picture{background:#ddf2e4}
+.icon{font-size:54px}
+.picture img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+.content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:13px 18px 15px;
+}
+h3{
+  margin:0 0 5px;
+  font-size:17px;
+  line-height:1.5;
+  word-break:keep-all;
+}
+.desc{
+  flex:1;
+  margin:0 0 12px;
+  font-size:13px;
+  line-height:1.6;
+  color:#6a7e75;
+}
+.run{
+  display:block;
+  padding:10px;
+  min-height:38px;
+  border-radius:999px;
+  text-align:center;
+  text-decoration:none;
+  background:#1b7869;
+  color:#fff;
+  font-size:13px;
+  font-weight:bold;
+}
+.empty{
+  grid-column:1/-1;
+  padding:35px;
+  text-align:center;
+}
+.status{font-size:13px;color:#6a7e75;line-height:1.6}
+.status:empty{display:none}
+footer{
+  padding:26px 12px;
+  text-align:center;
+  font-size:13px;
+  line-height:1.9;
+  color:#64796f;
+}
+dialog{
+  width:calc(100% - 32px);
+  max-width:480px;
+  padding:28px;
+  border:0;
+  border-radius:24px;
+  color:#203f41;
+  box-shadow:0 20px 80px #0003;
+}
+dialog::backdrop{background:#153b3577}
+dialog h2{padding-right:35px}
+dialog p{line-height:1.8;font-size:14px}
+.close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:#eef5f2;
+  font-size:24px;
+}
+.contact{
+  padding:16px;
+  border-radius:14px;
+  background:#eff8f3;
+  line-height:2;
+  overflow-wrap:anywhere;
+}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.button{
+  display:inline-block;
+  border:0;
+  padding:12px 18px;
+  border-radius:999px;
+  background:#176c5e;
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  font-size:14px;
+}
+.secondary{background:#e5f2ed;color:#286b58}
+#copy-status{min-height:20px;font-size:13px}
+body:has(dialog[open]){overflow:hidden}
+
+@media(min-width:1100px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .picture{height:140px}
+}
+@media(max-width:760px){
+  .page{margin:10px auto;padding:0 12px}
+  .library{padding:10px 12px 20px}
+  .grid{gap:12px}
+  .picture{height:95px}
+  .icon{font-size:44px}
+  .content{padding:11px 12px}
+  h3{font-size:14px}
+  .desc{font-size:12px}
+}
+@media(max-width:480px){
+  .page{margin:8px auto;padding:0 8px}
+  .library{padding:10px 8px 16px}
+  .grid{gap:10px}
+  .picture{height:85px}
+  .content{padding:10px}
+  h3{font-size:13px}
+  .desc,.run{font-size:11px}
+  .search-box input{font-size:clamp(7px,1.8vw,9px)}
+  .search-icon{font-size:14px}
+  .hero.image-missing{min-height:300px}
+  .hero.image-missing .search-box{
+    left:20px;
+    bottom:70px;
+  }
+}
+@media(max-width:360px){
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<header>
-<nav>
-<div class="logo">🌱 놀이앱 나눔터</div>
-<a class="share" href="https://github.com/ylschool21-max/002/issues/new" target="_blank" rel="noopener noreferrer">＋ 내 웹앱 나누기</a>
-</nav>
+<div class="page">
+
+<header class="hero" id="hero">
+  <img
+    class="hero-art"
+    id="hero-art"
+    src="시작화면.png"
+    alt="놀이앱 나눔터. 선생님의 아이디어가 우리 모두의 놀이가 됩니다. 선생님이 만들고, 함께 나누는 교육자료."
+  >
+
+  <div class="missing-image">
+    <h1>놀이앱 나눔터</h1>
+    <p>선택하신 이미지를 <strong>시작화면.png</strong>로 저장하여
+    preview.html과 같은 폴더에 넣어 주세요.</p>
+  </div>
+
+  <button
+    class="share"
+    id="share"
+    type="button"
+    aria-label="내 웹앱 나누기"
+  ></button>
+
+  <div class="search-box">
+    <label class="sr-only" for="search">어떤 놀이자료를 찾으세요?</label>
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input
+      id="search"
+      type="search"
+      placeholder="어떤 놀이자료를 찾으세요?"
+      autocomplete="off"
+    >
+  </div>
 </header>
-<section class="hero">
-<h1>선생님의 아이디어가<br>우리 모두의 놀이가 됩니다</h1>
-<p>선생님이 만들고, 함께 나누는 교육자료</p>
-</section>
-<main>
-<input class="search" id="search" placeholder="🔍 어떤 놀이자료를 찾으세요?">
-<div class="filters" id="filters"></div>
-<h2>웹앱 둘러보기 <small id="count"></small></h2>
-<div class="grid" id="grid">자료를 불러오는 중입니다...</div>
+
+<main class="library">
+  <div class="filters" id="filters" aria-label="놀이 주제 선택"></div>
+  <h2>웹앱 둘러보기 <small id="count" aria-live="polite"></small></h2>
+  <div class="grid" id="grid"></div>
+  <p class="status" id="status" role="status"></p>
+  <noscript>자료 목록을 보려면 브라우저의 JavaScript를 켜 주세요.</noscript>
 </main>
+
 <footer>
-함께 만들고, 함께 나누는 교사들의 놀이 공간<br>
-영일유치원에서 시작합니다.
+  함께 만들고, 함께 나누는 교사들의 놀이 공간<br>
+  <strong>영일유치원에서 시작합니다.</strong>
 </footer>
+</div>
+
+<dialog id="share-dialog" aria-labelledby="dialog-title">
+  <button class="close" id="close" type="button" aria-label="닫기">×</button>
+  <h2 id="dialog-title">내 웹앱 나누기</h2>
+  <p>
+    선생님이 만든 놀이자료를 이메일로 보내 주세요.<br>
+    자료 이름, 간단한 활용 방법, 웹앱 주소 또는 HTML 파일을
+    함께 보내 주시면 확인하겠습니다.
+  </p>
+  <div class="contact">
+    이메일 <a href="mailto:ylschool21@gmail.com">ylschool21@gmail.com</a><br>
+    문의 전화 <a href="tel:0514150679">051-415-0679</a>
+  </div>
+  <div class="actions">
+    <a class="button"
+       href="mailto:ylschool21@gmail.com?subject=놀이앱%20나눔%20신청">
+      이메일 작성하기 ↗
+    </a>
+    <button class="button secondary" id="copy" type="button">
+      이메일 주소 복사
+    </button>
+  </div>
+  <p>메일 앱이 열리지 않으면 주소를 복사해 사용 중인 이메일에서 보내 주세요.</p>
+  <p id="copy-status" role="status"></p>
+</dialog>
+
 <script>
-const repo="ylschool21-max/002";
-const base="https://ylschool21-max.github.io/002/";
-const examples={
-"가게놀이 키오스크.html":["역할놀이","🛒","가게에서 물건을 고르고 계산해 보는 놀이"],
-"글자친구.html":["언어놀이","🔤","글자와 친해지는 놀이"],
-"질문보드게임.html":["질문놀이","💬","다양한 질문을 나누는 놀이"],
-"식물 키우기 레이스.html":["자연탐구","🌱","식물의 성장을 주제로 한 놀이"],
-"딸기게임.html":["놀이게임","🍓","딸기를 주제로 즐기는 게임"],
-"우리반 미덕 보석함.html":["인성·마음","💎","서로의 좋은 점과 미덕을 알아보는 놀이"],
-"주말 지낸 이야기 도우미.html":["언어놀이","🏡","주말 경험을 이야기로 표현하는 활동"],
-"장수풍뎅이 성장게임.html":["자연탐구","🪲","장수풍뎅이의 성장을 탐색하는 게임"]
+"use strict";
+
+const repo = "ylschool21-max/002";
+const base = "https://ylschool21-max.github.io/002/";
+
+const priority = [
+  "가게놀이 키오스크.html",
+  "글자친구.html",
+  "질문보드게임.html",
+  "식물 키우기 레이스.html"
+];
+
+const examples = {
+  "가게놀이 키오스크.html":
+    ["역할놀이","🛒","가게에서 물건을 고르고 계산해 보는 놀이"],
+  "글자친구.html":
+    ["언어놀이","🔤","글자와 친해지는 즐거운 놀이"],
+  "질문보드게임.html":
+    ["질문놀이","💬","다양한 질문을 나누는 놀이"],
+  "식물 키우기 레이스.html":
+    ["자연탐구","🌱","식물의 성장을 주제로 한 놀이"],
+  "딸기게임.html":
+    ["놀이게임","🍓","딸기를 주제로 즐기는 게임"],
+  "우리반 미덕 보석함.html":
+    ["인성·마음","💎","서로의 좋은 점과 미덕을 알아보는 놀이"],
+  "주말 지낸 이야기 도우미.html":
+    ["언어놀이","🏡","주말 경험을 이야기로 표현하는 활동"],
+  "장수풍뎅이 성장게임.html":
+    ["자연탐구","🪲","장수풍뎅이의 성장을 탐색하는 게임"],
+  "모종심기 순서 알아보기.html":
+    ["자연탐구","🌿","모종을 심는 순서를 알아보는 활동"],
+  "아무질문대잔치 (최종본).html":
+    ["질문놀이","🎉","그림책을 읽고 질문과 생각을 나누는 놀이"],
+  "일곱 고개 놀이.html":
+    ["질문놀이","🤔","질문으로 단서를 모아 정답을 추리하는 놀이"],
+  "재미있는 질문놀이(까바, 까만).html":
+    ["질문놀이","❓","자유롭게 질문을 주고받는 말놀이"],
+  "쏙쏙 글친구(글쓰기 도우미).html":
+    ["언어놀이","✏️","쓰고 싶은 말을 글자로 표현하는 활동"],
+  "전담_버스안전퀴즈.html":
+    ["안전교육","🚌","통학버스 안전 규칙을 알아보는 퀴즈"],
+  "전담_보물찾기.html":
+    ["놀이게임","🎁","숨겨진 보물을 찾는 놀이"],
+  "상자를 쌓아요_전담.html":
+    ["놀이게임","📦","상자를 차근차근 쌓는 놀이"],
+  "소리로 달리는 자동차_전담.html":
+    ["놀이게임","🚗","소리를 내어 자동차를 움직이는 놀이"],
+  "우리는 최강지구지킴이 !.html":
+    ["환경놀이","🌍","친구와 함께 지구를 지키는 놀이"],
+  "지구지킴이.html":
+    ["환경놀이","🌏","환경을 생각하는 지구지킴이 놀이"],
+  "gym.html":
+    ["신체놀이","🏃","몸을 움직이며 즐기는 활동"],
+  "puzzle.html":
+    ["놀이게임","🧩","퍼즐을 맞추는 활동"]
 };
-let apps=[],category="전체";
-let categories=["전체","언어놀이","질문놀이","역할놀이","자연탐구","놀이게임","인성·마음","기타"];
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function render(){
- const q=document.getElementById("search").value.trim().toLowerCase();
- document.getElementById("filters").innerHTML=categories.map(c=>`<button class="${c===category?'active':''}" data-category="${esc(c)}">${esc(c)}</button>`).join("");
- const found=apps.filter(a=>(category==="전체"||category===a.cat)&&(`${a.title} ${a.desc} ${a.cat}`).toLowerCase().includes(q));
- document.getElementById("count").textContent=`(${found.length})`;
- document.getElementById("grid").innerHTML=found.map(a=>`
- <article class="card">
- <div class="picture">${a.icon}</div>
- <div class="content">
- <span class="tag">${esc(a.cat)}</span>
- <h3>${esc(a.title)}</h3>
- <p class="desc">${esc(a.desc)}</p>
- <a class="run" target="_blank" rel="noopener noreferrer" href="${base+encodeURIComponent(a.file)}">실행하기 ↗</a>
- </div></article>`).join("")||"<p>찾으시는 자료가 없습니다.</p>";
+
+examples["가게놀이 키오스크(5세용).html"] =
+  examples["가게놀이 키오스크.html"];
+examples["글자친구_모바일.html"] =
+  examples["글자친구.html"];
+examples["질문게임.html"] =
+  examples["질문보드게임.html"];
+
+for (const name of [
+  "같은 카드 찾기_전담.html",
+  "전담_같은 카드 찾기.html",
+  "cards.html"
+]) {
+  examples[name] = ["놀이게임","🃏","같은 카드를 찾아보는 놀이"];
 }
-document.getElementById("search").oninput=render;
-document.getElementById("filters").onclick=e=>{
- const b=e.target.closest("button");
- if(b){category=b.dataset.category;render();}
+
+for (const name of [
+  "상자를 던져요_전담.html",
+  "전담_상자를 던져요.html"
+]) {
+  examples[name] = ["놀이게임","📦","상자를 던져 목표에 맞히는 놀이"];
+}
+
+/*
+실제 웹앱 화면 이미지는 다음 위치에 저장하면 표시됩니다.
+thumbnails/가게놀이 키오스크.png
+thumbnails/글자친구.png
+thumbnails/질문보드게임.png
+thumbnails/식물 키우기 레이스.png
+
+다른 자료도 HTML 확장자를 뺀 이름에 .png를 붙입니다.
+이미지가 없으면 아이콘으로 표시됩니다.
+*/
+const thumbnailPaths = {
+  "가게놀이 키오스크.html":"thumbnails/가게놀이 키오스크.png",
+  "글자친구.html":"thumbnails/글자친구.png",
+  "질문보드게임.html":"thumbnails/질문보드게임.png",
+  "식물 키우기 레이스.html":"thumbnails/식물 키우기 레이스.png"
 };
-async function load(){
- try{
- const res=await fetch(`https://api.github.com/repos/${repo}/contents/`);
- if(!res.ok)throw Error("GitHub 응답 오류");
- const files=await res.json();
- apps=files.filter(f=>f.type==="file"&&f.name.endsWith(".html")&&f.name!=="index.html"&&f.name!=="preview.html").map(f=>{
- const d=examples[f.name]||["기타","🎲","선생님이 만든 놀이 웹앱"];
- return {file:f.name,title:f.name.replace(/\.html$/,""),cat:d[0],icon:d[1],desc:d[2]};
- });
- render();
- }catch(e){
- document.getElementById("grid").textContent="자료 목록을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.";
- }
+
+const categories = [
+  "전체","언어놀이","질문놀이","자연탐구","역할놀이",
+  "놀이게임","인성·마음","신체놀이","안전교육","환경놀이","기타"
+];
+
+let category = "전체";
+let apps = [];
+
+const search = document.getElementById("search");
+const grid = document.getElementById("grid");
+const filters = document.getElementById("filters");
+const status = document.getElementById("status");
+
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
 }
+
+function encodePath(path) {
+  return path.split("/").map(encodeURIComponent).join("/");
+}
+
+function rank(file) {
+  const n = priority.indexOf(file);
+  return n < 0 ? 99 : n;
+}
+
+function setFiles(files) {
+  apps = files
+    .filter(f =>
+      f.type === "file" &&
+      /\.html$/i.test(f.name) &&
+      !["index.html","preview.html"].includes(f.name)
+    )
+    .map(f => {
+      const info = examples[f.name] ||
+        ["기타","🎲","선생님이 만든 놀이 웹앱"];
+      return {
+        file:f.name,
+        title:f.name.replace(/\.html$/i,""),
+        cat:info[0],
+        icon:info[1],
+        desc:info[2]
+      };
+    })
+    .sort((a,b) =>
+      rank(a.file) - rank(b.file) ||
+      a.title.localeCompare(b.title,"ko")
+    );
+
+  render();
+}
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  const found = apps.filter(a =>
+    (category === "전체" || category === a.cat) &&
+    `${a.title} ${a.desc} ${a.cat}`.toLowerCase().includes(q)
+  );
+
+  document.getElementById("count").textContent = `(${found.length})`;
+
+  grid.innerHTML = found.map(a => `
+    <article class="card">
+      <div class="picture">
+        <span class="icon" aria-hidden="true">${a.icon}</span>
+      </div>
+      <div class="content">
+        <h3>${esc(a.title)}</h3>
+        <p class="desc">${esc(a.desc)}</p>
+        <a class="run"
+           href="${base + encodeURIComponent(a.file)}"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="${esc(a.title)} 실행하기 (새 창)">
+          실행하기 ↗
+        </a>
+      </div>
+    </article>
+  `).join("") || `
+    <p class="empty">찾으시는 자료가 없습니다. 검색어나 주제를 바꿔 주세요.</p>
+  `;
+
+  found.forEach((a,i) => {
+    const path = thumbnailPaths[a.file] ||
+      `thumbnails/${a.title}.png`;
+    const img = new Image();
+    img.alt = `${a.title} 실행 화면`;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.onerror = () => img.remove();
+    img.src = encodePath(path);
+    grid.children[i].querySelector(".picture").appendChild(img);
+  });
+}
+
+filters.innerHTML = categories.map(c => `
+  <button type="button"
+          data-category="${c}"
+          class="${c === category ? "active" : ""}"
+          aria-pressed="${c === category}">
+    ${c}
+  </button>
+`).join("");
+
+filters.addEventListener("click", e => {
+  const button = e.target.closest("button");
+  if (!button) return;
+  category = button.dataset.category;
+  filters.querySelectorAll("button").forEach(b => {
+    const active = b === button;
+    b.classList.toggle("active",active);
+    b.setAttribute("aria-pressed",String(active));
+  });
+  render();
+});
+
+search.addEventListener("input",render);
+
+async function load() {
+  // GitHub 응답이 늦거나 실패해도 저장된 자료를 먼저 표시합니다.
+  setFiles(Object.keys(examples).map(name => ({name,type:"file"})));
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(),8000);
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${repo}/contents/?ref=main`,
+      {signal:controller.signal}
+    );
+    if (!response.ok) throw new Error("목록 불러오기 실패");
+    const files = await response.json();
+    if (!Array.isArray(files)) throw new Error("잘못된 목록");
+    setFiles(files);
+    status.textContent = "";
+  } catch (error) {
+    status.textContent =
+      "최신 목록을 불러오지 못해 저장된 자료 목록을 보여드립니다. 웹앱 실행에는 인터넷 연결이 필요합니다.";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const dialog = document.getElementById("share-dialog");
+document.getElementById("share").onclick = () => dialog.showModal();
+document.getElementById("close").onclick = () => dialog.close();
+
+dialog.addEventListener("click", e => {
+  if (e.target !== dialog) return;
+  const r = dialog.getBoundingClientRect();
+  if (
+    e.clientX < r.left || e.clientX > r.right ||
+    e.clientY < r.top || e.clientY > r.bottom
+  ) dialog.close();
+});
+
+document.getElementById("copy").onclick = async () => {
+  const message = document.getElementById("copy-status");
+  try {
+    await navigator.clipboard.writeText("ylschool21@gmail.com");
+    message.textContent = "이메일 주소를 복사했습니다.";
+  } catch (error) {
+    message.textContent =
+      "위 이메일 주소를 길게 누르거나 선택하여 직접 복사해 주세요.";
+  }
+};
+
+const heroArt = document.getElementById("hero-art");
+function showMissingImage() {
+  document.getElementById("hero").classList.add("image-missing");
+}
+heroArt.addEventListener("error",showMissingImage);
+if (heroArt.complete && heroArt.naturalWidth === 0) showMissingImage();
+
 load();
 </script>
 </body>
