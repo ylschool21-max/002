@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>놀이앱 나눔터</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Malgun Gothic",sans-serif;background:#f9fcfb;color:#243c37}
+header{background:#e6f5ef;padding:20px}
+nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:23px;font-weight:bold;color:#247563}
+.hero{text-align:center;padding:60px 20px 45px;background:#e6f5ef}
+h1{font-size:clamp(27px,5vw,42px);line-height:1.4;margin:0}
+.hero p{color:#53786c;font-size:16px}
+main{max-width:1100px;margin:auto;padding:35px 20px}
+.search{width:100%;padding:18px;border:1px solid #cbded6;border-radius:14px;font-size:17px;background:white}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0}
+button,.share{border:0;border-radius:20px;padding:11px 18px;cursor:pointer;background:#e5f2ed;color:#286b58;font-weight:bold;text-decoration:none}
+button.active,.share{background:#27836a;color:white}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:white;border:1px solid #e4eee9;border-radius:18px;overflow:hidden;box-shadow:0 4px 15px #24472a0a}
+.picture{height:145px;background:linear-gradient(135deg,#dceef8,#e6f7e7);display:grid;place-items:center;font-size:57px}
+.content{padding:19px}
+.tag{font-size:12px;color:#27836a}
+h3{margin:9px 0}
+.desc{font-size:14px;color:#64766f;line-height:1.6;min-height:44px}
+.run{display:block;text-align:center;background:#d9f1e8;padding:12px;border-radius:11px;text-decoration:none;color:#17664f;font-weight:bold}
+footer{text-align:center;padding:40px 16px;color:#71877c}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}nav{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header>
+<nav>
+<div class="logo">🌱 놀이앱 나눔터</div>
+<a class="share" href="https://github.com/ylschool21-max/002/issues/new" target="_blank" rel="noopener noreferrer">＋ 내 웹앱 나누기</a>
+</nav>
+</header>
+<section class="hero">
+<h1>선생님의 아이디어가<br>우리 모두의 놀이가 됩니다</h1>
+<p>선생님이 만들고, 함께 나누는 교육자료</p>
+</section>
+<main>
+<input class="search" id="search" placeholder="🔍 어떤 놀이자료를 찾으세요?">
+<div class="filters" id="filters"></div>
+<h2>웹앱 둘러보기 <small id="count"></small></h2>
+<div class="grid" id="grid">자료를 불러오는 중입니다...</div>
+</main>
+<footer>
+함께 만들고, 함께 나누는 교사들의 놀이 공간<br>
+영일유치원에서 시작합니다.
+</footer>
+<script>
+const repo="ylschool21-max/002";
+const base="https://ylschool21-max.github.io/002/";
+const examples={
+"가게놀이 키오스크.html":["역할놀이","🛒","가게에서 물건을 고르고 계산해 보는 놀이"],
+"글자친구.html":["언어놀이","🔤","글자와 친해지는 놀이"],
+"질문보드게임.html":["질문놀이","💬","다양한 질문을 나누는 놀이"],
+"식물 키우기 레이스.html":["자연탐구","🌱","식물의 성장을 주제로 한 놀이"],
+"딸기게임.html":["놀이게임","🍓","딸기를 주제로 즐기는 게임"],
+"우리반 미덕 보석함.html":["인성·마음","💎","서로의 좋은 점과 미덕을 알아보는 놀이"],
+"주말 지낸 이야기 도우미.html":["언어놀이","🏡","주말 경험을 이야기로 표현하는 활동"],
+"장수풍뎅이 성장게임.html":["자연탐구","🪲","장수풍뎅이의 성장을 탐색하는 게임"]
+};
+let apps=[],category="전체";
+let categories=["전체","언어놀이","질문놀이","역할놀이","자연탐구","놀이게임","인성·마음","기타"];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function render(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ document.getElementById("filters").innerHTML=categories.map(c=>`<button class="${c===category?'active':''}" data-category="${esc(c)}">${esc(c)}</button>`).join("");
+ const found=apps.filter(a=>(category==="전체"||category===a.cat)&&(`${a.title} ${a.desc} ${a.cat}`).toLowerCase().includes(q));
+ document.getElementById("count").textContent=`(${found.length})`;
+ document.getElementById("grid").innerHTML=found.map(a=>`
+ <article class="card">
+ <div class="picture">${a.icon}</div>
+ <div class="content">
+ <span class="tag">${esc(a.cat)}</span>
+ <h3>${esc(a.title)}</h3>
+ <p class="desc">${esc(a.desc)}</p>
+ <a class="run" target="_blank" rel="noopener noreferrer" href="${base+encodeURIComponent(a.file)}">실행하기 ↗</a>
+ </div></article>`).join("")||"<p>찾으시는 자료가 없습니다.</p>";
+}
+document.getElementById("search").oninput=render;
+document.getElementById("filters").onclick=e=>{
+ const b=e.target.closest("button");
+ if(b){category=b.dataset.category;render();}
+};
+async function load(){
+ try{
+ const res=await fetch(`https://api.github.com/repos/${repo}/contents/`);
+ if(!res.ok)throw Error("GitHub 응답 오류");
+ const files=await res.json();
+ apps=files.filter(f=>f.type==="file"&&f.name.endsWith(".html")&&f.name!=="index.html"&&f.name!=="preview.html").map(f=>{
+ const d=examples[f.name]||["기타","🎲","선생님이 만든 놀이 웹앱"];
+ return {file:f.name,title:f.name.replace(/\.html$/,""),cat:d[0],icon:d[1],desc:d[2]};
+ });
+ render();
+ }catch(e){
+ document.getElementById("grid").textContent="자료 목록을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.";
+ }
+}
+load();
+</script>
+</body>
+</html>
