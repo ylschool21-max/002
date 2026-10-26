@@ -36,9 +36,21 @@
       border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
       padding: 25px 30px; 
       display: none; flex-direction: column; align-items: center; justify-content: center; 
-      pointer-events: auto; text-align: center;
+      pointer-events: auto; text-align: center; position: relative;
     }
     #screen-intro.active { display: flex; animation: fadeIn 0.4s ease-out; }
+
+
+    /* 검정 동그라미로 표시된 시작 화면 오른쪽 아래 로고 */
+    .intro-logo {
+      position: absolute;
+      right: 22px;
+      bottom: 14px;
+      width: clamp(82px, 12vw, 140px);
+      max-height: 68px;
+      object-fit: contain;
+      z-index: 5;
+    }
 
     .intro-icons { font-size: 3.5rem; margin-bottom: 5px; letter-spacing: 10px; }
     .intro-title { font-size: 3.5rem; color: #0277BD; text-shadow: 2px 2px 0px #B3E5FC; margin: 0 0 10px 0; font-weight: bold; }
@@ -132,6 +144,7 @@
           </div>
         </div>
         <button class="start-btn" onclick="requestFullscreenAndStart()">✨ 게임 시작하기!</button>
+        <img src="ylschool-logo.png" alt="YL School 로고" class="intro-logo">
       </div>
 
       <div id="screen-explain" class="screen">
@@ -622,3 +635,4 @@
 </script>
 </body>
 </html>
+
