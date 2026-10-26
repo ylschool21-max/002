@@ -39,6 +39,13 @@
     .bg1 { left:4vw; top:8vh; } .bg2 { right:6vw; top:9vh; }
     .bg3 { left:6vw; bottom:8vh; } .bg4 { right:7vw; bottom:7vh; }
 
+
+    .school-logo {
+      position:absolute; top:2vh; left:5vw; z-index:60;
+      width:clamp(120px,16vw,260px); height:clamp(70px,11vh,120px);
+      object-fit:contain;
+    }
+
     .topControls {
       position:absolute; top:2vh; right:2vw; z-index:50; display:flex; gap:14px;
     }
@@ -282,6 +289,7 @@
 </head>
 <body>
   <main class="app">
+    <img src="ylschool-logo.png" alt="YL School 로고" class="school-logo">
     <div class="bgEmoji bg1">❔</div>
     <div class="bgEmoji bg2">☁️</div>
     <div class="bgEmoji bg3">👣</div>
