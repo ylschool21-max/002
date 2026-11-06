@@ -484,6 +484,20 @@ body:has(dialog[open]){overflow:hidden}
   .grid{grid-template-columns:1fr}
   .thumb{height:140px}
 }
+
+.manual-preview{position:absolute;inset:0;width:100%;border:0;padding:0;background:white;cursor:zoom-in}
+.thumb .manual-preview img{opacity:1;object-position:top;object-fit:cover}
+.card:hover .manual-preview img{transform:none}
+.manual-preview span{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:1;background:#fff;color:#42334e;border-radius:20px;padding:5px 14px;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px #0002}
+.manual-preview:focus-visible{outline:4px solid #6546cf;outline-offset:-4px}
+.thumb:has(.manual-preview) .badge{display:none}
+#manual-dialog{max-width:1000px;max-height:92dvh;border-radius:18px;overflow:auto;overscroll-behavior:contain}
+.manual-toolbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;background:white;padding:12px 16px;border-bottom:1px solid #eee}
+.manual-toolbar h2{font-size:18px;margin:0}.manual-toolbar p{font-size:13px;margin:3px 0 0;color:#62586b}
+#manual-close{border:0;border-radius:12px;padding:12px;background:#f0eafb;font:inherit;white-space:nowrap;cursor:pointer}
+#manual-image{display:block;width:100%;height:auto;cursor:zoom-out}
+#manual-error{padding:20px;color:#a22}
+@media(max-width:600px){#manual-dialog{width:calc(100% - 16px);max-height:94dvh}.manual-toolbar h2{font-size:15px}}
 </style>
 </head>
 <body>
@@ -642,6 +656,11 @@ body:has(dialog[open]){overflow:hidden}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <button class="to-top" id="to-top" type="button" aria-label="맨 위로">⬆️</button>
 
+<dialog id="manual-dialog" aria-labelledby="manual-title" aria-describedby="manual-hint">
+ <div class="manual-toolbar"><div><h2 id="manual-title">놀이 사용법</h2><p id="manual-hint">아래로 내려 읽어 보세요. 이미지를 다시 누르면 닫혀요.</p></div><button id="manual-close" type="button" autofocus>닫기 ✕</button></div>
+ <p id="manual-error" role="status" hidden>설명서를 불러오지 못했어요. 닫은 뒤 다시 눌러 주세요.</p>
+ <img id="manual-image" alt="">
+</dialog>
 <script>
 "use strict";
 
@@ -710,6 +729,23 @@ EXAMPLES["질문게임.html"] = EXAMPLES["질문보드게임.html"];
   실제 화면 이미지: thumbnails/<HTML 확장자를 뺀 이름>.png 에 저장하면 카드에 표시됩니다.
   이미지가 없으면 아이콘으로 표시됩니다.
 */
+const MANUALS = {
+  "질문보드게임.html": 2,
+  "질문게임.html": 2,
+  "재미있는 질문놀이(까바, 까만).html": 3,
+  "일곱 고개 놀이.html": 4,
+  "글자친구_모바일.html": 5,
+  "글자친구.html": 5,
+  "우리반 미덕 보석함.html": 7,
+  "소리로 달리는 자동차_전담.html": 8,
+  "가게놀이 키오스크.html": 9,
+  "식물 키우기 레이스.html": 10,
+  "전담_보물찾기.html": 11,
+  "딸기게임.html": 12,
+  "같은 카드 찾기_전담.html": 14,
+  "전담_같은 카드 찾기.html": 14,
+  "장수풍뎅이 성장게임.html": 15
+};
 const THUMBNAILS = {
   "가게놀이 키오스크.html":"thumbnails/가게놀이 키오스크.png",
   "글자친구.html":"thumbnails/글자친구.png",
@@ -853,7 +889,7 @@ function render() {
       <div class="thumb">
         <span class="badge">${cat.emoji} ${esc(a.cat)}</span>
         <button class="heart" type="button" data-fav aria-pressed="${fav}" aria-label="${esc(a.title)} 즐겨찾기">${heartSvg}</button>
-        <span class="thumb-emoji" aria-hidden="true">${a.icon}</span>
+        ${MANUALS[a.file] ? `<button type="button" class="manual-preview" data-manual aria-haspopup="dialog" aria-label="${esc(a.title)} 사용법 보기"><img src="manuals/${MANUALS[a.file]}-thumb.jpg" alt="" loading="lazy" decoding="async"><span>🔍 사용법 보기</span></button>` : `<span class="thumb-emoji" aria-hidden="true">${a.icon}</span>`}
       </div>
       <div class="card-body">
         <h3 class="card-title">${esc(a.title)}</h3>
@@ -868,6 +904,7 @@ function render() {
 
   // 실제 화면 이미지가 있으면 보여 주기 (없으면 아이콘 유지)
   list.forEach((a, i) => {
+    if (MANUALS[a.file]) return;
     const img = new Image();
     img.alt = `${a.title} 실행 화면`;
     img.loading = "lazy";
@@ -938,7 +975,7 @@ $("#quick").addEventListener("click", e => {
 });
 
 document.addEventListener("keydown", e => {
-  if (e.key === "/" && document.activeElement !== searchInput && !$("#share-dialog").open) {
+  if (e.key === "/" && document.activeElement !== searchInput && !$("#share-dialog").open && !$("#manual-dialog").open) {
     e.preventDefault(); searchInput.focus();
   } else if (e.key === "Escape" && document.activeElement === searchInput) {
     setQuery("");
@@ -979,6 +1016,7 @@ $("#grid").addEventListener("click", e => {
   const app = state.apps.find(a => a.file === card.dataset.file);
   if (!app) return;
 
+  if (e.target.closest("[data-manual]")) { openManual(app); return; }
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     const on = !state.favs.has(app.file);
@@ -997,6 +1035,23 @@ $("#grid").addEventListener("click", e => {
 
 $("#pick-roll").addEventListener("click", () => roll(true));
 
+
+const manualDialog = $("#manual-dialog");
+const manualImage = $("#manual-image");
+function openManual(app) {
+ if (!MANUALS[app.file]) return;
+ $("#manual-title").textContent = app.title + " · 사용법";
+ $("#manual-error").hidden = true;
+ manualImage.hidden = false;
+ manualImage.alt = app.title + " 전체 사용설명서";
+ manualImage.src = "manuals/" + MANUALS[app.file] + ".jpg";
+ manualDialog.showModal();
+ manualDialog.scrollTop = 0;
+}
+manualImage.addEventListener("error", () => { manualImage.hidden = true; $("#manual-error").hidden = false; });
+manualImage.addEventListener("click", () => manualDialog.close());
+$("#manual-close").addEventListener("click", () => manualDialog.close());
+manualDialog.addEventListener("click", e => { if(e.target === manualDialog) manualDialog.close(); });
 /* 공유 대화상자 */
 const dialog = $("#share-dialog");
 $$("[data-open-share]").forEach(b => b.addEventListener("click", () => dialog.showModal()));
