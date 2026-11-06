@@ -133,51 +133,6 @@ img{max-width:100%}
 .hero h1 span{position:relative;z-index:1}
 .hero-sub{font-size:19px;color:var(--ink-soft);margin:0 0 26px}
 
-.search{
-  display:flex;align-items:center;gap:10px;
-  background:#fff;border-radius:999px;padding:8px 8px 8px 22px;
-  box-shadow:var(--shadow),inset 0 0 0 2px transparent;
-  transition:box-shadow .2s;
-  max-width:560px;
-}
-.search:focus-within{box-shadow:var(--shadow),inset 0 0 0 3px var(--brand)}
-.search svg{flex-shrink:0;color:var(--brand)}
-.search input{
-  flex:1;min-width:0;border:0;outline:0;background:transparent;
-  font-size:18px;padding:10px 0;
-}
-.search input::placeholder{color:#a9a4b3}
-.search input::-webkit-search-cancel-button{display:none}
-.kbd{
-  font-size:13px;font-weight:700;color:var(--ink-soft);
-  border:2px solid var(--line);border-radius:8px;padding:1px 8px;
-}
-.clear-btn{
-  border:0;background:#f4efe9;border-radius:999px;width:36px;height:36px;
-  display:none;place-items:center;font-size:18px;color:var(--ink-soft);
-}
-.search.has-value .clear-btn{display:grid}
-.search.has-value .kbd{display:none}
-.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
-.quick small{font-size:14px;color:var(--ink-soft);font-weight:600;margin-right:2px}
-.quick button{
-  border:0;background:rgba(255,255,255,.75);border-radius:999px;padding:5px 12px;
-  font-size:14px;font-weight:600;color:var(--ink-soft);
-  transition:background .2s,color .2s,transform .15s;
-}
-.quick button:hover{background:#fff;color:var(--ink);transform:translateY(-1px)}
-
-.stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.stat{
-  display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.8);
-  border-radius:18px;padding:10px 16px 10px 10px;box-shadow:var(--shadow-sm);
-}
-.stat i{
-  font-style:normal;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;
-}
-.stat strong{display:block;font-size:20px;line-height:1.1}
-.stat span{font-size:13px;color:var(--ink-soft);font-weight:600}
-
 /* 오늘의 놀이 뽑기 */
 .picker{
   background:#fff;border-radius:28px;padding:26px;
@@ -458,7 +413,6 @@ body:has(dialog[open]){overflow:hidden}
   .hero-card{padding:30px 20px 24px;border-radius:26px;gap:28px}
   .hero-sub{font-size:17px}
   .kbd{display:none}
-  .search input{font-size:16px}
   .picker{padding:22px 18px}
   .picker-head h2{font-size:21px}
   .hero h1{font-size:clamp(30px,8.4vw,40px)}
@@ -498,6 +452,50 @@ body:has(dialog[open]){overflow:hidden}
 #manual-image{display:block;width:100%;height:auto;cursor:zoom-out}
 #manual-error{padding:20px;color:#a22}
 @media(max-width:600px){#manual-dialog{width:calc(100% - 16px);max-height:94dvh}.manual-toolbar h2{font-size:15px}}
+
+/* 선생님 캐릭터와 소개 문구, 작은 놀이 뽑기 */
+.hero-card{grid-template-columns:minmax(0,1fr) 290px;max-width:1120px;margin-inline:auto;padding:30px;gap:16px}
+.hero-copy{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;align-items:center}
+.hero-character{height:310px;align-self:center;position:relative;mask-image:linear-gradient(#000 88%,transparent)}
+.hero-character img{display:block;width:100%;height:auto;position:relative}
+.hero-message{min-width:0}
+.hero h1{font-size:clamp(36px,4vw,52px);line-height:1.3;letter-spacing:-1.5px;margin:16px 0}
+.hero .eyebrow{font-size:12px;gap:5px;padding-right:10px}
+.hero .eyebrow b{font-size:11px;padding:2px 7px}
+.hero-sub{font-size:16px;line-height:1.75;margin:0}
+.hero-card>.sticker{display:none}
+.picker{padding:18px;border-radius:24px;transform:rotate(1deg)}
+.picker::before{width:66px;height:20px;top:-10px}
+.picker-head{gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.picker-head h2{font-size:20px}.picker-head span{font-size:11px;padding:3px 7px}
+.pick-stage{min-height:166px;padding:16px 10px;border-radius:18px}
+.pick-emoji{width:68px;height:68px;font-size:42px;margin-bottom:8px}
+.pick-title{font-size:21px}.pick-cat{font-size:12px}.pick-desc{font-size:13px}
+.pick-actions{gap:8px;margin-top:12px}.pick-actions .btn{font-size:14px;padding:10px 6px}
+@media(min-width:901px) and (max-width:1100px){
+ .hero-card{grid-template-columns:minmax(0,1fr) 250px;padding:30px 24px;gap:20px}
+ .hero-copy{grid-template-columns:160px minmax(0,1fr);gap:12px}
+ .hero-character{height:237px}
+ .hero h1{font-size:36px}.hero-sub{font-size:14px}
+}
+@media(max-width:900px){
+ .hero-card{grid-template-columns:1fr;padding:30px 26px;gap:26px}
+ .hero-copy{grid-template-columns:170px minmax(0,1fr);max-width:650px;margin:auto}
+ .hero-character{height:251px}
+ .hero h1{font-size:clamp(28px,4.8vw,40px)}
+ .picker{width:100%;max-width:390px;justify-self:center}
+ .pick-stage{min-height:150px}
+}
+@media(max-width:520px){
+ .hero{padding:22px 0 16px}.hero-card{padding:24px 16px;gap:22px}
+ .hero-copy{grid-template-columns:110px minmax(0,1fr);gap:10px}
+ .hero-character{height:163px}
+ .hero .eyebrow{font-size:10px;padding:5px 8px}.hero .eyebrow b{display:none}
+ .hero h1{font-size:25px;letter-spacing:-1px;margin:12px 0}
+ .hero .hl{white-space:normal}
+ .hero-sub{font-size:13px;line-height:1.65}.hero-sub br{display:none}
+ .picker{max-width:320px;padding:15px}.pick-stage{min-height:140px}
+}
 </style>
 </head>
 <body>
@@ -529,30 +527,11 @@ body:has(dialog[open]){overflow:hidden}
         <span class="sticker" style="right:24px;bottom:18px;animation-delay:-2s;font-size:30px" aria-hidden="true">🧸</span>
 
         <div class="hero-copy">
-          <span class="eyebrow"><b>NEW</b> 선생님이 만든 놀이 웹앱 모음</span>
-          <h1>선생님의 아이디어가<br><span class="hl">우리 모두의 놀이</span>가 됩니다</h1>
-          <p class="hero-sub">설치 없이 클릭 한 번! 교실에서 바로 쓰는 놀이자료를 함께 나눠요.</p>
-
-          <div class="search" id="search-box" role="search">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <label class="sr-only" for="search">어떤 놀이자료를 찾으세요?</label>
-            <input id="search" type="search" placeholder="어떤 놀이자료를 찾으세요?" autocomplete="off">
-            <span class="kbd" aria-hidden="true">/</span>
-            <button class="clear-btn" id="clear" type="button" aria-label="검색어 지우기">×</button>
-          </div>
-          <div class="quick" id="quick">
-            <small>인기 검색</small>
-            <button type="button" data-q="질문">#질문</button>
-            <button type="button" data-q="카드">#카드</button>
-            <button type="button" data-q="지구">#지구</button>
-            <button type="button" data-q="글자">#글자</button>
-            <button type="button" data-q="안전">#안전</button>
-          </div>
-
-          <div class="stats">
-            <div class="stat"><i style="background:#ffe9e1" aria-hidden="true">🎮</i><div><strong id="stat-apps">0</strong><span>놀이 웹앱</span></div></div>
-            <div class="stat"><i style="background:#e3f7f1" aria-hidden="true">🏷️</i><div><strong id="stat-cats">0</strong><span>놀이 주제</span></div></div>
-            <div class="stat"><i style="background:#ece6ff" aria-hidden="true">⚡</i><div><strong>무료</strong><span>설치 없이 바로 실행</span></div></div>
+          <div class="hero-character"><img src="assets/teacher.png" alt="책을 안고 반갑게 손을 흔드는 선생님 캐릭터" width="436" height="644" fetchpriority="high"></div>
+          <div class="hero-message">
+            <span class="eyebrow"><b>NEW</b> 유치원선생님이 만든 놀이 웹앱 모음</span>
+            <h1>선생님의 아이디어가<br><span class="hl">우리 모두의 놀이</span>가 됩니다</h1>
+            <p class="hero-sub">설치 없이 클릭 한 번!<br>교실에서 바로 쓰는 놀이자료를 함께 나눠요.</p>
           </div>
         </div>
 
@@ -582,7 +561,7 @@ body:has(dialog[open]){overflow:hidden}
       <div class="section-head">
         <div>
           <h2 class="section-title">놀이 둘러보기 <small id="count" aria-live="polite">0개</small></h2>
-          <p class="section-desc">주제를 고르거나 검색해 보세요. ♥를 누르면 즐겨찾기에 저장돼요.</p>
+          <p class="section-desc">원하는 놀이 주제를 골라 보세요. ♥를 누르면 즐겨찾기에 저장돼요.</p>
         </div>
         <div class="toolbar">
           <div class="seg" role="group" aria-label="정렬">
@@ -807,18 +786,6 @@ async function copyText(text, okMsg) {
   }
 }
 
-function countUp(el, to) {
-  const from = Number(el.textContent) || 0;
-  if (from === to) return;
-  const start = performance.now(), dur = 600;
-  const step = now => {
-    const p = Math.min(1, (now - start) / dur);
-    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
 /* ===================== 데이터 ===================== */
 function setFiles(files) {
   state.apps = files
@@ -829,8 +796,7 @@ function setFiles(files) {
     });
   renderFilters();
   render();
-  updateStats();
-  if (!pickedOnce) roll(false);
+  if (!pickedOnce || !state.apps.some(a => a.file === pickedFile)) roll(false);
 }
 
 function visibleApps() {
@@ -876,7 +842,7 @@ function render() {
     grid.innerHTML = `<div class="empty">
       <div class="empty-emoji" aria-hidden="true">${favEmpty ? "💝" : "🔍"}</div>
       <h3>${favEmpty ? "아직 즐겨찾기한 놀이가 없어요" : "찾으시는 놀이가 없어요"}</h3>
-      <p>${favEmpty ? "마음에 드는 놀이 카드의 ♥를 눌러 보세요." : "검색어나 주제를 바꿔 보세요."}</p>
+      <p>${favEmpty ? "마음에 드는 놀이 카드의 ♥를 눌러 보세요." : "다른 놀이 주제를 골라 보세요."}</p>
       <button class="btn btn-soft" type="button" data-reset>전체 놀이 보기</button>
     </div>`;
     return;
@@ -916,15 +882,13 @@ function render() {
   });
 }
 
-function updateStats() {
-  countUp($("#stat-apps"), state.apps.length);
-  countUp($("#stat-cats"), new Set(state.apps.map(a => a.cat)).size);
-}
 
 /* ===================== 오늘의 놀이 뽑기 ===================== */
 let pickedOnce = false;
+let pickedFile = "";
 let rolling = false;
 function showPick(a) {
+  pickedFile = a.file;
   const c = CATEGORIES[a.cat] || CATEGORIES["기타"];
   const stage = $("#pick-stage");
   stage.style.setProperty("--c-bg", c.bg);
@@ -956,32 +920,6 @@ function roll(animate = true) {
 }
 
 /* ===================== 이벤트 ===================== */
-const searchInput = $("#search");
-const searchBox = $("#search-box");
-
-function setQuery(q) {
-  state.query = q;
-  searchInput.value = q;
-  searchBox.classList.toggle("has-value", !!q);
-  render();
-}
-searchInput.addEventListener("input", () => setQuery(searchInput.value));
-$("#clear").addEventListener("click", () => { setQuery(""); searchInput.focus(); });
-$("#quick").addEventListener("click", e => {
-  const b = e.target.closest("button[data-q]");
-  if (!b) return;
-  setQuery(b.dataset.q);
-  $("#library").scrollIntoView();
-});
-
-document.addEventListener("keydown", e => {
-  if (e.key === "/" && document.activeElement !== searchInput && !$("#share-dialog").open && !$("#manual-dialog").open) {
-    e.preventDefault(); searchInput.focus();
-  } else if (e.key === "Escape" && document.activeElement === searchInput) {
-    setQuery("");
-  }
-});
-
 $("#filters").addEventListener("click", e => {
   const b = e.target.closest("button[data-category]");
   if (!b) return;
@@ -1009,7 +947,7 @@ $("#grid").addEventListener("click", e => {
   if (e.target.closest("[data-reset]")) {
     state.category = "전체"; state.favOnly = false;
     $("#fav-toggle").setAttribute("aria-pressed", "false");
-    renderFilters(); setQuery("");
+    state.query = ""; renderFilters(); render();
     return;
   }
   if (!card) return;
