@@ -81,6 +81,14 @@
             animation: pulseRipple 1.5s infinite;
         }
  
+        .live-box {
+            width: 100%; max-width: 700px; min-height: 3.2em; box-sizing: border-box;
+            background: #FFF; border-radius: 25px; padding: 14px 20px; margin: 0 0 14px 0;
+            font-size: clamp(1.3rem, 5vw, 2rem); line-height: 1.5; color: #333;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.06); word-break: keep-all; overflow-wrap: break-word;
+        }
+        .live-box:empty { display: none; }
+        .live-box .interim { color: #4D96FF; opacity: 0.75; font-style: italic; }
         .action-btn {
             background-color: #FFF;
             border: 4px solid #FFD166;
@@ -357,7 +365,8 @@
         <h1 class="app-title">글자 친구</h1>
         <p class="guide-text">쓰고 싶은 말을 해 볼까요?</p>
         <button id="mic-start-btn" class="mic-btn">🎤</button>
-        <p class="guide-text" style="font-size: clamp(1rem, 4vw, 1.5rem); color: #888;">마이크를 누르고 말해요</p>
+        <div id="live-box" class="live-box" aria-live="polite"></div>
+        <p id="mic-hint" class="guide-text" style="font-size: clamp(1rem, 4vw, 1.5rem); color: #888;">마이크를 누르고 말해요</p>
     </div>
  
     <!-- 2. 글자 확인 화면 -->
@@ -367,22 +376,7 @@
         </div>
         <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; width: 100%;">
-            <button class="action-btn positive" onclick="goTraceScreen()">✨ 맞아요</button>
             <button class="action-btn retry"    onclick="retrySpeaking()">💬 다시 말할래요</button>
-        </div>
-    </div>
- 
-    <!-- 3. 따라 쓰기 화면 -->
-    <div id="trace-screen" class="screen">
-        <p class="guide-text">보고 써 보세요</p>
-        <div class="word-display">
-            <span class="deco-icon deco-1">✏️</span>
-            <span class="deco-icon deco-2">⭐</span>
-            <p id="trace-text" class="text-content short-text"></p>
-        </div>
-        <button class="speaker-btn" onclick="manualSpeak()">🔊</button>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
-            <button class="action-btn" onclick="retrySpeaking()">🎤 다시 말하기</button>
         </div>
     </div>
  
@@ -736,58 +730,177 @@
         ───────────────────────────────────────────── */
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
- 
+        let wantListening = false;     // 사용자가 마이크를 켠 상태 (다시 누를 때까지 true)
+        let committedText = "";        // 이전 인식 세션에서 확정된 내용
+        let sessionFinal  = "";        // 현재 인식 세션에서 확정된 내용
+        let interimText   = "";        // 아직 확정되지 않은 인식 중 내용
+        let restartTimer  = null;
+        let finishTimer   = null;
+        let quickEnds     = 0;         // 연속으로 바로 끊긴 횟수 (무한 재시작 방지)
+        let lastStartAt   = 0;
+
+        function joinText(a, b) {
+            a = (a || '').trim(); b = (b || '').trim();
+            return (a && b) ? a + ' ' + b : (a || b);
+        }
+        function allFinalText() { return joinText(committedText, sessionFinal); }
+
+        function escapeHtml(t) {
+            return t.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function renderLive() {
+            const box = document.getElementById('live-box');
+            const fin = allFinalText();
+            const itm = interimText.trim();
+            let html = escapeHtml(fin);
+            if (itm) html += (fin ? ' ' : '') + '<span class="interim">' + escapeHtml(itm) + '</span>';
+            box.innerHTML = html;
+        }
+        function setMicUI(on) {
+            const btn = document.getElementById('mic-start-btn');
+            btn.classList.toggle('recording', on);
+            btn.innerHTML = on ? '🎙️' : '🎤';
+            document.getElementById('mic-hint').innerText =
+                on ? '듣고 있어요. 다 말했으면 마이크를 다시 눌러요' : '마이크를 누르고 말해요';
+        }
+        function resetInput() {
+            committedText = ""; sessionFinal = ""; interimText = "";
+            renderLive();
+        }
+
+        function startSession() {
+            if (!recognition || !wantListening || isRecognizing) return;   // ⭐ 중복 시작 방지
+            clearTimeout(restartTimer); restartTimer = null;
+            try {
+                lastStartAt = Date.now();
+                recognition.start();
+            } catch (e) {
+                // 이미 시작된 경우 등: onend 후 다시 시도
+                restartTimer = setTimeout(startSession, 400);
+            }
+        }
+
+        function finishListening() {
+            clearTimeout(finishTimer); finishTimer = null;
+            clearTimeout(restartTimer); restartTimer = null;
+            const text = allFinalText() || interimText.trim();
+            interimText = ""; sessionFinal = ""; committedText = "";
+            isRecognizing = false;
+            setMicUI(false);
+            renderLive();
+            if (text) {
+                currentRecognizedText = text;
+                showConfirmScreen();
+            } else {
+                showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+            }
+        }
+
+        function stopListening() {
+            wantListening = false;               // ⭐ 이후 자동 재시작 안 함
+            clearTimeout(restartTimer); restartTimer = null;
+            // 인식 중이던 내용도 합쳐서 보존
+            if (interimText.trim()) { sessionFinal = joinText(sessionFinal, interimText); interimText = ""; }
+            if (recognition && isRecognizing) {
+                try { recognition.stop(); } catch (e) {}
+                // 마지막 결과가 onend 로 들어올 시간을 준 뒤 확실히 마무리
+                finishTimer = setTimeout(finishListening, 1200);
+            } else {
+                finishListening();
+            }
+        }
+
+        function abortListening() {
+            wantListening = false;
+            clearTimeout(restartTimer); clearTimeout(finishTimer);
+            restartTimer = finishTimer = null;
+            if (recognition) { try { recognition.abort(); } catch (e) {} }
+            isRecognizing = false;
+            setMicUI(false);
+        }
+
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.lang = 'ko-KR';
-            recognition.interimResults = false;
+            recognition.continuous = true;        // ⭐ 말이 멈춰도 계속 듣기
+            recognition.interimResults = true;    // ⭐ 인식 중 글자 보여주기
             recognition.maxAlternatives = 1;
- 
+
             recognition.onstart = () => {
                 isRecognizing = true;
-                const btn = document.getElementById('mic-start-btn');
-                btn.classList.add('recording');
-                btn.innerHTML = '🎙️';
+                sessionFinal = ""; interimText = "";
+                setMicUI(true);
             };
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.trim();
-                if (transcript) {
-                    currentRecognizedText = transcript;
-                    showConfirmScreen();
-                } else {
-                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                // 현재 세션의 모든 결과를 다시 계산 (중복 누적 방지)
+                let fin = "", itm = "";
+                for (let i = 0; i < event.results.length; i++) {
+                    const r = event.results[i];
+                    const t = r[0].transcript;
+                    if (r.isFinal) fin = joinText(fin, t); else itm = joinText(itm, t);
                 }
+                sessionFinal = fin;
+                interimText = itm;
+                quickEnds = 0;
+                renderLive();
             };
             recognition.onend = () => {
                 isRecognizing = false;
-                const btn = document.getElementById('mic-start-btn');
-                btn.classList.remove('recording');
-                btn.innerHTML = '🎤';
-            };
-            recognition.onerror = (event) => {
-                isRecognizing = false;
-                const btn = document.getElementById('mic-start-btn');
-                btn.classList.remove('recording');
-                btn.innerHTML = '🎤';
-                if (event.error === 'not-allowed') {
-                    showToast("마이크 권한을 허용해 주세요.");
-                } else if (event.error === 'no-speech') {
-                    showToast("말소리가 들리지 않았어요.");
-                } else if (event.error !== 'aborted') {
-                    showToast("잘 듣지 못했어요. 다시 말해 볼까요?");
+                // 세션이 끝나면 확정분을 보존 (인식 중 내용도 확정 처리)
+                committedText = joinText(committedText, joinText(sessionFinal, interimText));
+                sessionFinal = ""; interimText = "";
+                renderLive();
+                if (wantListening) {
+                    // ⭐ 자동으로 끊겼으면 다시 듣기 (너무 빨리 반복 실패하면 중단)
+                    quickEnds = (Date.now() - lastStartAt < 1000) ? quickEnds + 1 : 0;
+                    if (quickEnds >= 5) {
+                        wantListening = false;
+                        setMicUI(false);
+                        showToast("음성 인식이 자꾸 끊겨요. 마이크를 다시 눌러 주세요.");
+                        return;
+                    }
+                    clearTimeout(restartTimer);
+                    restartTimer = setTimeout(startSession, 250);
+                } else if (finishTimer) {
+                    finishListening();
+                } else {
+                    setMicUI(false);
                 }
             };
+            recognition.onerror = (event) => {
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    wantListening = false;
+                    clearTimeout(restartTimer); restartTimer = null;
+                    setMicUI(false);
+                    showToast("마이크 권한을 허용해 주세요. 주소창 옆 자물쇠에서 허용할 수 있어요.");
+                } else if (event.error === 'audio-capture') {
+                    wantListening = false;
+                    setMicUI(false);
+                    showToast("마이크를 찾을 수 없어요. 마이크 연결을 확인해 주세요.");
+                } else if (event.error === 'network') {
+                    showToast("인터넷 연결이 불안정해요. 다시 연결하는 중이에요.");
+                }
+                // no-speech / aborted 등은 조용히 두고 onend 에서 자동 재시작
+            };
         }
- 
+
         document.getElementById('mic-start-btn').addEventListener('click', () => {
-            if (recognition) {
-                if (isRecognizing) return;              // ⭐ 이미 듣는 중이면 무시
-                try { recognition.start(); } catch(e) { isRecognizing = false; }
+            if (!recognition) {
+                showToast("이 브라우저는 음성 인식을 지원하지 않아요. 크롬(Chrome)에서 열어 주세요.");
+                return;
+            }
+            if (wantListening) {
+                stopListening();                 // ⭐ 마이크를 다시 누르면 완전히 종료
             } else {
-                showToast("이 브라우저는 음성 인식을 지원하지 않아요.");
+                if (finishTimer) return;         // 마무리 중에는 무시
+                resetInput();
+                wantListening = true;
+                quickEnds = 0;
+                setMicUI(true);
+                startSession();
             }
         });
- 
+
         /* ─────────────────────────────────────────────
            화면 전환
         ───────────────────────────────────────────── */
@@ -803,16 +916,21 @@
             fitText(el);                      // ⭐ 화면에 보인 뒤 크기 맞춤
             autoSpeak(currentRecognizedText);
         }
-        function goTraceScreen() {
-            const el = document.getElementById('trace-text');
-            el.innerText = currentRecognizedText;
-            adjustTextSize(el, currentRecognizedText);
-            goScreen('trace-screen');
-            fitText(el);                      // ⭐ 화면에 보인 뒤 크기 맞춤
-        }
         function retrySpeaking() {
+            try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+            abortListening();
+            resetInput();
+            currentRecognizedText = "";
             goScreen('home-screen');
-            showToast("다시 한 번 말해 볼까요?");
+            if (!recognition) {
+                showToast("이 브라우저는 음성 인식을 지원하지 않아요. 크롬(Chrome)에서 열어 주세요.");
+                return;
+            }
+            // 새 입력 시작 (이전 세션이 완전히 끝난 뒤)
+            wantListening = true; quickEnds = 0;
+            setMicUI(true);
+            clearTimeout(restartTimer);
+            restartTimer = setTimeout(startSession, 350);
         }
         function adjustTextSize(element, text) {
             // 글자 컨테이너(.word-display) 도 함께 크기 조절
