@@ -851,8 +851,10 @@
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.lang = 'ko-KR';
-            recognition.continuous = true;        // ⭐ 말이 멈춰도 계속 듣기
-            recognition.interimResults = true;    // ⭐ 인식 중 글자 보여주기
+            // ⭐ continuous 모드는 안드로이드 크롬에서 같은 말을 여러 번 돌려줘 중복되므로,
+            //    한 번에 한 덩어리씩 인식하고 끝나면 바로 다시 듣는 방식으로 "계속 듣기"를 구현
+            recognition.continuous = false;
+            recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
             recognition.onstart = () => {
@@ -861,13 +863,11 @@
                 setMicUI(true);
             };
             recognition.onresult = (event) => {
-                // 현재 세션의 모든 결과를 처음부터 다시 계산 (중복·누적 방지)
-                const segs = [];
-                for (let i = 0; i < event.results.length; i++) {
+                // 확정된 결과만 한 번씩 이어서 쌓는다 (중복 제거는 addSeg)
+                for (let i = event.resultIndex; i < event.results.length; i++) {
                     const r = event.results[i];
-                    addSeg(segs, r[0].transcript, r.isFinal);
+                    if (r.isFinal) addSeg(committedSegs, r[0].transcript, true);
                 }
-                sessionSegs = segs;
                 quickEnds = 0;
                 renderLive();
             };
