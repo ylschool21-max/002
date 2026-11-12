@@ -179,13 +179,12 @@ img{max-width:100%}
 .section-desc{margin:6px 0 0;color:var(--ink-soft);font-size:16px}
 
 .cats{
-  display:flex;gap:12px;overflow-x:auto;padding:6px 4px 14px;margin:0 -4px 6px;
-  scroll-snap-type:x proximity;scrollbar-width:thin;
+  display:flex;gap:8px;overflow:visible;padding:6px 4px 14px;margin:0 -4px 6px;
 }
 .cat{
-  scroll-snap-align:start;flex-shrink:0;
+  flex:1 1 0;min-width:0;
   display:flex;flex-direction:column;align-items:center;gap:6px;
-  min-width:96px;padding:14px 12px 12px;border:0;border-radius:22px;
+  padding:12px 4px 10px;border:0;border-radius:22px;
   background:#fff;box-shadow:var(--shadow-sm),inset 0 0 0 2px transparent;
   transition:transform .2s,box-shadow .2s,background .2s;
 }
@@ -200,6 +199,22 @@ img{max-width:100%}
 .cat[aria-pressed="true"]{background:var(--c-ac);color:#fff;box-shadow:0 10px 24px -10px var(--c-ac)}
 .cat[aria-pressed="true"] .cat-emoji{background:rgba(255,255,255,.9)}
 .cat[aria-pressed="true"] .cat-count{background:rgba(255,255,255,.25);color:#fff}
+/* 전체: 항상 처음과 같은 주황색 */
+.cat[data-category="전체"]{background:#ff7a59;color:#fff;box-shadow:0 10px 24px -10px #ff7a59}
+.cat[data-category="전체"] .cat-emoji{background:rgba(255,255,255,.9)}
+.cat[data-category="전체"] .cat-count{background:rgba(255,255,255,.25);color:#fff}
+/* 학부모상담예약: 연한 파스텔 하늘색 배경으로 구분 */
+.cat[data-category="학부모상담예약"],
+.cat[data-category="학부모상담예약"][aria-pressed="true"]{background:#e3f3fc;color:#1f4e6b;box-shadow:0 10px 24px -14px #7cc3e8}
+.cat[data-category="학부모상담예약"] .cat-emoji,
+.cat[data-category="학부모상담예약"][aria-pressed="true"] .cat-emoji{background:#c9e8f8}
+.cat[data-category="학부모상담예약"] .cat-count,
+.cat[data-category="학부모상담예약"][aria-pressed="true"] .cat-count{background:rgba(255,255,255,.8);color:#1f4e6b}
+/* 휴대폰처럼 좁은 화면에서는 가로 스크롤을 유지 */
+@media (max-width:720px){
+  .cats{overflow-x:auto;scrollbar-width:thin}
+  .cat{flex:0 0 auto;min-width:92px}
+}
 
 .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .seg{display:inline-flex;background:#fff;border-radius:999px;padding:4px;box-shadow:var(--shadow-sm)}
