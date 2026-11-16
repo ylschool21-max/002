@@ -1,439 +1,339 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주말지낸이야기 도우미</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
-        
-        :root {
-            --primary-pink: #FF85B3;
-            --soft-pink: #FFE4EE;
-            --bg-yellow: #FFF9E6;
-        }
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🌈 주말 지낸 이야기 도우미</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+*{box-sizing:border-box}body{margin:0;background:#fff9e6;color:#403943;font-family:'Gaegu','Malgun Gothic',sans-serif}button,input{font:inherit}button{cursor:pointer}.app{width:min(1500px,96%);margin:auto;padding:12px 0 30px}header{text-align:center}h1{color:#ec5797;font-size:clamp(32px,4vw,58px);margin:4px 0}header p{color:#d77d32;font-size:clamp(19px,2.2vw,29px);margin:0 0 14px}.tabs{display:flex;gap:8px;padding-left:14px}.tab{border:0;border-radius:20px 20px 0 0;padding:10px 28px;background:#ffe4ee;color:#d95690;font-size:clamp(20px,2vw,30px);font-weight:bold}.tab.active{background:#ff85b3;color:white}.board{background:white;border:5px solid #ffd1e3;border-radius:0 30px 30px 30px;padding:clamp(14px,2.5vw,30px);box-shadow:0 10px 30px #ffb6c133}.preview{background:#fff9fb;border:3px solid #ffd1e3;border-radius:26px;padding:18px 24px;margin-bottom:20px}.preview h2{font-size:clamp(20px,2vw,28px);color:#c95a8a;margin:0 0 10px}.sentence{font-size:clamp(27px,3vw,44px);font-weight:bold;line-height:1.65;overflow-wrap:anywhere;word-break:keep-all}.filled{color:#ef4d91}.hint{color:#b4a5af;border-bottom:2px dashed #efb3cf}.form-area{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,3fr);gap:18px;align-items:stretch}.name-box{background:#fff0f5;border:2px solid #ffe4ee;border-radius:22px;padding:20px;display:flex;flex-direction:column;justify-content:center;gap:12px;text-align:center}.name-box label{color:#df5993;font-size:30px;font-weight:bold}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;min-width:0;gap:5px}.field label{font-size:clamp(20px,1.8vw,27px);color:#b04f7c;font-weight:bold}.field input,.name-box input{width:100%;min-width:0;border:3px solid #ffe4ee;background:#fff;border-radius:16px;padding:12px 14px;font-size:clamp(23px,2.2vw,32px);outline:none}.field input:focus,.name-box input:focus{border-color:#ff85b3;box-shadow:0 0 0 3px #ffe4ee}.actions{display:flex;gap:12px;margin-top:20px}.save{flex:1;background:linear-gradient(90deg,#ff85b3,#ffa07a);color:white;border:0;border-radius:25px;padding:13px;font-size:clamp(24px,2.6vw,36px);font-weight:bold}.clear{border:2px solid #ffc6dc;background:white;color:#c75a8d;border-radius:25px;padding:10px 24px;font-size:25px}.list-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.list-header h2{color:#d95690;font-size:32px;margin:0 0 15px}.count{font-size:25px;color:#d95690}.story-list{display:grid;gap:12px}.story-card{background:#fff9fb;border:2px solid #ffe4ee;border-radius:20px;padding:16px 20px;display:flex;gap:15px;align-items:center;justify-content:space-between}.story-card .content{min-width:0;font-size:clamp(22px,2vw,30px);overflow-wrap:anywhere;word-break:keep-all}.story-card strong{color:#d95690}.story-card button{flex-shrink:0;background:white;border:2px solid #ffd1e3;border-radius:12px;color:#b8497c;padding:8px 12px;font-size:21px}.empty{font-size:26px;text-align:center;padding:30px}.notice{font-size:19px;color:#806b78;margin:14px 0 0}.hidden{display:none!important}@media(max-width:850px){.form-area{grid-template-columns:1fr}.name-box{padding:12px}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.fields{grid-template-columns:1fr}.tabs{padding-left:0}.tab{flex:1;padding:9px}.board{padding:12px}.preview{padding:13px}.actions{flex-direction:column}.clear{padding:7px}}
 
-        body {
-            font-family: 'Gaegu', cursive;
-            background-color: var(--bg-yellow);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+/* 전자칠판: 화면 높이에 맞춰 한 화면에 모두 표시 */
+html,body{height:100%;height:100dvh;overflow:hidden}
+.app{height:100dvh;max-height:100dvh;width:min(1600px,98%);padding:5px 0 7px;display:flex;flex-direction:column;min-height:0}
+header{flex:0 0 auto}h1{font-size:clamp(25px,3.2vh,43px);margin:0}header p{font-size:clamp(16px,2.2vh,23px);margin:0 0 4px}
+.tabs{flex:0 0 auto}.tab{font-size:clamp(18px,2.6vh,26px);padding:5px 20px}
+.board{flex:1;min-height:0;display:flex;flex-direction:column;padding:clamp(8px,1.3vh,16px);border-width:4px;border-radius:0 22px 22px 22px;overflow:hidden}
+#write,#list{flex:1;min-height:0;display:flex;flex-direction:column}
+.preview{flex:1 1 40%;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(8px,1.5vh,18px);margin-bottom:clamp(6px,1.1vh,12px);border-radius:18px}
+.preview h2{flex:none;font-size:clamp(18px,2.5vh,26px);margin:0 0 4px}
+.sentence{font-size:clamp(21px,3.7vh,43px);line-height:1.28;overflow-wrap:anywhere;word-break:keep-all}
+.form-area{flex:0 0 auto;min-height:0;grid-template-columns:minmax(130px,1fr) minmax(0,4fr);gap:clamp(6px,1vw,14px)}
+.name-box{padding:clamp(6px,1vh,12px);gap:5px;border-radius:14px}.name-box label{font-size:clamp(18px,2.6vh,27px)}
+.fields{gap:clamp(4px,.8vh,9px) clamp(6px,.8vw,12px)}.field{gap:1px}.field label{font-size:clamp(17px,2.4vh,24px)}
+.field input,.name-box input{font-size:clamp(18px,2.9vh,29px);padding:clamp(5px,.8vh,10px) 10px;border-radius:11px;border-width:2px;height:clamp(36px,5.7vh,55px)}
+.actions{flex:0 0 auto;margin-top:clamp(5px,1vh,10px);gap:8px}.save{font-size:clamp(20px,3vh,30px);padding:clamp(5px,.8vh,10px)}.clear{font-size:clamp(18px,2.5vh,25px);padding:4px 15px}
+.notice{flex:0 0 auto;font-size:clamp(13px,1.8vh,18px);margin:4px 0 0}
+#list .story-list{flex:1;min-height:0;overflow-y:auto;align-content:start}
+@media(max-height:620px){header p{display:none}.preview{flex-basis:35%}.sentence{line-height:1.16}.field input,.name-box input{height:35px}.notice{display:none}}
+@media(max-width:850px){.form-area{grid-template-columns:minmax(105px,1fr) minmax(0,4fr)}.fields{grid-template-columns:repeat(3,minmax(0,1fr))}.name-box{padding:5px}}
+@media(max-width:580px){.form-area{grid-template-columns:1fr}.name-box{flex-direction:row;align-items:center}.name-box input{flex:1;width:60%}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.preview{flex-basis:32%}.field label{font-size:16px}.field input{font-size:17px}.tab{flex:1;padding:4px}}
+/* 발표 영역을 작게 하고 입력 영역을 더 넓게 배치 */
+.preview{flex:0 1 29%;min-height:105px;padding:8px 14px;margin-bottom:7px}
+.preview h2{font-size:clamp(16px,2vh,21px);margin-bottom:2px}
+.sentence{font-size:clamp(19px,3vh,32px);line-height:1.23}
+@media(max-height:620px){.preview{flex-basis:27%;min-height:80px}}
 
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            width: 96vw; /* 너비 확장 */
-            margin: 0 auto;
-            padding: 1vh 0;
-            overflow: hidden;
-        }
+/* 입력칸을 가로 한 줄로 정렬하고 남는 아래 공간을 줄임 */
+#write{justify-content:flex-start}
+.preview{flex:0 0 auto;min-height:0;padding:10px 14px;margin-bottom:12px}
+.sentence{font-size:clamp(20px,2.9vh,30px)}
+.form-area{display:flex;flex-direction:column;gap:10px;flex:0 0 auto}
+.name-box{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;padding:8px 14px}
+.name-box label{flex:0 0 auto;white-space:nowrap}
+.name-box input{width:min(270px,35%);flex:0 1 270px}
+.fields{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:start}
+.field{min-width:0}
+.field label{font-size:clamp(15px,1.9vw,24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.field input{width:100%;font-size:clamp(15px,1.75vw,25px);padding:8px 7px;height:clamp(38px,6vh,55px)}
+.actions{margin-top:14px}
+@media(max-width:950px){.fields{gap:5px}.field label{font-size:clamp(12px,1.7vw,18px)}.field input{font-size:clamp(12px,1.6vw,20px);padding:5px}.name-box input{width:220px}}
+@media(max-width:580px){.fields{grid-template-columns:repeat(3,minmax(0,1fr))}.field label{font-size:15px}.field input{font-size:16px}.name-box{flex-direction:row}.name-box input{width:65%}}
+@media(max-height:550px){header p{display:none}.preview{padding:5px 10px;margin-bottom:6px}.actions{margin-top:6px}.notice{display:none}}
 
-        header {
-            height: 12vh; /* 헤더 높이 살짝 축소 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            flex-shrink: 0;
-        }
+/* 질문마다 가로 한 줄 전체를 사용: 질문 왼쪽, 답변 오른쪽 */
+#write{justify-content:flex-start;overflow:hidden}
+.preview{flex:0 0 auto;padding:7px 12px;margin-bottom:7px}
+.sentence{font-size:clamp(18px,2.7vh,29px);line-height:1.18}
+.form-area{display:flex;flex-direction:column;gap:5px;min-height:0;flex:1 1 auto}
+.name-box{padding:3px 10px;min-height:0;gap:10px}
+.name-box label{font-size:clamp(17px,2.3vh,24px)}
+.name-box input{height:clamp(29px,4.5vh,43px);font-size:clamp(17px,2.5vh,25px)}
+.fields{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));gap:clamp(3px,.6vh,7px);flex:1;min-height:0}
+.field{display:grid;grid-template-columns:clamp(145px,19vw,240px) minmax(0,1fr);align-items:center;gap:10px;min-height:0}
+.field label{font-size:clamp(18px,2.7vh,28px);white-space:nowrap;overflow:visible;text-overflow:clip}
+.field input{height:100%;min-height:0;max-height:clamp(36px,6.5vh,58px);font-size:clamp(19px,2.9vh,29px);padding:3px 12px;width:100%}
+.actions{margin-top:6px;flex:0 0 auto}.save{padding:4px;font-size:clamp(19px,2.7vh,28px)}.clear{padding:3px 12px;font-size:clamp(17px,2.3vh,23px)}
+.notice{font-size:clamp(12px,1.6vh,16px);margin:2px 0 0}
+@media(max-width:580px){.fields{grid-template-columns:minmax(0,1fr)}.field{grid-template-columns:120px minmax(0,1fr);gap:5px}.field label{font-size:16px}.field input{font-size:17px}.name-box{flex-direction:row}.actions{flex-direction:row}}
+@media(max-height:620px){.preview{padding:4px 8px;margin-bottom:4px}.preview h2{font-size:16px}.sentence{font-size:18px}.field label{font-size:17px}.field input{font-size:18px}.name-box input{height:30px}.notice{display:none}}
+/* 발표문을 더 크게 확보하고 5개 질문은 한 줄씩 유지 */
+.preview{flex:0 0 32%;min-height:0;padding:clamp(12px,2vh,22px) clamp(16px,2vw,30px);margin-bottom:clamp(5px,1vh,10px);overflow:hidden}
+.preview h2{font-size:clamp(19px,2.8vh,28px);margin-bottom:8px}
+.sentence{font-size:clamp(24px,3.6vh,38px);line-height:1.32}
+.fields{grid-template-rows:repeat(5,minmax(0,1fr))}
+@media(max-height:620px){.preview{flex-basis:30%;padding:6px 12px}.preview h2{margin-bottom:3px}}
+/* 세로형 질문 흐름 및 발표문 빈칸 */
+.fields{display:flex;flex-direction:column;gap:clamp(5px,1vh,12px);flex:1;min-height:0}
+.field{display:grid;grid-template-columns:clamp(145px,19vw,240px) minmax(0,1fr);flex:1;min-height:0;align-items:center}
+.field input{height:100%;max-height:clamp(36px,6.5vh,58px)}
+.sentence .hint{display:inline-block;min-width:2.8em;border-bottom:2px solid #e99cbd;color:transparent;line-height:1.05;vertical-align:baseline}
+@media(max-width:580px){.fields{display:flex;flex-direction:column}.field{grid-template-columns:120px minmax(0,1fr)}}
 
-        header h1 {
-            font-size: 3.2rem;
-            margin-bottom: 0.1rem;
-        }
+/* 질문 제목은 가로 한 줄, 각 입력칸은 제목 바로 아래에 세로 배치 */
+.fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:1fr;gap:clamp(6px,1vw,15px);flex:0 0 auto;min-height:0}
+.field{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;min-width:0;flex:initial}
+.field label{font-size:clamp(16px,1.9vw,26px);white-space:nowrap;overflow:visible;text-overflow:clip;text-align:center}
+.field input{height:clamp(44px,7vh,65px);max-height:none;width:100%;font-size:clamp(16px,1.65vw,25px);padding:7px 9px;text-align:center}
+.form-area{flex:0 0 auto;gap:12px}
+.preview{flex:1 1 auto;min-height:125px;overflow:auto}
+.sentence .hint{display:inline-block;min-width:3em;border-bottom:3px dotted #df78a4;color:transparent;line-height:1.1;vertical-align:baseline}
+@media(max-width:700px){.fields{gap:4px}.field{gap:4px}.field label{font-size:clamp(12px,2.5vw,18px)}.field input{font-size:clamp(12px,2.5vw,18px);padding:4px}.preview{min-height:110px}}
 
-        .tabs {
-            display: flex;
-            gap: 10px;
-            padding: 0 2rem;
-            flex-shrink: 0;
-        }
-        .tab-btn {
-            padding: 1.2vh 3vw;
-            font-size: 2rem;
-            font-weight: bold;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .active-tab {
-            background-color: var(--primary-pink);
-            color: white;
-            border-radius: 25px 25px 0 0;
-        }
-        .inactive-tab {
-            background-color: var(--soft-pink);
-            color: var(--primary-pink);
-            border-radius: 25px 25px 0 0;
-        }
+/* 2026-11-13: 전자칠판용 비율 조정 */
+h1{font-size:clamp(34px,5.3vh,62px);line-height:1.12;margin:3px 0 5px}
+header p{font-size:clamp(17px,2.35vh,25px);margin-bottom:7px}
+.preview{flex:0 0 24%;min-height:100px;max-height:27%;padding:clamp(9px,1.3vh,15px) clamp(14px,2vw,25px);margin-bottom:clamp(10px,1.6vh,18px);overflow:auto;justify-content:flex-start}
+.preview h2{font-size:clamp(20px,2.8vh,29px);margin-bottom:5px}
+.form-area{flex:1 1 auto;min-height:0;gap:clamp(10px,1.7vh,18px);justify-content:space-evenly}
+.name-box{flex:0 0 auto;padding:clamp(8px,1.2vh,14px) 16px}
+.name-box label{font-size:clamp(22px,3vh,31px)}
+.name-box input{height:clamp(42px,6vh,60px);font-size:clamp(21px,3vh,31px)}
+.fields{flex:1 1 auto;min-height:0;align-items:stretch;gap:clamp(8px,1.2vw,20px)}
+.field{justify-content:center;gap:clamp(9px,1.5vh,17px)}
+.field label{font-size:clamp(20px,2.4vw,34px);line-height:1.15}
+.field input{height:clamp(64px,12vh,120px);font-size:clamp(19px,2.2vw,33px);padding:10px 8px}
+.actions{margin-top:clamp(10px,1.7vh,18px)}
+.save{padding:clamp(9px,1.6vh,17px)}
+@media(max-width:850px){.field label{font-size:clamp(14px,2.3vw,23px)}.field input{font-size:clamp(14px,2.1vw,23px);padding:6px 3px}}
+@media(max-height:620px){h1{font-size:clamp(28px,5vh,40px)}.preview{flex-basis:23%;min-height:75px}.field input{height:clamp(42px,10vh,65px)}.field{gap:5px}.name-box{padding:4px 10px}}
 
-        .content-board {
-            background-color: white;
-            border: 6px solid #FFD1E3;
-            border-radius: 0 45px 45px 45px;
-            margin: 0 1rem 1.5vh 1rem;
-            padding: 2.5vh 3vw; /* 여백 최적화 */
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 12px 35px rgba(255, 182, 193, 0.2);
-            overflow: hidden;
-        }
+/* 학급 명단 선택 및 설정 */
+.name-box select{height:clamp(42px,6vh,60px);font-size:clamp(21px,3vh,31px);border:2px solid #ffd1e3;border-radius:12px;background:white;color:#403943;padding:3px 12px;min-width:180px;max-width:340px;flex:1}
+.name-box input{flex:1;max-width:300px}
+.tab{padding-left:clamp(12px,2vw,28px);padding-right:clamp(12px,2vw,28px)}
+.list-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.danger{border:2px solid #ef8ba8;background:#fff1f4;color:#b62e65;border-radius:13px;padding:5px 16px;font-size:clamp(19px,2.5vh,25px)}
+#settings{flex:1;min-height:0;overflow-y:auto;padding:8px 12px}#settings h2{color:#d95690;font-size:clamp(25px,3.6vh,38px);margin:0 0 8px}#settings p{font-size:clamp(20px,2.6vh,27px);margin:5px 0 12px}#roster{display:block;width:100%;min-height:200px;max-height:42vh;resize:vertical;border:3px solid #ffd1e3;border-radius:16px;padding:12px;font:clamp(22px,3vh,30px) 'Gaegu','Malgun Gothic',sans-serif;background:#fffdfd}.settings-save{background:#ff85b3;color:white;border:0;border-radius:18px;padding:10px 35px;font-size:clamp(22px,3vh,30px);margin-top:12px}
+@media(max-width:650px){.name-box{flex-wrap:wrap}.name-box select{min-width:140px}.tabs .tab{font-size:18px;padding:5px 10px}}
 
-        /* 문장 미리보기 영역 확대 */
-        .preview-box {
-            background-color: #FFF9FB;
-            border: 3.5px solid #FFD1E3;
-            border-radius: 35px;
-            padding: 3vh 2vw;
-            margin-bottom: 2.5vh;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+/* 가독성 및 입력 상자 균형 개선: 전자칠판과 일반 화면 공통 */
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+body,button,input,select,textarea{font-family:'Noto Sans KR','Malgun Gothic',sans-serif!important}
+h1{font-weight:800;letter-spacing:-.045em;font-size:clamp(31px,4.8vh,55px)}
+header p{font-size:clamp(15px,2vh,21px)}
+.tab{font-size:clamp(15px,2.2vh,23px);font-weight:700}
+.preview{flex:0 0 22%;min-height:95px;max-height:25%;padding:clamp(9px,1.3vh,16px) clamp(12px,1.6vw,24px)}
+.preview h2{font-size:clamp(18px,2.45vh,25px);font-weight:700}
+.sentence{font-family:'Gowun Dodum','Malgun Gothic',sans-serif;font-weight:700;line-height:1.5}
+.name-box{gap:10px;padding:clamp(7px,1vh,12px) 14px}
+.name-box label{font-size:clamp(17px,2.5vh,25px)}
+.name-box select,.name-box input{height:clamp(42px,6.5vh,57px);font-size:clamp(16px,2.4vh,24px);padding:5px 12px}
+.fields{gap:clamp(7px,1vw,16px)}
+.field{justify-content:center;gap:clamp(8px,1.2vh,13px)}
+.field label{font-size:clamp(15px,1.65vw,25px);font-weight:700;line-height:1.4;white-space:normal;overflow-wrap:keep-all;min-height:2.8em;display:flex;align-items:end;justify-content:center}
+.field input{height:clamp(62px,10vh,92px);font-size:clamp(17px,1.7vw,26px);font-weight:500;line-height:1.35;padding:10px 8px;border-radius:14px}
+.field input::placeholder,.name-box input::placeholder{font-size:.83em;color:#968d94;opacity:1}
+.save{font-size:clamp(19px,2.7vh,27px)}.clear{font-size:clamp(17px,2.3vh,23px)}
+.notice{font-size:clamp(12px,1.55vh,16px)}
+#settings h2{font-size:clamp(23px,3.3vh,34px)}#settings p{font-size:clamp(16px,2.25vh,23px)}
+#roster{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;font-size:clamp(18px,2.6vh,25px);line-height:1.7}
+.settings-save,.danger{font-size:clamp(17px,2.4vh,23px)}
+.story-card .content{font-family:'Gowun Dodum','Malgun Gothic',sans-serif;font-size:clamp(19px,2.4vh,27px)}
+@media(max-width:900px){.field label{font-size:clamp(13px,1.8vw,19px)}.field input{font-size:clamp(14px,1.9vw,20px);padding:6px 5px}.name-box select{min-width:135px}}
+@media(max-width:600px){.field label{font-size:clamp(12px,2.4vw,16px)}.field input{font-size:clamp(13px,2.6vw,17px)}.fields{gap:4px}.name-box{flex-wrap:wrap}.preview{min-height:100px}}
+@media(max-height:620px){.preview{flex-basis:22%;min-height:72px}.field input{height:clamp(42px,9vh,65px)}.field label{min-height:2.3em}.name-box select,.name-box input{height:38px}}
 
-        .sentence-row {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 2.1vw; /* 글자 크기 최적화 */
-            color: #333;
-            white-space: nowrap;
-        }
+/* 2026-11: 발표 공간 확대, 입력 영역 밀착, 명단 자동 이름칸 */
+.preview{flex:0 0 34%!important;max-height:38%!important;min-height:135px!important;margin-bottom:5px!important;padding:12px 20px!important}
+.preview h2{font-size:clamp(20px,2.8vh,29px)!important;margin-bottom:6px!important}
+.sentence{line-height:1.45!important}
+.form-area{gap:3px!important;flex:0 0 auto!important}
+.name-box{margin:0!important;padding:4px 12px!important;min-height:0!important;gap:8px!important}
+.name-box select,.name-box input{height:clamp(35px,5.1vh,48px)!important}
+.fields{gap:clamp(4px,.65vw,10px)!important;align-items:start!important;flex:0 0 auto!important}
+.field{gap:3px!important;justify-content:flex-start!important}
+.field label{min-height:0!important;line-height:1.25!important;align-items:center!important;font-size:clamp(15px,1.65vw,24px)!important}
+.field input{height:clamp(48px,7.8vh,72px)!important}
+.actions{margin-top:8px!important}
+.name-choices{display:flex;align-items:center;gap:6px;overflow-x:auto;max-width:100%;padding:3px 2px 5px;flex:0 0 auto}
+.name-choices:empty{display:none}.name-choice{flex:0 0 auto;border:2px solid #ffd1e3;border-radius:12px;background:#fff8fc;color:#a84778;padding:3px 12px;font-size:clamp(14px,1.9vh,19px);font-weight:700}
+.name-choice.selected{background:#ff85b3;color:#fff;border-color:#ff85b3}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin:10px 0}.roster-cell{border:2px solid #ffe0ed;background:#fff8fc;border-radius:12px;padding:8px;text-align:center;font-weight:700;font-size:18px}
+@media(max-height:650px){.preview{flex-basis:30%!important;min-height:90px!important}.name-choices{padding:0}.field input{height:43px!important}}
 
-        .fixed-text {
-            font-weight: bold;
-            color: #555;
-            flex-shrink: 0;
-        }
+/* 화면 전체 공간 활용 및 최대 20명 큰 이름 선택 버튼 */
+#write{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important}
+#write .preview{flex:0 0 27%!important;min-height:0!important;max-height:none!important;margin-bottom:6px!important;overflow:auto!important}
+#write .form-area{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:5px!important}
+#write .name-box{flex:0 0 auto!important}
+#write .name-choices{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-rows:minmax(36px,1fr)!important;gap:6px!important;align-content:stretch!important;overflow-y:auto!important;overflow-x:hidden!important;flex:1 1 38%!important;min-height:0!important;max-height:none!important;padding:2px!important}
+#write .name-choices:empty{display:none!important}
+#write .name-choice{min-width:0!important;min-height:36px!important;padding:5px 3px!important;font-size:clamp(17px,2.5vh,25px)!important;line-height:1.15!important;border-radius:13px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#write .fields{flex:1 1 35%!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important;align-items:stretch!important}
+#write .field{min-height:0!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important}
+#write .field label{font-size:clamp(16px,1.65vw,24px)!important;flex:0 0 auto!important}
+#write .field input{height:auto!important;min-height:40px!important;max-height:none!important;flex:1 1 auto!important;font-size:clamp(17px,1.8vw,27px)!important}
+#write .actions{flex:0 0 auto!important;margin-top:6px!important;gap:10px!important}
+#write .actions button{min-height:clamp(45px,7vh,70px)!important}
+#write .notice{flex:0 0 auto!important;margin:3px 0 0!important}
+@media(max-width:650px){#write .name-choices{grid-template-columns:repeat(4,minmax(0,1fr))!important}#write .fields{gap:3px!important}#write .field label{font-size:12px!important}#write .field input{font-size:13px!important;padding:3px!important}}
+@media(max-height:650px){#write .preview{flex-basis:23%!important}#write .name-choice{min-height:29px!important;font-size:16px!important}#write .name-choices{grid-auto-rows:minmax(29px,1fr)!important;gap:3px!important}#write .actions button{min-height:36px!important}#write .field input{min-height:32px!important}}
 
-        .input-slot {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-            position: relative;
-        }
+/* 2026-11-16: 탭 전환 오류 수정 및 전자칠판 레이아웃 정리 */
+h1{font-size:clamp(39px,6.4vh,76px)!important;line-height:1.16!important;margin:2px 0 6px!important}
+/* 이전 #write display:flex!important 선언이 .hidden을 무시하던 문제 해결 */
+.board > section.hidden{display:none!important}
+.board > section:not(.hidden){min-height:0;flex:1 1 auto}
+#list:not(.hidden){display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:8px}
+#list .list-header{flex:0 0 auto;flex-wrap:wrap;gap:8px}
+#list .list-header h2{font-size:clamp(22px,3.3vh,35px);margin:0}
+#list .story-list{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;align-content:start}
+#list .notice{flex:0 0 auto}
+#settings:not(.hidden){display:flex!important;flex-direction:column!important;gap:8px;overflow-y:auto!important;min-height:0!important;padding:12px 16px!important}
+#settings h2{flex:0 0 auto;margin:0!important}
+#settings p{flex:0 0 auto;margin:2px 0!important}
+#settings #roster{flex:1 1 130px;min-height:110px;max-height:none!important;resize:none}
+#settings .roster-grid{flex:0 0 auto;grid-template-columns:repeat(5,minmax(0,1fr));margin:3px 0;gap:5px}
+#settings .roster-cell{font-size:clamp(14px,1.8vh,20px);padding:6px 2px;overflow-wrap:anywhere}
+#settings .settings-save{flex:0 0 auto;align-self:stretch;margin-top:2px}
+@media(max-height:650px){h1{font-size:clamp(30px,5.5vh,51px)!important}#settings #roster{min-height:80px}}
+@media(max-width:600px){h1{font-size:clamp(29px,5.5vw,45px)!important}#settings .roster-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
-        .guide-placeholder {
-            color: #E0E0E0;
-            font-size: 0.75em;
-            margin-bottom: -2px;
-        }
+/* 탭별 화면을 독립적인 스크롤 컨테이너로 분리: 겹침 방지 */
+html,body{height:100%;overflow:hidden}
+.app{height:100dvh;min-height:0;display:flex;flex-direction:column}
+.board{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;display:block!important;padding:12px!important}
+.board > section{position:relative;box-sizing:border-box;width:100%;height:100%;min-height:0;max-height:100%;margin:0;overflow:hidden}
+.board > section.hidden{display:none!important;visibility:hidden!important}
+#write:not(.hidden){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#list:not(.hidden){display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:10px!important}
+#list .list-header{flex:0 0 auto!important;min-height:0}
+#list .story-list{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;gap:10px!important;padding:4px!important}
+#list .story-card{flex:0 0 auto!important;min-height:65px;max-width:100%;overflow-wrap:anywhere}
+#list .notice{flex:0 0 auto!important}
+#settings:not(.hidden){display:flex!important;flex-direction:column!important;overflow-y:auto!important;overflow-x:hidden!important;gap:10px!important;padding:12px 18px!important}
+#settings h2,#settings p,#settings .settings-save{flex:0 0 auto!important}
+#settings #roster{display:block!important;flex:0 0 auto!important;height:clamp(110px,24vh,230px)!important;min-height:110px!important;max-height:none!important;resize:none!important}
+#settings .roster-grid{display:grid!important;flex:0 0 auto!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important;align-content:start!important}
+#settings .roster-cell{min-width:0;overflow-wrap:anywhere}
+#settings .settings-save{min-height:52px!important}
+@media(max-width:650px){#settings .roster-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 
-        .actual-text {
-            color: #FF4D94;
-            font-weight: bold;
-            padding: 0 5px;
-        }
+/* 비활성 탭의 강제 flex 표시를 차단 */
+#write.hidden,#list.hidden,#settings.hidden{display:none!important;visibility:hidden!important;position:static!important;height:0!important;}
 
-        .dot-line {
-            width: 100%;
-            border-bottom: 2.5px dashed #FFD1E3;
-            margin-top: 2px;
-        }
+/* 명단은 최대 20개 고정 칸에 자동 배치 */
+#nameChoices{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;}
+#nameChoices .name-choice{min-width:0;min-height:0;}
+#nameChoices .name-choice:disabled{opacity:.36;cursor:default;background:#fff7fa;}
+.story-example{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;font-size:clamp(12px,1.7vh,17px);color:#8d7281;line-height:1.3;margin-top:3px;}
+@media(max-width:650px){#nameChoices{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
 
-        /* 팔레트 내부 크기 확대 및 여백 제거 */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 3.5fr; /* 이름칸 비율 조정 */
-            gap: 1.5vw;
-            flex: 1; /* 팔레트가 남은 공간을 더 차지하도록 */
-            margin-bottom: 2vh;
-            min-height: 0;
-        }
+.upload-roster{flex:0 0 auto;display:flex;flex-direction:column;gap:5px;background:#fff7fb;border:2px solid #f8c9dd;border-radius:14px;padding:9px 13px}.upload-roster label{font-size:clamp(17px,2.3vh,23px);font-weight:700;color:#ad4777}.upload-roster input{font-size:clamp(14px,1.9vh,19px);width:100%;max-width:100%}.upload-roster small,#uploadStatus{font-size:clamp(12px,1.65vh,16px);color:#765e6e}#settings #roster{height:clamp(85px,15vh,150px)!important;min-height:85px!important}#settings{overflow-y:auto!important}
 
-        .name-section {
-            background-color: #FFF0F5;
-            border-radius: 30px;
-            padding: 2vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 3px solid #FFE4EE;
-        }
+/* 이름 버튼: 20칸을 구별하기 쉬운 파스텔 색상으로 순환 */
+#nameChoices .name-choice:nth-child(5n+1),#rosterGrid .roster-cell:nth-child(5n+1){background:#ffe2e9;border-color:#e9a4b8;color:#693b4b}
+#nameChoices .name-choice:nth-child(5n+2),#rosterGrid .roster-cell:nth-child(5n+2){background:#fff0c9;border-color:#e6c276;color:#66502b}
+#nameChoices .name-choice:nth-child(5n+3),#rosterGrid .roster-cell:nth-child(5n+3){background:#dcf4df;border-color:#9bcda3;color:#345b3d}
+#nameChoices .name-choice:nth-child(5n+4),#rosterGrid .roster-cell:nth-child(5n+4){background:#dceeff;border-color:#99bee6;color:#315577}
+#nameChoices .name-choice:nth-child(5n+5),#rosterGrid .roster-cell:nth-child(5n+5){background:#eee3ff;border-color:#c5a9e8;color:#594474}
+#nameChoices .name-choice.selected{background:#e84886!important;color:white!important;border:3px solid #a51d55!important;box-shadow:0 0 0 3px #ffc1d9 inset;font-weight:900}
+#nameChoices .name-choice:disabled{opacity:.32}
 
-        .name-section input {
-            font-size: 3.5rem; /* 이름 입력창 크게 */
-            padding: 1.5vh;
-            margin-top: 1vh;
-        }
+/* 차분한 미색·세이지 테마: 높은 가독성의 고딕체 */
+body,button,input,select,textarea{font-family:'Noto Sans KR','Malgun Gothic',Arial,sans-serif!important}
+body{background:#f7f5ec;color:#343d38}
+header h1{color:#42665b!important;font-family:'Noto Sans KR','Malgun Gothic',sans-serif!important;font-weight:800!important;letter-spacing:-.055em!important;text-shadow:none!important}
+header p{color:#66796d!important}
+.board{border-color:#d8e3d8!important;box-shadow:0 8px 24px #697c6320!important}
+.tab{background:#e8ecdf!important;color:#4c6256!important}
+.tab.active{background:#668a79!important;color:#fff!important}
+.preview{background:#f9f8f0!important;border-color:#dce5d6!important}
+.preview h2,.list-header h2,#settings h2,.field label,.name-box label{color:#4d7060!important}
+.name-box{background:#f1f3e8!important;border-color:#dce5d6!important}
+.field input,.name-box input,.name-box select,#roster{border-color:#d9e2d6!important}
+.field input:focus,.name-box input:focus{border-color:#719a84!important;box-shadow:0 0 0 3px #e2ece2!important}
+.filled{color:#3c6959!important}.hint{color:#8c978c!important;border-bottom-color:#a8baaa!important}
+.save,.settings-save{background:#6d907d!important;color:#fff!important}
+.clear{border-color:#c8d8c9!important;color:#4f7563!important}
+.story-example,.notice{color:#6e7a70!important}
+.upload-roster{background:#f7f8ef!important;border-color:#d6e2d2!important}
+.upload-roster label{color:#557663!important}
+#nameChoices .name-choice.selected{background:#486f5d!important;border-color:#2c4f40!important;color:#fff!important;box-shadow:0 0 0 3px #c7ddcf inset!important}
+/* 보관함: 이름별 고정 색상, 이름 배지와 카드 테두리를 함께 구분 */
+#list .story-card{background:#fffefa!important;border:2px solid var(--story-border,#d8e1d6)!important;border-left:9px solid var(--story-accent,#719a84)!important;gap:12px!important}
+#list .story-card .content{color:#37443b!important;line-height:1.55!important}
+#list .story-card .story-name{display:inline-block!important;background:var(--story-bg,#e5eee5)!important;color:var(--story-ink,#345644)!important;border:1px solid var(--story-border,#c8dac9)!important;border-radius:12px;padding:4px 13px;margin-right:12px;font-weight:800!important;white-space:nowrap}
+#list .story-card button{color:#566c5d!important;border-color:#d9e2d6!important}
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5vh 1.2vw;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .input-field {
-            width: 100%;
-            height: 100%; /* 높이 가득 채우기 */
-            padding: 18px 20px;
-            border-radius: 22px;
-            border: 3px solid #FFE4EE;
-            font-size: 1.8rem; /* 입력 글자 크게 */
-            outline: none;
-            transition: all 0.2s;
-            background-color: #fafafa;
-        }
-
-        .input-field:focus {
-            border-color: var(--primary-pink);
-            background-color: white;
-            transform: translateY(-2px);
-        }
-
-        .save-btn {
-            background: linear-gradient(to right, #FF85B3, #FFA07A);
-            color: white;
-            font-size: 2.5rem;
-            font-weight: bold;
-            padding: 1.8vh 0;
-            border-radius: 40px;
-            box-shadow: 0 8px 20px rgba(255, 133, 179, 0.3);
-            cursor: pointer;
-            flex-shrink: 0;
-            border: none;
-        }
-
-        /* 보관함 */
-        #section-list {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .list-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto !important;
-            padding: 10px 10px 10px 5px;
-        }
-
-        .story-card {
-            background-color: #FFF9FB;
-            border: 2.5px solid #FFE4EE;
-            border-radius: 25px;
-            padding: 20px 35px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .story-content-text {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="main-container">
-        <header>
-            <h1 class="font-bold text-pink-500">🌈 주말지낸이야기 도우미</h1>
-            <p class="text-orange-400 font-bold text-2xl">친구들의 이야기를 들려주세요 📔</p>
-        </header>
-
-        <div class="tabs">
-            <button onclick="switchTab('write')" id="tab-write" class="tab-btn active-tab">✏️ 이야기 만들기</button>
-            <button onclick="switchTab('list')" id="tab-list" class="tab-btn inactive-tab">🎁 보관함</button>
-        </div>
-
-        <div class="content-board">
-            <div id="section-write" class="flex-1 flex flex-col">
-                <div class="preview-box">
-                    <div id="result-display" class="sentence-row">
-                        <span class="fixed-text">나는</span>
-                        <div class="input-slot"><span id="p-when" class="guide-placeholder">언제</span><div id="line-when" class="dot-line"></div></div>
-                        <div class="input-slot"><span id="p-where" class="guide-placeholder">어디서</span><div id="line-where" class="dot-line"></div></div>
-                        <div class="input-slot"><span id="p-who" class="guide-placeholder">누구와</span><div id="line-who" class="dot-line"></div></div>
-                        <div class="input-slot"><span id="p-what" class="guide-placeholder">무엇을</span><div id="line-what" class="dot-line"></div></div>
-                        <div class="input-slot"><span id="p-feeling" class="guide-placeholder">기분</span><div id="line-feeling" class="dot-line"></div></div>
-                        <span class="fixed-text">어요. 왜냐하면</span> 
-                        <div class="input-slot"><span id="p-why" class="guide-placeholder">이유</span><div id="line-why" class="dot-line"></div></div>
-                        <span class="fixed-text">때문이에요.</span>
-                    </div>
-                </div>
-
-                <div class="grid-layout">
-                    <div class="name-section">
-                        <label class="text-pink-500 text-3xl font-bold">🎈 이름</label>
-                        <input id="name" type="text" placeholder="이름" class="w-full rounded-2xl border-2 border-white text-center outline-none bg-white shadow-sm">
-                    </div>
-                    <div class="form-grid">
-                        <div class="input-group"><input id="when" type="text" placeholder="언제?" oninput="updateText()" class="input-field"></div>
-                        <div class="input-group"><input id="where" type="text" placeholder="어디서?" oninput="updateText()" class="input-field"></div>
-                        <div class="input-group"><input id="who" type="text" placeholder="누구와?" oninput="updateText()" class="input-field"></div>
-                        <div class="input-group"><input id="what" type="text" placeholder="무엇을?" oninput="updateText()" class="input-field"></div>
-                        <div class="input-group"><input id="feeling" type="text" placeholder="기분은?" oninput="updateText()" class="input-field"></div>
-                        <div class="input-group"><input id="why" type="text" placeholder="이유는?" oninput="updateText()" class="input-field"></div>
-                    </div>
-                </div>
-                <button onclick="saveStory()" class="save-btn">저장하기 ✨</button>
-            </div>
-
-            <div id="section-list">
-                <div class="list-header">
-                    <h3 class="text-3xl font-bold text-pink-600">💖 저장된 이야기 보따리</h3>
-                    <span id="story-count" class="bg-white px-6 py-2 rounded-full text-pink-500 font-bold text-2xl border-2 border-pink-200">0개</span>
-                </div>
-                <div id="savedList" class="list-container"></div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-weekend-v5';
-
-        let user = null;
-        let unsubscribeStories = null;
-
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+/* 제목: 외부 웹폰트 로딩 여부와 관계없이 또렷한 기본 고딕체 사용 */
+header h1, header h1 * {font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",Arial,sans-serif !important;font-weight:700 !important;letter-spacing:-0.035em !important;font-style:normal !important;text-shadow:none !important;transform:none !important;}
+</style><style id="youngil-persistent-brand-style">
+:root{--youngil-brand-height:64px;--youngil-brand-total:calc(var(--youngil-brand-height) + env(safe-area-inset-bottom,0px));}
+#youngil-brand-bar{box-sizing:border-box!important;position:fixed!important;inset:auto 0 0 0!important;z-index:2147483647!important;height:var(--youngil-brand-total)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:0!important;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) 16px!important;margin:0!important;background:#fffef9!important;border:0!important;border-top:1px solid #dce7dd!important;box-shadow:0 -2px 8px #3155400a!important;pointer-events:none!important;overflow:hidden!important;transform:none!important;opacity:1!important;visibility:visible!important;}
+#youngil-brand-bar img{display:block!important;height:100%!important;width:auto!important;max-width:45vw!important;object-fit:contain!important;flex-shrink:0!important;margin:0!important;}
+@media(max-height:650px),(max-width:600px){:root{--youngil-brand-height:48px;}}
+body>.app{height:calc(100dvh - var(--youngil-brand-total))!important;max-height:calc(100dvh - var(--youngil-brand-total))!important;}</style></head><body><main class="app"><header><h1>🌈 주말 지낸 이야기 도우미</h1><p>친구들의 이야기를 들려주세요 📔</p></header><nav class="tabs"><button class="tab active" id="tab-write" type="button">✏️ 이야기 만들기</button><button class="tab" id="tab-list" type="button">🎁 보관함</button><button class="tab" id="tab-settings" type="button">⚙️ 설정</button></nav><div class="board"><section id="write"><div class="preview"><h2>🎤 내가 발표할 이야기</h2><div id="sentence" class="sentence" aria-live="polite"></div><div class="story-example">예시: 나는 주말에 놀이터에서 동생과 술래잡기를 했어요. 행복했어요.</div></div><div class="form-area"><div class="name-box"><label for="name">🎈 이름</label><select id="nameSelect" aria-label="이름 선택"><option value="">이름을 선택해요</option></select><input id="name" placeholder="직접 입력" autocomplete="off"></div><div id="nameChoices" class="name-choices" aria-label="우리 반 이름 바로 선택"></div><div class="fields"><div class="field"><label for="when">📅 언제?</label><input id="when" placeholder="예: 주말에"></div><div class="field"><label for="where">📍 어디서?</label><input id="where" placeholder="예: 놀이터에서"></div><div class="field"><label for="who">👨‍👩‍👧 누구와?</label><input id="who" placeholder="예: 동생과"></div><div class="field"><label for="what">🎈 무엇을 했나요?</label><input id="what" placeholder="예: 술래잡기를 했어요"></div><div class="field"><label for="feeling">💗 기분은?</label><input id="feeling" placeholder="예: 행복했어요"></div></div></div><div class="actions"><button class="save" id="save" type="button">저장하기 ✨</button><button class="clear" id="clear" type="button">새로 쓰기</button></div><p class="notice">글자를 입력하면 위의 발표 문장에 바로 나타나요. 이야기는 이 기기의 브라우저에 저장됩니다.</p></section><section id="list" class="hidden"><div class="list-header"><h2>💖 저장된 이야기 보따리</h2><div class="list-tools"><span id="count" class="count">0개</span><button id="deleteAll" class="danger" type="button">🗑️ 전체 삭제</button></div></div><div id="savedList" class="story-list"></div><p class="notice">보관함은 현재 브라우저에만 저장되며, 브라우저 데이터를 삭제하면 사라질 수 있어요.</p></section><section id="settings" class="hidden"><h2>⚙️ 우리 반 이름 설정</h2><p>아이 이름을 한 줄에 한 명씩 입력해 주세요. 저장하면 이야기 만들기에서 이름을 선택할 수 있어요.</p><div class="upload-roster"><label for="rosterFiles">📁 명단 파일 여러 개 불러오기 (미덕보석함 방식)</label><input type="file" id="rosterFiles" multiple accept=".txt,.csv,.xlsx,.xls,.hwp"><small>HWP는 미덕보석함과 동일하게 ‘이름’ 제목과 ‘번호–이름’ 표를 인식해요. TXT·CSV·엑셀도 지원하며, HWP·엑셀은 인터넷 연결이 필요해요. 사진 속 글자만 있는 명부는 인식할 수 없어요.</small><div id="uploadStatus" role="status" aria-live="polite"></div></div><textarea id="roster" placeholder="예:&#10;김하늘&#10;이사랑&#10;박지우"></textarea><div id="rosterGrid" class="roster-grid" aria-label="등록된 유아 이름칸"></div><button class="settings-save" id="saveRoster" type="button">명단 저장하기 💗</button><p class="notice">명단과 이야기는 이 브라우저에 각각 저장됩니다. 명단을 바꾸어도 이미 저장한 이야기는 유지돼요.</p></section></div></main><script>
+(()=>{'use strict';const ids=['when','where','who','what','feeling'];const labels={when:'언제',where:'어디서',who:'누구와',what:'무엇을 했는지',feeling:'기분'};const $=id=>document.getElementById(id);const key='weekend-story-helper-v2';const rosterKey='weekend-story-helper-roster-v1';let stories=[];try{stories=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(stories))stories=[]}catch{stories=[]}
+let roster=[];try{roster=JSON.parse(localStorage.getItem(rosterKey)||'[]');if(!Array.isArray(roster))roster=[]}catch{roster=[]}
+function refreshRoster(){const sel=$('nameSelect'),previous=sel.value;sel.replaceChildren();const opt=document.createElement('option');opt.value='';opt.textContent='이름을 선택해요';sel.appendChild(opt);roster.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.value=roster.includes(previous)?previous:'';$('roster').value=roster.join('\n');renderNameChoices()}
+function renderNameChoices(){const choices=$('nameChoices'),grid=$('rosterGrid');choices.replaceChildren();grid.replaceChildren();Array.from({length:20},(_,i)=>roster[i]||'').forEach(n=>{const cell=document.createElement('div');cell.className='roster-cell';cell.textContent=n||' ';grid.appendChild(cell);const btn=document.createElement('button');btn.type='button';btn.className='name-choice'+(n&&$('name').value===n?' selected':'');btn.textContent=n||' ';btn.disabled=!n;btn.setAttribute('aria-label',n||'빈 이름칸');btn.addEventListener('click',()=>{$('name').value=n;$('nameSelect').value=n;renderNameChoices()});choices.appendChild(btn)})}
+const value=id=>$(id).value.trim();function append(parent,text,filled=false){const s=document.createElement('span');s.textContent=text;s.className=filled?'filled':'hint';parent.appendChild(s)}function part(parent,id){append(parent,value(id)||'＿＿＿＿',!!value(id))}function makeSentence(){const box=$('sentence');box.replaceChildren();append(box,'나는 ',true);part(box,'when');append(box,' ' ,true);part(box,'where');append(box,' ',true);part(box,'who');append(box,' ',true);part(box,'what');append(box,value('what').endsWith('.')?' ':'. ',true);part(box,'feeling');append(box,'.',true);requestAnimationFrame(fitSentence)}function fitSentence(){const box=$('sentence');const outer=box.parentElement;let font=Math.min(40,Math.max(23,innerHeight*.043));box.style.fontSize=font+'px';const available=outer.clientHeight-outer.querySelector('h2').offsetHeight-24;while(font>18 && box.scrollHeight>available){font-=1;box.style.fontSize=font+'px'}}window.addEventListener('resize',fitSentence);function composed(){return `나는 ${value('when')} ${value('where')} ${value('who')} ${value('what')}. ${value('feeling')}.`.replace(/\s+/g,' ').trim()}
+function tab(which){['write','list','settings'].forEach(id=>{$(id).classList.toggle('hidden',id!==which);$('tab-'+id).classList.toggle('active',id===which)});if(which==='list')render();if(which==='settings')$('roster').value=roster.join('\n')}
+function persist(){try{localStorage.setItem(key,JSON.stringify(stories));return true}catch{alert('브라우저 저장 공간에 저장할 수 없습니다.');return false}}function render(){$('count').textContent=stories.length+'개';const list=$('savedList');list.replaceChildren();if(!stories.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='아직 저장된 이야기가 없어요 🌷';list.appendChild(empty);return}stories.forEach(story=>{const card=document.createElement('article');card.className='story-card';const content=document.createElement('div');content.className='content';const name=document.createElement('strong');name.className='story-name';name.textContent=story.name;const palette=[['#e8eee1','#76916d','#3c5c38','#c4d5bb'],['#fff0d9','#bc9255','#73501e','#ead2a8'],['#e2edf0','#6895a5','#315b6b','#bdd5dd'],['#efe8f4','#9a80b0','#5b4574','#d8c8e4'],['#f3e7df','#b58a72','#684a38','#dfc6b6'],['#e3eee8','#709b89','#365e4d','#c2d9ce'],['#f3eacb','#aa9a57','#675b2d','#dfd4a2'],['#e6eaf3','#7d8db0','#414f72','#c8d0e2']];let hash=0;for(const ch of String(story.name))hash=((hash*31)+ch.codePointAt(0))>>>0;const [bg,accent,ink,border]=palette[hash%palette.length];card.style.setProperty('--story-bg',bg);card.style.setProperty('--story-accent',accent);card.style.setProperty('--story-ink',ink);card.style.setProperty('--story-border',border);content.append(name,document.createTextNode(story.content));const del=document.createElement('button');del.type='button';del.textContent='삭제';del.addEventListener('click',()=>{if(!confirm(story.name+'의 이야기를 삭제할까요?'))return;stories=stories.filter(s=>s.id!==story.id);persist();render()});card.append(content,del);list.appendChild(card)})}
+refreshRoster();$('nameSelect').addEventListener('change',()=>{$('name').value=$('nameSelect').value;renderNameChoices()});$('name').addEventListener('input',()=>{if($('name').value!==$('nameSelect').value)$('nameSelect').value='';renderNameChoices()});
+async function ensureXLSX(){if(window.XLSX)return;await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';sc.onload=resolve;sc.onerror=()=>reject(new Error('엑셀 읽기 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.'));document.head.appendChild(sc)});if(!window.XLSX)throw new Error('엑셀 파일을 읽을 수 없습니다.')}
+async function ensureLibrary(globalName,url){if(window[globalName])return;await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src=url;sc.onload=resolve;sc.onerror=()=>reject(new Error('파일 읽기 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.'));document.head.appendChild(sc)});if(!window[globalName])throw new Error('파일 읽기 도구를 사용할 수 없습니다.')}
+async function namesFromHWP(file){
+ await ensureLibrary('CFB','https://cdn.jsdelivr.net/npm/cfb@1.2.2/dist/cfb.js');
+ await ensureLibrary('pako','https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js');
+ return readHwpRoster(await file.arrayBuffer());
+}
+    function readHwpRoster(arrayBuffer) {
+      const compound = window.CFB.read(new Uint8Array(arrayBuffer), {type:'array'});
+      const stream = name => {
+        const entry = window.CFB.find(compound, name);
+        if (!entry?.content) throw new Error('읽을 수 있는 한글 HWP 5.0 파일이 아니에요.');
+        return new Uint8Array(entry.content);
+      };
+      const header = stream('/FileHeader');
+      const flags = new DataView(header.buffer, header.byteOffset, header.byteLength).getUint32(36, true);
+      if (flags & 2) throw new Error('암호로 보호된 한글 파일은 읽을 수 없어요. 암호를 해제한 파일을 올려주세요.');
+      if (flags & 4) throw new Error('배포용 한글 파일은 읽을 수 없어요. 일반 HWP 파일로 저장해 올려주세요.');
+      const sections = compound.FullPaths.map((path,index)=>({path,index})).filter(e=> /\/BodyText\/Section\d+$/.test(e.path)).sort((a,b)=>Number(a.path.match(/Section(\d+)$/)[1])-Number(b.path.match(/Section(\d+)$/)[1]));
+      if (!sections.length) throw new Error('한글 파일에서 본문을 찾지 못했어요.');
+      const paragraphs = [];
+      for (const section of sections) {
+        let data = new Uint8Array(compound.FileIndex[section.index].content);
+        if (flags & 1) data = window.pako.inflateRaw(data);
+        if (data.length > 20 * 1024 * 1024) throw new Error('본문이 너무 커서 읽을 수 없어요. 명단 표만 별도 파일로 저장해주세요.');
+        const view = new DataView(data.buffer,data.byteOffset,data.byteLength); let offset=0;
+        while (offset+4 <= data.length) {
+          const record = view.getUint32(offset,true); offset+=4;
+          const tag = record & 1023; let size=record>>>20;
+          if (size===4095) { if(offset+4>data.length) throw new Error('한글 파일의 구조가 올바르지 않아요.'); size=view.getUint32(offset,true);offset+=4; }
+          if(offset+size>data.length) throw new Error('한글 파일의 본문이 손상되었어요.');
+          if(tag===67) {
+            let text='';
+            for(let i=offset;i+1<offset+size;) {
+              const code=view.getUint16(i,true);
+              if((code>=1 && code<=9)||code===11||code===12||(code>=14 && code<=23)) { i+=16; continue; }
+              if(code>=32) text+=String.fromCharCode(code);
+              i+=2;
             }
-        };
-
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) listenToStories();
-        });
-
-        initAuth();
-
-        window.switchTab = function(tab) {
-            const writeSection = document.getElementById('section-write');
-            const listSection = document.getElementById('section-list');
-            const writeTabBtn = document.getElementById('tab-write');
-            const listTabBtn = document.getElementById('tab-list');
-
-            if (tab === 'write') {
-                writeSection.style.display = 'flex';
-                listSection.style.display = 'none';
-                writeTabBtn.className = 'tab-btn active-tab';
-                listTabBtn.className = 'tab-btn inactive-tab';
-            } else {
-                writeSection.style.display = 'none';
-                listSection.style.display = 'flex';
-                writeTabBtn.className = 'tab-btn inactive-tab';
-                listTabBtn.className = 'tab-btn active-tab';
-            }
+            if(text.trim()) paragraphs.push(text.trim());
+          }
+          offset+=size;
         }
+      }
+      const start = paragraphs.findIndex(p=>/^(이름|성명|유아명|원아명|학생명)$/.test(p.replace(/\s/g,'')));
+      if(start<0) throw new Error('‘이름’ 또는 ‘유아명’ 제목이 있는 명단 표를 찾지 못했어요.');
+      const names=[];
+      for(let i=start+1;i<paragraphs.length-1;i++) {
+        if(/^\d{1,3}$/.test(paragraphs[i]) && /^[가-힣A-Za-z·ㆍ .'-]{2,20}$/.test(paragraphs[i+1]) && !/^(이름|성명|유아명|원아명|학생명)$/.test(paragraphs[i+1])) names.push(paragraphs[++i]);
+      }
+      if(!names.length) throw new Error('번호 다음에 이름이 적힌 표를 찾지 못했어요. 엑셀이나 TXT 명단을 사용해주세요.');
+      return names;
+    }
 
-        window.updateText = function() {
-            const fields = ['when', 'where', 'who', 'what', 'feeling', 'why'];
-            const labels = {when:'언제', where:'어디서', who:'누구와', what:'무엇을', feeling:'기분', why:'이유'};
-
-            fields.forEach(id => {
-                const val = document.getElementById(id).value.trim();
-                const display = document.getElementById('p-' + id);
-                const line = document.getElementById('line-' + id);
-                
-                if (val !== "") {
-                    display.innerText = val;
-                    display.className = "actual-text";
-                    if(line) line.style.display = "none";
-                } else {
-                    display.innerText = labels[id];
-                    display.className = "guide-placeholder";
-                    if(line) line.style.display = "block";
-                }
-            });
-        }
-
-        window.saveStory = async function() {
-            if (!user) return;
-            const nameInput = document.getElementById("name");
-            const name = nameInput.value.trim() || "친구";
-            const vals = {};
-            ['when', 'where', 'who', 'what', 'feeling', 'why'].forEach(id => vals[id] = document.getElementById(id).value.trim());
-
-            if (!vals.when || !vals.where || !vals.what) return;
-
-            const sentence = `나는 ${vals.when} ${vals.where} ${vals.who ? vals.who + '와 ' : ''}${vals.what} ${vals.feeling ? vals.feeling + ' ' : ''}어요. 왜냐하면 ${vals.why || '즐거웠기'} 때문이에요.`;
-
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-                    name: name,
-                    content: sentence,
-                    createdAt: serverTimestamp(),
-                    uid: user.uid
-                });
-                nameInput.value = '';
-                ['when', 'where', 'who', 'what', 'feeling', 'why'].forEach(id => document.getElementById(id).value = '');
-                updateText();
-                switchTab('list');
-            } catch (error) { console.error(error); }
-        }
-
-        window.deleteStory = async function(id) {
-            if (!user) return;
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stories', id));
-            } catch (error) { console.error(error); }
-        }
-
-        function listenToStories() {
-            if (!user) return;
-            if (unsubscribeStories) unsubscribeStories();
-
-            const q = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
-            unsubscribeStories = onSnapshot(q, (snapshot) => {
-                const list = document.getElementById("savedList");
-                const countLabel = document.getElementById("story-count");
-                list.innerHTML = "";
-                
-                const stories = snapshot.docs.sort((a, b) => (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0));
-                countLabel.innerText = `${stories.length}개`;
-                
-                stories.forEach((doc) => {
-                    const data = doc.data();
-                    const card = document.createElement("div");
-                    card.className = "story-card";
-                    card.innerHTML = `
-                        <div class="flex items-center flex-1 overflow-hidden">
-                            <span class="user-tag font-bold">💎 ${data.name}</span>
-                            <p class="story-content-text text-gray-700 flex-1 truncate">${data.content}</p>
-                        </div>
-                        <button onclick="deleteStory('${doc.id}')" class="ml-4 text-red-200 hover:text-red-400 flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                        </button>
-                    `;
-                    list.appendChild(card);
-                });
-            }, (error) => console.error(error));
-        }
-    </script>
-</body>
-</html>
+function csvRows(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(c===','&&!quoted){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);rows.push(row);row=[];cell=''}else cell+=c}row.push(cell);rows.push(row);return rows}
+function namesFromRows(rows){const header=rows.find(r=>r.some(v=>String(v||'').trim()));if(!header)return[];const headers=header.map(v=>String(v||'').replace(/\s/g,'').toLowerCase());let idx=headers.findIndex(v=>['이름','성명','유아이름','유아명','학생이름','학생명','name'].includes(v));const headerIndex=rows.indexOf(header);const start=idx>=0?headerIndex+1:headerIndex;if(idx<0)idx=0;return rows.slice(start).map(r=>String(r[idx]??'').trim()).filter(v=>v&&!['이름','성명','번호','순번','name'].includes(v.toLowerCase()))}
+$('rosterFiles').addEventListener('change',async()=>{const files=Array.from($('rosterFiles').files||[]);if(!files.length)return;const status=$('uploadStatus');status.textContent='명단을 읽는 중이에요…';let added=[],errors=[];for(const file of files){try{const ext=file.name.split('.').pop().toLowerCase();let names=[];if(ext==='txt'){names=(await file.text()).split(/\r?\n|,/).map(s=>s.trim()).filter(Boolean)}else if(ext==='csv'){names=namesFromRows(csvRows((await file.text()).replace(/^\uFEFF/,'')))}else if(ext==='hwp'){names=await namesFromHWP(file);if(!names.length)throw new Error('추출된 이름이 없습니다. 이름이 텍스트로 들어 있는 HWP 5.0 파일인지 확인해 주세요.')}else if(ext==='xlsx'||ext==='xls'){await ensureXLSX();const wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});for(const sheet of wb.SheetNames){const rows=window.XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});names.push(...namesFromRows(rows))}}else throw new Error('지원하지 않는 파일 형식');added.push(...names)}catch(e){errors.push(file.name+': '+e.message)}}const existing=$('roster').value.split(/\r?\n|,/).map(v=>v.trim()).filter(Boolean);const unique=[...new Set([...existing,...added])];if(unique.length>20){status.textContent='명단이 '+unique.length+'명입니다. 최대 20명만 등록할 수 있으니 아래 명단을 수정해 주세요.'}else{status.textContent=added.length+'개 이름을 읽었어요. 중복을 제외해 '+unique.length+'명이 입력되었습니다. 아래 명단 저장하기를 눌러 주세요.'}$('roster').value=unique.join('\n');if(added.length)status.textContent+=' 이름 목록을 확인하고 교사명이나 다른 단어가 있으면 지운 뒤 저장해 주세요.';if(errors.length)status.textContent+=' 읽지 못한 파일: '+errors.join(' / ');$('rosterFiles').value=''});
+$('saveRoster').addEventListener('click',()=>{const names=$('roster').value.split(/\r?\n|,/).map(n=>n.trim()).filter(Boolean);const unique=[...new Set(names)];if(unique.length>20){alert('이름은 최대 20명까지 등록할 수 있어요.');return}roster=unique;try{localStorage.setItem(rosterKey,JSON.stringify(roster))}catch{alert('명단을 저장하지 못했어요.');return}refreshRoster();alert(roster.length+'명의 이름을 저장했어요.');tab('write')});
+$('deleteAll').addEventListener('click',()=>{if(!stories.length){alert('삭제할 이야기가 없어요.');return}if(!confirm('보관함의 이야기 '+stories.length+'개를 모두 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;const old=stories;stories=[];if(!persist()){stories=old;return}render()});
+ids.forEach(id=>$(id).addEventListener('input',makeSentence));$('tab-write').addEventListener('click',()=>tab('write'));$('tab-list').addEventListener('click',()=>tab('list'));$('tab-settings').addEventListener('click',()=>tab('settings'));$('clear').addEventListener('click',()=>{if(ids.some(value)||value('name')){if(!confirm('입력한 내용을 지우고 새로 쓸까요?'))return}['name',...ids].forEach(id=>$(id).value='');$('nameSelect').value='';renderNameChoices();makeSentence();$('nameSelect').focus()});$('save').addEventListener('click',()=>{if(!value('name')){alert('이름을 입력해 주세요.');$('name').focus();return}if(!ids.every(value)){alert('발표 문장을 완성할 수 있도록 다섯 칸을 모두 입력해 주세요.');return}stories.unshift({id:Date.now()+'-'+Math.random().toString(36).slice(2),name:value('name'),content:composed()});if(!persist()){stories.shift();return}['name',...ids].forEach(id=>$(id).value='');$('nameSelect').value='';renderNameChoices();makeSentence();tab('list')});makeSentence();render()})();
+</script><footer id="youngil-brand-bar" aria-label="공립단설 영일유치원"><img src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false"></footer></body></html>

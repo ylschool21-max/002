@@ -9,10 +9,10 @@
     <!-- FontAwesome 아이콘 팩 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght=400;700&family=Gamja+Flower&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght=400;700&family=Gamja+Flower&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
         
         body {
-            font-family: 'Jua', 'Gamja Flower', 'Gaegu', 'Arial Rounded MT Bold', sans-serif;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif;
             user-select: none;
             -webkit-user-select: none;
             word-break: keep-all;
@@ -128,8 +128,97 @@
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
+
+        /* 전자칠판 전체 화면용 시작/결과 화면: 화면 크기에 맞춰 확장 */
+        #startOverlay, #winOverlay { width:100%; height:100%; height:100dvh; box-sizing:border-box; padding:clamp(10px,1.5vh,24px); }
+        #startOverlay > div, #winOverlay > div {
+            width: min(96vw, 1800px); max-width:none;
+            height: min(96dvh, 1000px); max-height:96dvh;
+            margin:0 auto; box-sizing:border-box;
+            display:flex; flex-direction:column; align-items:center; justify-content:space-evenly;
+            padding:clamp(12px,2vh,32px) clamp(18px,3vw,56px);
+            overflow-y:auto;
+        }
+        #startOverlay > div > .grid { width:100%; }
+        #startOverlay > div > span { font-size:clamp(58px,8vh,110px); margin:0; line-height:1.1; }
+        #startOverlay h1 { font-size:clamp(34px,5.3vh,76px); margin:0; }
+        #startOverlay > div > p { font-size:clamp(16px,2.25vh,30px); margin:0; }
+        #startOverlay .grid.grid-cols-3 { margin:0; gap:clamp(10px,1.5vw,28px); }
+        #startOverlay .grid.grid-cols-3 > div { padding:clamp(10px,2vh,26px); justify-content:center; }
+        #startOverlay .grid.grid-cols-3 h4 { font-size:clamp(17px,2.3vh,30px); }
+        #startOverlay .grid.grid-cols-3 h4 span { font-size:inherit; }
+        #startOverlay .grid.grid-cols-3 p { font-size:clamp(13px,1.7vh,22px); }
+        #startOverlay .grid.grid-cols-2 { margin:0; }
+        #startOverlay .grid.grid-cols-2 button { padding:clamp(8px,1.6vh,20px); }
+        #startOverlay #btnStart { width:100%; padding:clamp(10px,1.7vh,22px); font-size:clamp(20px,3vh,38px); }
+        #winOverlay { align-items:center; overflow:hidden; }
+        #winOverlay > div { border-width:clamp(4px,0.7vw,10px); }
+        #winOverlay > div > div { flex-shrink:0; }
+        #winOverlay > div > div:first-child { margin:0; }
+        #winOverlay #harvestSuccessLabel { margin:0; font-size:clamp(30px,5vh,60px); }
+        #winOverlay #txtWinMessage { margin:0; font-size:clamp(18px,2.8vh,36px); }
+        #winOverlay #harvestApplesBox { max-height:12vh; overflow:hidden; }
+        #winOverlay #farmerThankYou { margin-top:clamp(4px,1vh,16px); font-size:clamp(13px,1.9vh,23px); }
+        #winOverlay > div > .bg-amber-100\/70 { margin:0; padding:clamp(8px,1.4vh,20px); }
+        #winOverlay button { padding:clamp(10px,1.5vh,20px); font-size:clamp(19px,2.8vh,34px); flex-shrink:0; }
+        @media (max-height:760px) {
+            #startOverlay > div, #winOverlay > div { justify-content:space-between; }
+            #startOverlay > div > span { font-size:clamp(40px,6vh,65px); }
+            #startOverlay h1 { font-size:clamp(28px,4.3vh,46px); }
+            #startOverlay .grid.grid-cols-3 > div { padding:8px 12px; }
+            #winOverlay > div > div:first-child { transform:scale(.72); transform-origin:center; height:185px; }
+            #winOverlay #farmerThankYou { line-height:1.35; }
+        }
+        @media (max-width:700px) {
+            #startOverlay > div, #winOverlay > div { width:98vw; padding:12px; }
+            #startOverlay .grid.grid-cols-3 { gap:5px; }
+            #startOverlay .grid.grid-cols-3 > div { padding:7px; }
+            #startOverlay .grid.grid-cols-3 p { font-size:11px; }
+        }
+        /* 글자가 겹치거나 깨져 보이지 않도록 시스템 고딕체로 통일 */
+        #transitionOverlay h2, #txtTransTitle { font-weight: 800 !important; letter-spacing: 0 !important; word-spacing: normal; }
+        #transitionOverlay p { font-weight: 600 !important; letter-spacing: 0 !important; }
+        /* 단계 시작 설명: 전자칠판에서 읽기 쉬운 고딕체 */
+        #transitionOverlay h2, #transitionOverlay p, #transitionOverlay .inline-block,
+        #startOverlay .grid p, #startOverlay .grid h4 {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            letter-spacing: 0;
+            line-height: 1.6;
+        }
+        #transitionOverlay p { font-size: clamp(1.3rem, 2.15vw, 2rem); font-weight: 700; }
+        #transitionOverlay h2 { font-size: clamp(2rem, 3.1vw, 3.3rem); }
+        #startOverlay .grid p { font-weight: 600; }
+
+        /* 첫 화면의 세 단계 게임 설명을 모두 가운데 정렬 */
+        #startOverlay .grid.grid-cols-3 > div,
+        #startOverlay .grid.grid-cols-3 h4,
+        #startOverlay .grid.grid-cols-3 h4 span,
+        #startOverlay .grid.grid-cols-3 p,
+        #startOverlay .grid.grid-cols-3 p span {
+            text-align: center !important;
+        }
+        #startOverlay .grid.grid-cols-3 p {
+            margin-left: auto;
+            margin-right: auto;
+            text-wrap: pretty;
+        }
+
+        /* 전자칠판용 꽃밭 엔딩 */
+        #winOverlay .flower-garden { width:min(100%,960px); height:clamp(180px,38vh,370px); flex-shrink:1; }
+        #winOverlay .flower-garden svg { width:100%; height:100%; display:block; }
+        #winOverlay .flower-success-title {font-family:'Malgun Gothic','Noto Sans KR',sans-serif; font-size:clamp(27px,4.4vw,58px);font-weight:900;color:#21855a;margin:0;}
+        #winOverlay #harvestApplesBox {max-height:9vh;overflow:hidden;}
     </style>
-</head>
+<style id="youngil-persistent-brand-style">
+:root{--youngil-brand-height:64px;--youngil-brand-total:calc(var(--youngil-brand-height) + env(safe-area-inset-bottom,0px));}
+#youngil-brand-bar{box-sizing:border-box!important;position:fixed!important;inset:auto 0 0 0!important;z-index:2147483647!important;height:var(--youngil-brand-total)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:0!important;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) 16px!important;margin:0!important;background:#fffef9!important;border:0!important;border-top:1px solid #dce7dd!important;box-shadow:0 -2px 8px #3155400a!important;pointer-events:none!important;overflow:hidden!important;transform:none!important;opacity:1!important;visibility:visible!important;}
+#youngil-brand-bar img{display:block!important;height:100%!important;width:auto!important;max-width:45vw!important;object-fit:contain!important;flex-shrink:0!important;margin:0!important;}
+@media(max-height:650px),(max-width:600px){:root{--youngil-brand-height:48px;}}
+html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!important;min-height:0!important;margin:0!important;}
+#startOverlay{overflow-y:auto!important;}
+@media(max-height:850px){#startOverlay>div{padding-top:16px;padding-bottom:16px;}#startOverlay .animate-bounce{font-size:3rem;line-height:1;}}
+@media(max-height:740px){#startOverlay{justify-content:flex-start!important;}}
+</style></head>
 <body class="bg-amber-50 text-slate-700 w-full h-screen overflow-hidden relative">
 
     <!-- 실시간 웹캠 화면 배경 (거울 모드 적용) -->
@@ -144,15 +233,11 @@
     <!-- 초기 시작 스크린 -->
     <div id="startOverlay" class="absolute inset-0 z-50 bg-gradient-to-br from-pink-100 via-amber-100 to-sky-100 flex flex-col items-center justify-center p-6 text-center">
         <div class="max-w-2xl bg-white/95 backdrop-blur-md p-8 rounded-[2.5rem] border-4 border-orange-200 shadow-xl">
-            <!-- GitHub 저장소 루트에 함께 배치하는 학교 로고 -->
-            <div class="flex justify-center mb-5">
-                <img src="ylschool-logo.png" alt="YL School 로고" class="h-16 w-auto max-w-[260px] object-contain drop-shadow-sm" />
-            </div>
-            <span class="text-8xl mb-2 block animate-bounce">☀️💧💨🍎</span>
+            <span class="text-8xl mb-2 block animate-bounce">☀️💧🌼🌸</span>
             <h1 class="text-5xl font-bold tracking-wide mb-4 text-orange-400">식물 키우기 레이스!</h1>
             <p class="text-xl leading-relaxed mb-6 font-semibold text-slate-600">
                 식물이 자라나는 데 꼭 필요한 세 가지를 배려하며 무럭무럭 키워볼까요?<br>
-                대결에서 이겨 풍성한 <b class="text-rose-500">🍎맛있는 열매 수확 파티🍎</b>를 열어보세요!
+                대결에서 이겨 아름다운 <b class="text-rose-500">🌸예쁜 꽃밭 완성 파티🌸</b>를 열어보세요!
             </p>
             
             <!-- 단계별 규칙 설명 카드 -->
@@ -162,7 +247,7 @@
                         <span class="block">☀️ 1단계</span>
                         <span class="block mt-1 text-[1.02rem]">손으로 햇빛 잡기</span>
                     </h4>
-                    <p class="text-xs text-slate-600 font-medium text-center leading-relaxed w-full">카메라 앞에서 <b>양손을 들어</b> 내려오는 <b><span class="inline-block">햇빛 이모지(☀️)를</span></b> 조종선 대신 손바닥으로 직접 잡아요!</p>
+                    <p class="text-xs text-slate-600 font-medium text-center leading-relaxed w-full">카메라 앞에서 <b>양손을 들어</b> 내려오는 <b><span class="inline-block">햇빛 이모지(☀️)를</span></b> 손바닥으로 직접 잡아요!</p>
                 </div>
                 <div class="bg-sky-100/70 p-4 rounded-2xl border-2 border-sky-200 flex flex-col items-center text-center">
                     <h4 class="font-bold text-sky-600 text-base mb-2 leading-tight text-center w-full flex flex-col items-center justify-center">
@@ -173,10 +258,10 @@
                 </div>
                 <div class="bg-teal-100/70 p-4 rounded-2xl border-2 border-teal-200 flex flex-col items-center text-center">
                     <h4 class="font-bold text-teal-600 text-base mb-2 leading-tight text-center w-full flex flex-col items-center justify-center">
-                        <span class="block w-full text-center">💨 3단계</span>
+                        <span class="block w-full text-center">🍃 3단계</span>
                         <span class="block w-full text-center mt-1 text-[1.02rem] whitespace-nowrap" style="letter-spacing:-0.06em;">흔들 바람 밀어내기</span>
                     </h4>
-                    <p class="text-xs text-slate-600 font-medium text-center leading-relaxed w-full">바람이 오면 제자리에서 <b>몸을 마구 흔들흔들 흔드세요!</b> 바람 이모지(💨)를 팅~ 튕겨 밀어내야 점수가 올라가요!</p>
+                    <p class="text-xs text-slate-600 font-medium text-center leading-relaxed w-full">바람이 오면 제자리에서 <b>몸을 마구 흔들흔들 흔드세요!</b> 바람 캐릭터를 팅~ 튕겨 밀어내야 점수가 올라가요!</p>
                 </div>
             </div>
 
@@ -184,7 +269,7 @@
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <button id="btnARMode" onclick="setControlMode('ar')" class="py-3 px-4 rounded-2xl border-2 border-orange-300 bg-orange-400 text-white font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
                     <span class="text-xl mb-1">📷 카메라 몸 움직이기</span>
-                    <span class="text-xs font-normal opacity-90">선생님과 카메라 앞에서 움직여요</span>
+                    <span class="text-xs font-normal opacity-90">카메라 앞에서 몸을 움직여요</span>
                 </button>
                 <button id="btnTouchMode" onclick="setControlMode('touch')" class="py-3 px-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-600 font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105">
                     <span class="text-xl mb-1">🖐️ 마우스 / 키보드 조종</span>
@@ -213,7 +298,7 @@
                 <div class="flex-1">
                     <div class="text-xs font-bold text-amber-600 flex justify-between">
                         <span>1P 햇살이</span>
-                        <span id="p1GrowthName">씨앗</span>
+                        
                     </div>
                     <div class="text-2xl font-black text-amber-500" id="txtScoreP1">0점</div>
                     <!-- 파스텔 바 -->
@@ -236,7 +321,7 @@
             <div class="bg-white/90 rounded-2xl p-3 shadow-lg border-2 border-emerald-300 pointer-events-auto flex items-center gap-3 w-64">
                 <div class="flex-1 text-right">
                     <div class="text-xs font-bold text-emerald-600 flex justify-between">
-                        <span id="p2GrowthName">씨앗</span>
+                        
                         <span>2P 단비</span>
                     </div>
                     <div class="text-2xl font-black text-emerald-500" id="txtScoreP2">0점</div>
@@ -250,80 +335,19 @@
                 </div>
             </div>
         </div>
-
-        <!-- 심술쟁이 바람/경보 팝업 -->
-        <div id="windAlert" class="self-center hidden animate-pulse-soft pointer-events-auto z-30">
-            <div class="bg-pink-50/95 border-4 border-pink-300 px-8 py-5 rounded-[2.5rem] shadow-xl flex flex-col items-center gap-2 max-w-sm text-center">
-                <span class="text-6xl animate-bounce">🌪️💨</span>
-                <h2 class="text-2xl font-extrabold text-pink-500">도와줘요! 심술 바람이 쌩쌩!</h2>
-                <p class="text-sm font-bold text-slate-500">바람이 불면 아기 새싹들이 다쳐요 ㅜㅜ</p>
-                <p class="text-lg font-bold text-rose-500 bg-white border border-rose-200 px-5 py-1 rounded-full mt-1">👏 "짝짝!" 박수를 치면 바람이 날아갑니다! 👏</p>
-            </div>
-        </div>
-
         <!-- 하단 정보 바 및 조작 버튼 -->
         <div class="w-full flex justify-between items-end">
-            <!-- 감도 디스플레이 -->
-            <div class="bg-white/90 rounded-xl px-4 py-2 text-sm shadow flex items-center gap-3 font-semibold pointer-events-auto border border-slate-200">
-                <div class="flex items-center gap-1.5 border-r border-slate-200 pr-3 text-slate-500">
-                    <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-ping"></span>
-                    <span id="txtControlDesc">카메라 모션 인식 중</span>
-                </div>
-                <div class="flex items-center gap-2 text-slate-500">
-                    <span>🎤 박수 소리 크기:</span>
-                    <div class="w-20 bg-slate-100 h-2.5 rounded-full overflow-hidden relative flex items-center border border-slate-200">
-                        <div id="barMicVolume" class="bg-gradient-to-r from-yellow-300 to-pink-400 h-full w-0"></div>
-                        <div id="lineThreshold" class="absolute h-full w-0.5 bg-rose-400 top-0" style="left: 45%;"></div>
-                    </div>
-                    <button onclick="toggleSettings()" class="text-xs font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded transition-all">
-                        설정
-                    </button>
-                </div>
-            </div>
-
             <!-- 제어 스위치 -->
             <div class="flex gap-2 pointer-events-auto">
                 <button onclick="toggleAudio()" id="btnMute" class="w-12 h-12 rounded-full bg-white text-slate-500 hover:bg-slate-50 flex items-center justify-center text-xl shadow border border-slate-200 transition-all active:scale-95">
                     <i id="iconMute" class="fa-solid fa-volume-high"></i>
                 </button>
                 <button onclick="resetGame()" class="px-5 h-12 rounded-2xl bg-gradient-to-r from-orange-400 to-amber-400 text-white font-extrabold flex items-center gap-2 shadow transition-all hover:scale-105 active:scale-95">
-                    <i class="fa-solid fa-rotate-left"></i> 처음부터 다시하기
+                    <i class="fa-solid fa-rotate-left"></i> 게임 설명으로 돌아가기
                 </button>
             </div>
         </div>
     </div>
-
-    <!-- 설정 레이어 모달 -->
-    <div id="settingsModal" class="fixed top-24 left-1/2 -translate-x-1/2 z-30 hidden bg-white/95 rounded-2xl p-6 shadow-xl border-2 border-orange-200 max-w-xs w-full">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-lg text-slate-700"><i class="fa-solid fa-sliders text-orange-400 mr-1.5"></i>박수/센서 감도 조절</h3>
-            <button onclick="toggleSettings()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-bold text-slate-500 mb-1">박수 소리 민감도</label>
-                <input id="sliderClap" type="range" min="10" max="90" value="45" oninput="updateClapThreshold(this.value)" class="w-full accent-orange-400 cursor-pointer">
-                <div class="flex justify-between text-xs text-slate-400 mt-1 font-bold">
-                    <span>소리 잘 감지됨</span>
-                    <span>무딤</span>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-500 mb-1">움직이기 방법</label>
-                <select id="selectMode" onchange="setControlMode(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 font-semibold text-sm text-slate-600 outline-none">
-                    <option value="ar">📷 카메라 앞 몸짓 모션 인식</option>
-                    <option value="touch">🖐️ 손가락 터치 및 마우스</option>
-                </select>
-            </div>
-            <div class="p-3 bg-amber-50 rounded-xl border border-amber-100 text-[11px] text-amber-800 font-semibold leading-relaxed">
-                📢 <b>키보드로도 할 수 있어요!</b><br>
-                🌻 1P 이동: 키보드 <kbd class="bg-white px-1 border rounded shadow-sm">A</kbd> <kbd class="bg-white px-1 border rounded shadow-sm">D</kbd> / 점프: <kbd class="bg-white px-1 border rounded shadow-sm">W</kbd><br>
-                🌲 2P 이동: 키보드 <kbd class="bg-white px-1 border rounded shadow-sm">◀</kbd> <kbd class="bg-white px-1 border rounded shadow-sm">▶</kbd> / 점프: <kbd class="bg-white px-1 border rounded shadow-sm">▲</kbd>
-            </div>
-        </div>
-    </div>
-
     <!-- 단계 전환 오버레이 -->
     <div id="transitionOverlay" class="absolute inset-0 z-40 bg-black/60 hidden flex items-center justify-center p-6 transition-opacity duration-300">
         <div class="max-w-xl w-full bg-gradient-to-b from-amber-50 to-white p-10 rounded-[3rem] border-8 border-orange-200 shadow-2xl text-center transform scale-100 transition-transform duration-300">
@@ -342,63 +366,26 @@
     <div id="winOverlay" class="absolute inset-0 z-40 bg-gradient-to-tr from-orange-100 via-yellow-50 to-emerald-100 hidden flex items-start justify-center p-6 overflow-y-auto">
         <div class="max-w-2xl w-full bg-white rounded-[3.5rem] p-10 border-[10px] border-amber-300 shadow-2xl text-center flex flex-col items-center my-6">
             
-            <!-- 사과나무와 사과, 귀여운 농부 및 수레 배치 영역 -->
-            <div class="flex items-end justify-center gap-6 mb-4 w-full relative">
-                <!-- 왼쪽: 꼬마 농부 아저씨와 손수레 -->
-                <div class="flex flex-col items-center">
-                    <span class="text-8xl">👩‍🌾</span>
-                    <span class="text-5xl mt-1">🛒</span>
-                </div>
-
-                <!-- 가운데: 탐스러운 사과나무 그래픽 (SVG 기반 데코레이션) -->
-                <div class="relative w-64 h-64 bg-emerald-100/40 rounded-full border-4 border-emerald-200 flex items-center justify-center overflow-visible">
-                    <!-- 사과나무 크라운 풍성한 이파리 -->
-                    <div class="absolute top-4 w-48 h-48 bg-emerald-400 rounded-full opacity-90 shadow-md"></div>
-                    <div class="absolute top-10 left-6 w-36 h-36 bg-green-500 rounded-full opacity-80"></div>
-                    <!-- 든든한 나무 둥치 기둥 -->
-                    <div class="absolute bottom-0 w-12 h-36 bg-amber-800 rounded-t-lg"></div>
-
-                    <!-- 주렁주렁 매달려서 움직이는 빨간 진짜 사과 열매들 -->
-                    <span class="absolute top-10 left-16 text-4xl sway-apple">🍎</span>
-                    <span class="absolute top-16 right-16 text-4xl sway-apple" style="animation-delay: 0.2s;">🍎</span>
-                    <span class="absolute top-28 left-24 text-4xl sway-apple" style="animation-delay: 0.4s;">🍎</span>
-                    <span class="absolute top-24 right-24 text-4xl sway-apple" style="animation-delay: 0.6s;">🍎</span>
-                    <span class="absolute top-36 left-12 text-4xl sway-apple" style="animation-delay: 0.1s;">🍎</span>
-                    <span class="absolute top-36 right-12 text-4xl sway-apple" style="animation-delay: 0.3s;">🍎</span>
-                </div>
-
-                <!-- 오른쪽: 우승 기쁨 날아다니는 나비들 -->
-                <div class="flex flex-col gap-4 text-4xl">
-                    <span class="animate-bounce">🦋</span>
-                    <span class="animate-bounce" style="animation-delay: 0.3s;">✨</span>
-                </div>
+            <div class="flower-garden" aria-label="활짝 핀 꽃밭">
+              <svg viewBox="0 0 900 340" role="img" aria-label="햇빛과 단비를 받고 활짝 핀 알록달록한 꽃밭" preserveAspectRatio="xMidYMid meet">
+                <defs><linearGradient id="gardenSky" x2="0" y2="1"><stop stop-color="#c7efff"/><stop offset="1" stop-color="#f0fff4"/></linearGradient><linearGradient id="gardenHill" x2="0" y2="1"><stop stop-color="#9ee6a0"/><stop offset="1" stop-color="#42b86a"/></linearGradient></defs>
+                <rect width="900" height="340" rx="35" fill="url(#gardenSky)"/>
+                <circle cx="100" cy="75" r="38" fill="#ffda55"/><g fill="#fff" opacity=".95"><ellipse cx="270" cy="76" rx="75" ry="22"/><circle cx="230" cy="60" r="27"/><circle cx="280" cy="51" r="36"/><ellipse cx="700" cy="66" rx="80" ry="22"/><circle cx="665" cy="51" r="30"/><circle cx="720" cy="43" r="36"/></g>
+                <path d="M0 235 Q230 135 460 230 Q690 145 900 230 V340 H0Z" fill="url(#gardenHill)"/>
+                <g id="flowerOne"><path d="M0 0 Q-12 -60 0 -140" stroke="#2d9656" stroke-width="11" fill="none" stroke-linecap="round"/><ellipse cx="-22" cy="-55" rx="28" ry="12" transform="rotate(28 -22 -55)" fill="#4cbd6c"/><ellipse cx="22" cy="-92" rx="28" ry="12" transform="rotate(-28 22 -92)" fill="#4cbd6c"/><g transform="translate(0 -148)"><g fill="var(--petal)"><ellipse cy="-29" rx="20" ry="32"/><ellipse cy="29" rx="20" ry="32"/><ellipse cx="-29" rx="32" ry="20"/><ellipse cx="29" rx="32" ry="20"/><ellipse transform="rotate(45)" cy="-29" rx="19" ry="30"/><ellipse transform="rotate(-45)" cy="-29" rx="19" ry="30"/><ellipse transform="rotate(135)" cy="-29" rx="19" ry="30"/><ellipse transform="rotate(-135)" cy="-29" rx="19" ry="30"/></g><circle r="22" fill="#ffcf48"/><circle cx="-7" cy="-4" r="2.8" fill="#8b5715"/><circle cx="7" cy="-4" r="2.8" fill="#8b5715"/><path d="M-7 7 Q0 14 7 7" fill="none" stroke="#8b5715" stroke-width="2.5" stroke-linecap="round"/></g></g>
+                <use href="#flowerOne" transform="translate(150 307) scale(.83)" style="--petal:#ff8bb4"/><use href="#flowerOne" transform="translate(320 317) scale(1.05)" style="--petal:#b7a1ff"/><use href="#flowerOne" transform="translate(500 322) scale(1.2)" style="--petal:#ff9b6c"/><use href="#flowerOne" transform="translate(680 308) scale(.94)" style="--petal:#ffdf63"/><use href="#flowerOne" transform="translate(810 313) scale(.7)" style="--petal:#ff86cb"/>
+                <g fill="#fff" opacity=".8"><circle cx="65" cy="285" r="5"/><circle cx="230" cy="305" r="4"/><circle cx="590" cy="290" r="5"/><circle cx="760" cy="300" r="4"/></g>
+              </svg>
             </div>
-
-            <!-- 나무 밑에 큼직하고 알록달록하게 통통 튀는 '열매 수확 성공 !' 글자 연출 -->
-            <div class="mb-4 text-4xl font-extrabold text-center select-none" id="harvestSuccessLabel">
-                <span class="bounce-text text-rose-500" style="animation-delay: 0.0s">열</span>
-                <span class="bounce-text text-orange-500" style="animation-delay: 0.1s">매</span>
-                <span class="bounce-text text-amber-500" style="animation-delay: 0.2s">수</span>
-                <span class="bounce-text text-green-500" style="animation-delay: 0.3s">확</span>
-                <span class="bounce-text text-blue-500" style="animation-delay: 0.4s">성</span>
-                <span class="bounce-text text-indigo-500" style="animation-delay: 0.5s">공</span>
-                <span class="bounce-text text-purple-500" style="animation-delay: 0.6s">!</span>
-            </div>
-
-            <p class="text-2xl font-bold text-slate-700 mb-6" id="txtWinMessage">
-                농부 아저씨의 수레가 가득 찼어요!
-            </p>
-
-            <!-- 수확 수레에 모인 이쁜 사과 전시장 -->
-            <div class="w-full bg-amber-100/70 border-4 border-amber-200 p-5 rounded-3xl mb-8 flex flex-col items-center">
-                <div class="flex gap-2.5 justify-center flex-wrap" id="harvestApplesBox"></div>
-                <p class="text-base font-bold text-slate-500 mt-4 leading-relaxed" id="farmerThankYou">
-                    "와아~! 고마워 친구들아! 너희가 햇빛과 단비를 가득 모으고 바람도 마구 흔들어 이겨내 준 덕분에 이렇게 탐스러운 사과들을 잔뜩 수확할 수 있었단다! 최고야 최고! 🌟"
-                </p>
+            <h2 class="flower-success-title">🌸 꽃이 활짝 피었어요! 🌼</h2>
+            <p class="text-2xl font-bold text-slate-700 mb-6" id="txtWinMessage">우리의 정성으로 예쁜 꽃이 피었어요!</p>
+            <div class="w-full bg-emerald-50 border-4 border-emerald-200 p-5 rounded-3xl mb-8 flex flex-col items-center">
+              <div class="flex gap-2.5 justify-center flex-wrap" id="harvestApplesBox"></div>
+              <p class="text-base font-bold text-slate-600 mt-4 leading-relaxed" id="farmerThankYou">햇빛을 모으고 단비를 맞으며 바람도 이겨냈어요. 우리 모두 힘을 모아 아름다운 꽃밭을 만들었어요!</p>
             </div>
 
             <button onclick="resetGame()" class="w-full py-4 bg-gradient-to-r from-orange-400 to-emerald-400 hover:from-orange-300 hover:to-emerald-300 text-white font-extrabold text-2xl rounded-2xl shadow-md transition-all active:scale-95">
-                🎈 다음 사과 수확하러 가기!
+                🌷 다시 꽃 키우러 가기!
             </button>
         </div>
     </div>
@@ -600,7 +587,7 @@
         let windActive = false, windPower = 0, windTimer = 0, nextWindTime = 3000; 
 
         // 마이크 인식 버퍼
-        let micStream = null, analyser = null, audioContext = null, clapThreshold = 45;
+        let micStream = null;
         let prevFrameData = null;
         const lowResCanvas = document.createElement('canvas');
         const lowResCtx = lowResCanvas.getContext('2d');
@@ -608,51 +595,6 @@
 
         let sunRotation = 0;
         let decorRotation = 0;
-
-        // 오디오 입력 권한 분석 세팅
-        async function setupMic(stream) {
-            try {
-                audioContext = sound.ctx;
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.4;
-                const micSource = audioContext.createMediaStreamSource(stream);
-                micSource.connect(analyser);
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-
-                function checkAudio() {
-                    if (!analyser || !gameActive) {
-                        requestAnimationFrame(checkAudio); return;
-                    }
-                    analyser.getByteFrequencyData(dataArray);
-                    let sum = 0;
-                    for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-                    const averageVol = sum / bufferLength;
-                    
-                    const micBar = document.getElementById('barMicVolume');
-                    if (micBar) {
-                        micBar.style.width = Math.min((averageVol / 120) * 100, 100) + '%';
-                    }
-                    if (averageVol > clapThreshold && currentStage === 3 && windActive) {
-                        extinguishWind();
-                    }
-                    requestAnimationFrame(checkAudio);
-                }
-                checkAudio();
-            } catch (err) { console.warn("마이크 초기화 실패", err); }
-        }
-
-        function extinguishWind() {
-            windActive = false; windPower = 0;
-            document.getElementById('windAlert').classList.add('hidden');
-            sound.playClapSuccess();
-            createClapBlast(canvas.width * 0.25, plantY - 100);
-            createClapBlast(canvas.width * 0.75, plantY - 100);
-            p1Score = Math.min(200, p1Score + 5);
-            p2Score = Math.min(200, p2Score + 5);
-            updateScoreUI();
-        }
 
         // 수직 모션 가속도를 계산하여 점프 감지
         let p1PrevY = 0;
@@ -871,11 +813,11 @@
             if (mode === 'ar') {
                 btnAR.className = "py-3 px-4 rounded-2xl border-2 border-orange-300 bg-orange-400 text-white font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md";
                 btnTouch.className = "py-3 px-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-600 font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105";
-                desc.innerText = "카메라 모션 인식 중";
+                if (desc) desc.innerText = "카메라 모션 인식 중";
             } else {
                 btnTouch.className = "py-3 px-4 rounded-2xl border-2 border-orange-300 bg-orange-400 text-white font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md";
                 btnAR.className = "py-3 px-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-600 font-bold text-lg flex flex-col items-center justify-center transition-all hover:scale-105";
-                desc.innerText = "터치/마우스 조종 방식";
+                if (desc) desc.innerText = "터치/마우스 조종 방식";
             }
         }
 
@@ -903,13 +845,25 @@
                 showTransitionOverlay("🌈 2단계: 폴짝폴짝 단비 점프!", "새싹들이 목이 말라요! 위로 높게 점프하세요!<br>제자리에서 <b>폴짝폴짝 높이 점프해야</b> 빠르게 하강하는 <b>물방울 이모지(💧)</b>를 맞출 수 있어요!", "💧");
             } else if (currentStage === 2) {
                 currentStage = 3;
-                showTransitionOverlay("🍃 3단계: 흔들흔들 바람 밀어내기!", "새싹들에게 강한 바람은 아파요! 몸을 마구 흔드세요!<br>제자리에서 <b>몸을 힘차게 쉐이크 쉐이크 흔들면</b> 보호막이 켜져 <b>바람 이모지(💨)</b>를 날려보내요!", "💨");
+                showTransitionOverlay("🍃 3단계: 흔들흔들 바람 밀어내기!", "새싹들에게 강한 바람은 아파요! 몸을 마구 흔드세요!<br>제자리에서 <b>몸을 힘차게 쉐이크 쉐이크 흔들면</b> 보호막이 켜져 <b>바람 캐릭터</b>를 날려보내요!", "wind-preview");
             } else { finishGame(); }
         }
 
         function showTransitionOverlay(title, desc, icon) {
             const overlay = document.getElementById('transitionOverlay');
-            document.getElementById('txtTransIcon').innerText = icon;
+            const transIcon = document.getElementById('txtTransIcon');
+            if (icon === 'wind-preview') {
+                transIcon.innerHTML = '<canvas id="windPreviewCanvas" width="180" height="140" style="width:180px;height:140px;max-width:100%;display:block;margin:auto"></canvas>';
+                const preview = document.getElementById('windPreviewCanvas');
+                const pen = preview.getContext('2d');
+                pen.translate(90, 70);
+                pen.shadowColor = 'rgba(125,211,252,.65)';
+                pen.shadowBlur = 19;
+                pen.shadowOffsetY = 4;
+                drawWindShape(pen, 49, 0);
+            } else {
+                transIcon.textContent = icon;
+            }
             document.getElementById('txtTransTitle').innerHTML = title;
             document.getElementById('txtTransDesc').innerHTML = desc;
             sound.playLevelUp();
@@ -919,7 +873,7 @@
                 overlay.classList.add('hidden');
                 overlay.classList.remove('flex');
                 if (currentStage === 2) document.getElementById('txtStageTitle').innerText = "2단계: 단비 점프 💧";
-                if (currentStage === 3) document.getElementById('txtStageTitle').innerText = "3단계: 바람 밀어내기 💨";
+                if (currentStage === 3) document.getElementById('txtStageTitle').innerText = "3단계: 바람 밀어내기 🍃";
                 gameActive = true; startStageTimer();
             }, 4500);
         }
@@ -945,16 +899,15 @@
                 winningScore = p1Score;
             }
 
-            document.getElementById('txtWinMessage').innerText = `축하합니다! ${winnerName}의 지혜와 정성으로 사과나무에 맛있는 열매들이 가득 맺혔습니다! 🏆`;
-            
-            // 수레 안에 떨어지는 열매 사과들 시각화
-            const appleCount = Math.min(15, Math.max(3, Math.floor(winningScore / 10)));
-            for (let k = 0; k < appleCount; k++) {
-                const apple = document.createElement('span');
-                apple.innerText = "🍎";
-                apple.className = "text-4xl animate-bounce";
-                apple.style.animationDelay = `${k * 0.1}s`;
-                harvestBox.appendChild(apple);
+            document.getElementById('txtWinMessage').innerText = `축하해요! ${winnerName}의 정성으로 꽃밭에 예쁜 꽃이 활짝 피었어요! 🏆`;
+            const flowerCount = Math.min(12, Math.max(4, Math.floor(winningScore / 12)));
+            const flowers = ['🌸','🌼','🌷','🌻','🌺'];
+            for (let k = 0; k < flowerCount; k++) {
+                const flower = document.createElement('span');
+                flower.innerText = flowers[k % flowers.length];
+                flower.className = 'text-4xl animate-bounce';
+                flower.style.animationDelay = `${k * 0.12}s`;
+                harvestBox.appendChild(flower);
             }
 
             // [오디오 격상] 신나고 거대한 축제 함성 & 짝짝짝 박수 갈채 사운드 재생 작동!
@@ -964,11 +917,19 @@
             winOverlay.classList.add('flex');
         }
 
+        let appInitialized = false;
         async function initApp() {
+            if (appInitialized) {
+                document.getElementById('startOverlay').classList.add('hidden');
+                gameActive = true;
+                startStageTimer();
+                return;
+            }
+            appInitialized = true;
             sound.init();
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-                video.srcObject = stream; await setupMic(stream); micStream = stream;
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream; micStream = stream;
             } catch (err) { setControlMode('touch'); }
             resizeScreen();
             window.addEventListener('resize', resizeScreen);
@@ -980,7 +941,7 @@
         }
 
         function resizeScreen() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            canvas.width = document.body.clientWidth; canvas.height = document.body.clientHeight;
             plantY = canvas.height * 0.82;
             
             p1X = canvas.width * 0.25; p2X = canvas.width * 0.75; 
@@ -995,7 +956,7 @@
         function spawnFallingItem() {
             if (!gameActive) return;
             const sunCenterX = canvas.width / 2;
-            const sunCenterY = 55;
+            const sunCenterY = Math.max(195, Math.min(240, canvas.height * 0.24));
             const isLeft = Math.random() < 0.5;
             const targetX = isLeft ? Math.random() * (canvas.width/2 - 80) + 40 : (canvas.width/2) + Math.random() * (canvas.width/2 - 80) + 40;
             
@@ -1017,16 +978,14 @@
                     y: windSpawnY,
                     vx: windSpeedX,
                     vy: 0,
-                    radius: 38, // 거대 바람
+                    radius: 49, // 크게 표현한 바람
                     speed: Math.abs(windSpeedX),
                     type: 'tornado', 
                     color: '#e2e8f0',
                     bounced: false 
                 });
 
-                if (Math.random() < 0.2) {
-                    fallingItems.push(createItem(isLeft ? Math.random()*(canvas.width/2-60)+30 : (canvas.width/2)+Math.random()*(canvas.width/2-60)+30, -20, 'water', '#bae6fd', speed));
-                }
+
             }
         }
 
@@ -1037,7 +996,7 @@
                 const dist = Math.hypot(dx, dy);
                 vx = (dx / dist) * speed; vy = (dy / dist) * speed;
             }
-            return { x, y, vx, vy, radius: type==='tornado'?38:14, speed, type, color };
+            return { x, y, vx, vy, radius: type==='tornado'?49:27, speed, type, color };
         }
 
         function createSparkle(x, y, color) {
@@ -1070,10 +1029,8 @@
 
             const m1 = getStageMeta(p1Score);
             document.getElementById('p1StageIcon').innerText = m1.icon;
-            document.getElementById('p1GrowthName').innerText = m1.name;
             const m2 = getStageMeta(p2Score);
             document.getElementById('p2StageIcon').innerText = m2.icon;
-            document.getElementById('p2GrowthName').innerText = m2.name;
         }
 
         // 동화책 느낌의 라운딩 화분 및 식물 드로잉
@@ -1096,7 +1053,7 @@
             ctx.fillStyle = '#ffffff';
             ctx.beginPath(); ctx.roundRect(-22, -32, 44, 16, 4); ctx.fill();
             ctx.stroke();
-            ctx.font = "bold 13px 'Jua', 'Gaegu', sans-serif"; ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
+            ctx.font = "bold 13px 'Malgun Gothic', sans-serif"; ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
             ctx.fillText(playerIdx === 1 ? "햇살이" : "단비", 0, -20);
 
             ctx.translate(0, -ph - 4);
@@ -1165,68 +1122,133 @@
 
         // 단비 단계에서 하늘 정중앙을 장식할 비구름 캐릭터 ☁️
         function drawRainCloud(x, y, r) {
-            ctx.save();
-            ctx.translate(x, y);
-            
-            ctx.fillStyle = '#e2e8f0';
+            // 납작한 밑면과 둥글게 겹친 봉우리로 실제 뭉게구름처럼 표현
+            ctx.save(); ctx.translate(x, y);
+            const k = r / 55;
+            ctx.scale(k, k);
+            ctx.shadowColor = 'rgba(37,74,104,.24)'; ctx.shadowBlur = 13; ctx.shadowOffsetY = 7;
+            const shade = ctx.createLinearGradient(0, -65, 0, 38);
+            shade.addColorStop(0, '#ffffff'); shade.addColorStop(.52, '#e9f5fc'); shade.addColorStop(1, '#a6c9df');
+            ctx.fillStyle = shade; ctx.strokeStyle = '#8eb4ce'; ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.arc(-20, 0, r * 0.9, 0, Math.PI * 2);
-            ctx.arc(20, 0, r * 0.9, 0, Math.PI * 2);
-            ctx.arc(0, -15, r * 1.1, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.lineWidth = 3.5;
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.stroke();
-
-            ctx.strokeStyle = '#475569';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.arc(-12, -4, 3, 0, Math.PI, true); 
-            ctx.arc(12, -4, 3, 0, Math.PI, true);  
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(0, 4, 4, 0, Math.PI, false);
-            ctx.stroke();
-
+            ctx.moveTo(-62, 24);
+            ctx.bezierCurveTo(-88, 21, -88, -15, -62, -26);
+            ctx.bezierCurveTo(-61, -52, -32, -64, -13, -48);
+            ctx.bezierCurveTo(8, -85, 52, -69, 55, -39);
+            ctx.bezierCurveTo(91, -35, 95, 14, 66, 25);
+            ctx.quadraticCurveTo(0, 38, -62, 24);
+            ctx.closePath(); ctx.fill(); ctx.shadowColor = 'transparent'; ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.arc(-34,-26,17,Math.PI*1.14,Math.PI*1.83); ctx.stroke();
             ctx.restore();
         }
 
-        // 바람 단계에서 하늘 정중앙을 장식할 바람 유령 캐릭터 🌪️
-        function drawWindSpirit(x, y, r) {
+        // 화면 중앙의 바람도 게임 아이템과 동일한 벡터 모양으로 그립니다.
+        function drawCentralWind(x, y, r) {
             ctx.save();
             ctx.translate(x, y);
-            
-            ctx.fillStyle = '#f1f5f9';
-            ctx.beginPath();
-            ctx.arc(0, -10, r, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.shadowColor = 'rgba(125,211,252,.65)';
+            ctx.shadowBlur = 19;
+            drawWindShape(ctx, r, decorRotation);
+            ctx.restore();
+        }
 
-            ctx.beginPath();
-            ctx.moveTo(-r, -10);
-            ctx.quadraticCurveTo(0, r + 15, r * 0.7, r * 0.3);
-            ctx.lineTo(r, -10);
-            ctx.closePath();
-            ctx.fill();
+        // 안내 화면과 실제 게임에서 완전히 같은 바람 그림을 사용합니다.
+        function drawWindShape(pen, r, rotation) {
 
-            ctx.fillStyle = '#38bdf8';
-            ctx.beginPath();
-            ctx.arc(-10, -12, 4, 0, Math.PI*2);
-            ctx.arc(10, -12, 4, 0, Math.PI*2);
-            ctx.fill();
+                pen.rotate(Math.sin(rotation)*.08);
+                pen.lineCap='round';
+                for(let k=0;k<4;k++) {
+                    const y=(k-1.5)*r*.37;
+                    pen.beginPath();pen.moveTo(-r*(.7-k*.11),y);
+                    pen.bezierCurveTo(-r*.1,y-r*.34,r*.98,y-r*.22,r*(.6-k*.1),y+r*.07);
+                    pen.strokeStyle=k%2?'#7dd3fc':'#d6f4ff';pen.lineWidth=11-k*1.4;pen.stroke();
+                    pen.beginPath();pen.moveTo(-r*(.7-k*.11),y);
+                    pen.bezierCurveTo(-r*.1,y-r*.34,r*.98,y-r*.22,r*(.6-k*.1),y+r*.07);
+                    pen.strokeStyle='#309cc8';pen.lineWidth=2;pen.stroke();
+                }
+                pen.shadowBlur=0;pen.fillStyle='#256f99';
+                for(const x of [-r*.17,r*.17]){pen.beginPath();pen.arc(x,-r*.14,3.4,0,Math.PI*2);pen.fill();}
+                pen.beginPath();pen.arc(0,r*.03,5,0,Math.PI*2);pen.fill();
+        }
 
-            ctx.strokeStyle = '#475569';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(0, 3, 7, 0, Math.PI * 2);
-            ctx.stroke();
+        // 커다란 동화풍 게임 아이템: 이모지 대신 선명한 벡터 그림 사용
+        function drawRaceItem(item) {
+            const r = item.radius;
+            ctx.save();
+            ctx.translate(item.x, item.y);
+            ctx.shadowColor = item.type === 'sun' ? 'rgba(251,191,36,.65)' : item.type === 'water' ? 'rgba(56,189,248,.6)' : 'rgba(125,211,252,.65)';
+            ctx.shadowBlur = 19;
+            ctx.shadowOffsetY = 4;
+            if (item.type === 'sun') {
+                ctx.rotate(Math.sin(decorRotation * 0.55 + item.x) * .12);
+                for (let k = 0; k < 12; k++) {
+                    const a = k * Math.PI / 6;
+                    ctx.save(); ctx.rotate(a);
+                    ctx.fillStyle = k % 2 ? '#ffb83f' : '#ffdf6a';
+                    ctx.beginPath(); ctx.moveTo(-5, -r*.86); ctx.quadraticCurveTo(0,-r*1.48,5,-r*.86); ctx.closePath(); ctx.fill(); ctx.restore();
+                }
+                const g = ctx.createRadialGradient(-r*.35,-r*.4,2,0,0,r);
+                g.addColorStop(0,'#fff6a6'); g.addColorStop(.65,'#ffd54b'); g.addColorStop(1,'#ff9e38');
+                ctx.beginPath(); ctx.arc(0,0,r*.87,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+                ctx.lineWidth=2.5; ctx.strokeStyle='#f59e0b'; ctx.stroke();
+                ctx.shadowBlur=0; ctx.fillStyle='#9a4a22';
+                for(const x of [-r*.3,r*.3]) {ctx.beginPath();ctx.ellipse(x,-r*.08,2.7,3.7,0,0,Math.PI*2);ctx.fill();}
+                ctx.beginPath();ctx.arc(0,r*.08,r*.25,.15,Math.PI-.15);ctx.lineWidth=2.6;ctx.strokeStyle='#a94d2c';ctx.stroke();
+                ctx.fillStyle='rgba(255,125,120,.45)';for(const x of [-r*.52,r*.52]){ctx.beginPath();ctx.arc(x,r*.2,4.3,0,Math.PI*2);ctx.fill();}
+            } else if (item.type === 'water') {
+                ctx.rotate(Math.sin(decorRotation+item.x)*.12);
+                const g=ctx.createLinearGradient(-r,-r,r,r);
+                g.addColorStop(0,'#d6faff');g.addColorStop(.48,'#62d5ff');g.addColorStop(1,'#238be7');
+                ctx.beginPath();ctx.moveTo(0,-r*1.27);
+                ctx.bezierCurveTo(r*.55,-r*.42,r*.91,r*.05,r*.82,r*.42);
+                ctx.bezierCurveTo(r*.65,r*1.23,-r*.65,r*1.23,-r*.82,r*.42);
+                ctx.bezierCurveTo(-r*.91,r*.05,-r*.55,-r*.42,0,-r*1.27);
+                ctx.closePath();ctx.fillStyle=g;ctx.fill();ctx.lineWidth=2.5;ctx.strokeStyle='#3b9bdf';ctx.stroke();
+                ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=4;ctx.lineCap='round';
+                ctx.beginPath();ctx.moveTo(-r*.42,-r*.12);ctx.quadraticCurveTo(-r*.5,-r*.42,-r*.14,-r*.72);ctx.stroke();
+                ctx.fillStyle='#145d9d';for(const x of [-r*.27,r*.27]){ctx.beginPath();ctx.arc(x,r*.3,2.8,0,Math.PI*2);ctx.fill();}
+                ctx.beginPath();ctx.arc(0,r*.39,r*.18,.1,Math.PI-.1);ctx.lineWidth=2.3;ctx.strokeStyle='#145d9d';ctx.stroke();
+            } else if (item.type === 'tornado') {
+                drawWindShape(ctx, r, decorRotation);
+            }
+            ctx.restore();
+        }
 
+        // 자연 풍경: 카메라 움직임을 볼 수 있도록 반투명한 하늘·산·잔디
+        function drawNatureBackground() {
+            const w=canvas.width, h=canvas.height;
+            ctx.save();
+            const sky=ctx.createLinearGradient(0,0,0,h);
+            sky.addColorStop(0,'rgba(157,220,255,.54)');
+            sky.addColorStop(.64,'rgba(220,247,255,.30)');
+            sky.addColorStop(1,'rgba(246,255,211,.40)');
+            ctx.fillStyle=sky; ctx.fillRect(0,0,w,h);
+            // 멀리 보이는 푸른 언덕
+            ctx.fillStyle='rgba(98,180,126,.28)';
+            ctx.beginPath(); ctx.moveTo(0,h*.78);
+            ctx.bezierCurveTo(w*.13,h*.64,w*.23,h*.78,w*.36,h*.70);
+            ctx.bezierCurveTo(w*.50,h*.60,w*.61,h*.78,w*.75,h*.69);
+            ctx.bezierCurveTo(w*.88,h*.60,w*.96,h*.72,w,h*.67);
+            ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fill();
+            ctx.fillStyle='rgba(82,178,90,.40)';
+            ctx.beginPath();ctx.moveTo(0,h*.88);
+            ctx.bezierCurveTo(w*.2,h*.79,w*.3,h*.91,w*.5,h*.83);
+            ctx.bezierCurveTo(w*.72,h*.77,w*.84,h*.89,w,h*.81);
+            ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fill();
+            const flowers=Math.max(10,Math.floor(w/100));
+            for(let i=0;i<flowers;i++) {
+                const x=(i+.5)*w/flowers, y=h*(.91+.055*(.5+.5*Math.sin(i*4.3)));
+                ctx.fillStyle=i%3===0?'rgba(255,207,83,.78)':i%3===1?'rgba(255,165,194,.75)':'rgba(255,255,255,.82)';
+                for(let a=0;a<5;a++){let t=a*Math.PI*2/5;ctx.beginPath();ctx.arc(x+Math.cos(t)*5,y+Math.sin(t)*5,4,0,Math.PI*2);ctx.fill();}
+                ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fillStyle='#f8b64c';ctx.fill();
+            }
             ctx.restore();
         }
 
         function renderLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawNatureBackground();
             sunRotation += 0.006;
             decorRotation += 0.01;
             updateMotionTracking();
@@ -1259,29 +1281,38 @@
             if (p2JumpY >= 0) { p2JumpY = 0; p2JumpVelocity = 0; }
 
             if (currentStage === 1) {
-                drawTheSun(canvas.width / 2, 55, 36);
+                drawTheSun(canvas.width / 2, Math.max(195, Math.min(240, canvas.height * 0.24)), 49);
             } else if (currentStage === 2) {
-                drawRainCloud(canvas.width / 2, 55, 30);
+                // 2단계: 화면 상단에 큼직한 비구름 여러 개
+                const cloudY = Math.max(175, Math.min(225, canvas.height * 0.235));
+                const cloudCount = canvas.width >= 1100 ? 5 : 3;
+                for (let i = 0; i < cloudCount; i++) {
+                    const x = (i + 0.5) * canvas.width / cloudCount;
+                    drawRainCloud(x, cloudY + Math.sin(i * 2.2) * 14, Math.min(62, canvas.width / (cloudCount * 3.8)));
+                }
             } else if (currentStage === 3) {
-                drawWindSpirit(canvas.width / 2, 55, 30);
+                drawCentralWind(canvas.width / 2, Math.max(195, Math.min(240, canvas.height * 0.24)), 49);
             }
 
             if (currentStage === 3 && gameActive) {
+                fallingItems = fallingItems.filter(item => item.type === 'tornado');
                 windTimer += 16.6;
                 if (windTimer > nextWindTime) {
                     if (!windActive) {
                         windActive = true; windPower = Math.random() > 0.5 ? 2.8 : -2.8;
                         sound.playWindHowl();
-                        document.getElementById('windAlert').classList.remove('hidden');
+                        /* 3단계 중간 안내창 표시하지 않음 */
                         nextWindTime = windTimer + Math.random()*3000 + 3500;
                     } else {
                         windActive = false; windPower = 0;
-                        document.getElementById('windAlert').classList.add('hidden');
+                        /* 3단계 중간 안내창 표시하지 않음 */
                         nextWindTime = windTimer + Math.random()*4000 + 4000;
                     }
                 }
                 if (windActive && Math.random() < 0.12) {
-                    p1Score = Math.max(0, p1Score - 1); p2Score = Math.max(0, p2Score - 1); updateScoreUI();
+                    if (p1ShakeEnergy <= 15) p1Score = Math.max(0, p1Score - 1);
+                    if (p2ShakeEnergy <= 15) p2Score = Math.max(0, p2Score - 1);
+                    updateScoreUI();
                 }
             }
 
@@ -1308,22 +1339,7 @@
 
                 if (currentStage !== 3 && windActive) item.x += windPower * 0.5;
 
-                ctx.save();
-                ctx.translate(item.x, item.y);
-                ctx.rotate(decorRotation * (item.type === 'tornado' ? 1.5 : 1));
-                
-                ctx.font = item.type === 'tornado' ? "56px sans-serif" : "28px sans-serif";
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                if (item.type === 'sun') {
-                    ctx.fillText("☀️", 0, 0); 
-                } else if (item.type === 'water') {
-                    ctx.fillText("💧", 0, 0); 
-                } else if (item.type === 'tornado') {
-                    ctx.fillText("💨", 0, 0); 
-                }
-                ctx.restore();
+                drawRaceItem(item);
 
                 const isLeft = item.x < canvas.width / 2;
                 let collided = false;
@@ -1332,7 +1348,7 @@
                     const currentHandX = isLeft ? p1HandX : p2HandX;
                     const currentHandY = isLeft ? p1HandY : p2HandY;
                     const handDist = Math.hypot(item.x - currentHandX, item.y - currentHandY);
-                    if (handDist < 55) {
+                    if (handDist < 66) {
                         collided = true;
                     }
                 } else {
@@ -1340,7 +1356,7 @@
                     const currentJumpOffset = isLeft ? p1JumpY : p2JumpY;
                     const hy = (plantY - 85) + currentJumpOffset;
 
-                    const collisionRadius = item.type === 'tornado' ? 76 : 60;
+                    const collisionRadius = item.type === 'tornado' ? 88 : 72;
 
                     if (Math.hypot(item.x - tx, item.y - hy) < collisionRadius) {
                         collided = true;
@@ -1499,6 +1515,8 @@
         }
 
         function resetGame() {
+            gameActive = false;
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             p1Score = 0; p2Score = 0; currentStage = 1; stageTimer = 30;
             p1JumpY = 0; p2JumpY = 0; p1JumpVelocity = 0; p2JumpVelocity = 0;
             p1ShakeEnergy = 0; p2ShakeEnergy = 0;
@@ -1507,9 +1525,12 @@
             document.getElementById('txtStageTitle').innerText = "1단계: 햇빛 잡기 ☀️";
             document.getElementById('winOverlay').classList.add('hidden');
             document.getElementById('transitionOverlay').classList.add('hidden');
-            document.getElementById('windAlert').classList.add('hidden');
+            /* 3단계 중간 안내창 표시하지 않음 */
             
-            updateScoreUI(); gameActive = true; startStageTimer();
+            updateScoreUI();
+            document.getElementById('txtTimer').innerText = '30';
+            document.getElementById('barTimer').style.width = '100%';
+            document.getElementById('startOverlay').classList.remove('hidden');
         }
 
         function toggleAudio() {
@@ -1517,14 +1538,11 @@
             document.getElementById('iconMute').className = sound.isMuted ? "fa-solid fa-volume-xmark text-rose-400" : "fa-solid fa-volume-high";
         }
 
-        function updateClapThreshold(val) {
-            clapThreshold = parseInt(val);
-            if (document.getElementById('lineThreshold')) document.getElementById('lineThreshold').style.left = val + '%';
-        }
+
 
         function toggleSettings() {
-            document.getElementById('settingsModal').classList.toggle('hidden');
+            const modal = document.getElementById('settingsModal'); if (modal) modal.classList.toggle('hidden');
         }
     </script>
-</body>
+<footer id="youngil-brand-bar" aria-label="공립단설 영일유치원"><img src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false"></footer></body>
 </html>
