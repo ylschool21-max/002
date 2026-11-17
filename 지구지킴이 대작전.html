@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🌎 우리는 지구지킴이! (전신 동작인식판)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --p1-color: #4fc3f7; --p2-color: #f48fb1; --primary: #4CAF50; --text-color: #fff; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Jua', sans-serif; user-select: none; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; display: flex; justify-content: center; align-items: center; }
+
+    #game-container { position: relative; width: 100vw; height: 100vh; background: #000; overflow: hidden; }
+    .input_video { display: none; }
+
+    #game-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+    #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+
+    /* 시작 화면: 전자칠판 화면 전체를 꽉 채움 (글자 크기도 화면 크기에 맞춰 자동 조절) */
+    #screen-intro {
+      position: fixed; inset: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(180deg, #E1F5FE 0%, #F1F8E9 100%);
+      border: min(1.2vh, 1vw) solid #4FC3F7; color: #333;
+      padding: 2.5vh 3vw;
+      display: none; flex-direction: column; align-items: center; justify-content: space-evenly;
+      overflow: hidden; pointer-events: auto; text-align: center;
+    }
+    #screen-intro.active { display: flex; animation: fadeInFlat 0.4s ease-out; }
+
+    .intro-icons { font-size: min(8vh, 6vw); letter-spacing: 1.2vw; line-height: 1.1; }
+    .intro-title { font-size: min(10.5vh, 8vw); color: #0277BD; text-shadow: 0.4vh 0.4vh 0 #B3E5FC; font-weight: bold; line-height: 1.1; }
+    .intro-subtitle { font-size: min(3.8vh, 2.8vw); color: #444; line-height: 1.45; word-break: keep-all; }
+    .intro-tip { font-size: min(3vh, 2.2vw); color: #E65100; background: #FFF3E0; border: 0.4vh dashed #FFB74D; border-radius: 2.5vh; padding: 1.2vh 2.5vw; line-height: 1.45; word-break: keep-all; }
+
+    .stage-cards { display: flex; flex-wrap: nowrap; gap: 2vw; width: 100%; justify-content: center; }
+    .card { flex: 1; min-width: 0; border-radius: 3vh; padding: 2.5vh 1.2vw; text-align: center; box-shadow: 0 0.8vh 2vh rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; word-break: keep-all;}
+    .card-1 { background: #E1F5FE; border: 0.5vh solid #81D4FA; }
+    .card-2 { background: #E0F2F1; border: 0.5vh solid #80CBC4; }
+    .card-3 { background: #E8F5E9; border: 0.5vh solid #A5D6A7; }
+
+    .card-title { font-size: min(4.4vh, 3vw); margin-bottom: 1vh; font-weight: bold; line-height: 1.3;}
+    .card-1 .card-title { color: #0288D1; } .card-2 .card-title { color: #00695C; } .card-3 .card-title { color: #2E7D32; }
+    .card-desc { font-size: min(3.3vh, 2.3vw); color: #555; line-height: 1.4; }
+
+    .start-btn {
+      background: linear-gradient(135deg, #29B6F6, #66BB6A); border: none; padding: 2vh 6vw; font-size: min(5.5vh, 4vw); color: white;
+      border-radius: 10vh; cursor: pointer; box-shadow: 0 0.8vh 0 #0288D1; transition: transform 0.1s; pointer-events: auto; letter-spacing: 1px;
+    }
+    .start-btn:active { transform: translateY(0.8vh); box-shadow: 0 0.2vh 0 #0288D1; }
+
+    .screen { display: none; width: 80%; max-width: 800px; background: rgba(0, 0, 0, 0.85); padding: 30px; border-radius: 30px; border: 6px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 0, 0.6); color: var(--text-color); text-align: center; pointer-events: auto; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; gap: 15px; animation: fadeIn 0.4s ease-out; }
+    #explain-title { font-size: 3rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); color: #FFEB3B; margin-bottom: 5px; }
+    #explain-text { font-size: 1.8rem; line-height: 1.6; white-space: pre-line; word-break: keep-all; }
+    #explain-countdown { font-size: 4rem; color: #FFEB3B; text-shadow: 0 0 15px #FF9800; animation: pulse 1s infinite alternate; margin-top: 10px; }
+
+    #score-board { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 95%; display: flex; justify-content: space-between; z-index: 20; font-size: 1.8rem; color: white; text-shadow: 2px 2px 4px black; pointer-events: none; display: none; }
+    .score-box { background: rgba(0,0,0,0.6); padding: 10px 25px; border-radius: 20px; border: 3px solid white; }
+
+    #top-guide-bar {
+      position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #FFF;
+      padding: 10px 30px; border-radius: 40px; font-size: 1.8rem; z-index: 20; display: none; border: 3px solid #FFEB3B; text-align: center;
+      line-height: 1.4; width: auto; max-width: 92%; white-space: nowrap; pointer-events: none;
+    }
+    .timer-text { color: #FFEB3B; font-weight: bold; margin-left: 0.6em; }
+    /* 2단계 끝: 페트병 → 플리스 옷 변신 */
+    #fleece-reveal {
+      position: absolute; inset: 0; z-index: 35; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1.6vh;
+      background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #E0F7FA 45%, #81D4FA 100%);
+      overflow: hidden; pointer-events: none; text-align: center; animation: fadeInFlat .35s ease-out;
+    }
+    #fleece-reveal.show { display: flex; }
+    .fr-rays { position: absolute; left: 50%; top: 47%; width: 150vmax; height: 150vmax; margin: -75vmax 0 0 -75vmax;
+      background: repeating-conic-gradient(rgba(255,235,59,.22) 0deg 10deg, rgba(255,255,255,0) 10deg 20deg);
+      animation: spinRays 14s linear infinite; z-index: 0; }
+    #fleece-reveal > *:not(.fr-rays) { position: relative; z-index: 1; }
+    .fr-title { font-size: min(8vh, 6vw); color: #FF6F00; text-shadow: 0.4vh 0.4vh 0 #FFE082; }
+    .fr-jacket { width: min(46vh, 36vw); animation: jacketPop 1s cubic-bezier(.2,1.6,.4,1) both, jacketSway 2.4s ease-in-out 1s infinite alternate; filter: drop-shadow(0 1.5vh 2.5vh rgba(2,119,189,.45)); }
+    .fr-jacket svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .fr-msg { font-size: min(5vh, 3.6vw); color: #01579B; line-height: 1.45; word-break: keep-all; }
+    .fr-msg b { color: #E65100; }
+    .fr-steps { display: flex; align-items: center; gap: 1.6vw; font-size: min(3.6vh, 2.6vw); color: #37474F;
+      background: rgba(255,255,255,.85); border: 0.4vh solid #81D4FA; border-radius: 6vh; padding: 1.2vh 3vw; }
+    .fr-steps span { display: flex; align-items: center; gap: 0.6vw; }
+    .fr-steps img { height: 1.6em; }
+    .fr-steps .arrow { color: #FF9800; font-size: 1.2em; }
+    @keyframes jacketPop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+    @keyframes jacketSway { from { transform: rotate(-4deg) translateY(-0.8vh); } to { transform: rotate(4deg) translateY(0.8vh); } }
+    @keyframes spinRays { to { transform: rotate(360deg); } }
+
+    #home-btn {
+      position: absolute; right: 14px; bottom: 12px; z-index: 50; display: none;
+      background: rgba(0,0,0,.65); color: #fff; border: 3px solid #fff; border-radius: 30px;
+      font-size: 1.6rem; padding: 8px 22px; cursor: pointer; pointer-events: auto;
+    }
+    #home-btn:active { transform: translateY(3px); }
+
+    #status-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; color: #FFF; text-shadow: 2px 2px 8px #000; z-index: 30; display: none; text-align: center; width: 80%; max-width: 700px; animation: bounce 0.5s infinite alternate; pointer-events: auto; line-height: 1.5; background: rgba(0,0,0,0.85); padding: 30px; border-radius: 25px; border: 4px solid #2196F3; word-break: keep-all; }
+    #status-msg button { margin-top: 15px; background: #FF9800; border: none; color: #fff; font-size: 1.8rem; padding: 10px 30px; border-radius: 30px; cursor: pointer; }
+
+    /* 마지막 화면: 말하는 지구 */
+    #screen-outro {
+      position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999; overflow: hidden;
+      background: radial-gradient(ellipse at 30% 40%, #1A237E 0%, #0D1445 55%, #050826 100%);
+      display: none; flex-direction: column; align-items: center; justify-content: space-evenly;
+      padding: 3vh 3vw; pointer-events: auto; color: #fff; text-align: center;
+    }
+    #screen-outro.active { display: flex; animation: fadeInFlat 0.6s ease-out; }
+    .outro-title { font-size: min(8vh, 6vw); color: #FFEB3B; text-shadow: 0 0 2vh rgba(255,200,0,.7), 0.4vh 0.4vh 0 #E65100; line-height: 1.2; }
+    .outro-main { display: flex; align-items: center; justify-content: center; gap: 3vw; width: 100%; }
+    .earth-wrap { width: min(52vh, 38vw); flex-shrink: 0; animation: earthFloat 2.6s ease-in-out infinite alternate; filter: drop-shadow(0 0 3vh rgba(100,200,255,.55)); }
+    .earth-wrap svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .speech-bubble {
+      position: relative; background: #fff; color: #333; border-radius: 5vh; padding: 4vh 3.5vw;
+      width: min(52vw, 900px); min-height: 26vh; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1vh 4vh rgba(0,0,0,.5); border: 0.7vh solid #81D4FA;
+    }
+    .speech-bubble::before {
+      content: ''; position: absolute; left: -4.2vh; top: 50%; transform: translateY(-50%);
+      border-style: solid; border-width: 3vh 4.5vh 3vh 0; border-color: transparent #81D4FA transparent transparent;
+    }
+    .speech-bubble::after {
+      content: ''; position: absolute; left: -3vh; top: 50%; transform: translateY(-50%);
+      border-style: solid; border-width: 2.2vh 3.4vh 2.2vh 0; border-color: transparent #fff transparent transparent;
+    }
+    #earth-speech { font-size: min(5.6vh, 3.6vw); line-height: 1.5; word-break: keep-all; }
+    #earth-speech .cursor { display: inline-block; width: 0.5vh; height: 1em; background: #4FC3F7; vertical-align: -0.15em; margin-left: 0.3vh; animation: blinkCursor .6s infinite; }
+    .outro-title, .outro-main, .outro-bottom { position: relative; z-index: 1; }
+    .outro-bottom { display: flex; flex-direction: column; align-items: center; gap: 2vh; }
+    .outro-score { font-size: min(5vh, 3.6vw); color: #FFEB3B; text-shadow: 0.3vh 0.3vh 0 #000; }
+    .outro-btns { display: flex; gap: 2vw; }
+    .outro-btns button { border: none; padding: 1.6vh 3.5vw; font-size: min(3.8vh, 2.6vw); color: white; border-radius: 8vh; cursor: pointer; }
+    .btn-listen { background: linear-gradient(45deg, #29B6F6, #0288D1); box-shadow: 0 0.7vh 0 #01579B; }
+    .btn-again { background: linear-gradient(45deg, #FF9800, #FF5722); box-shadow: 0 0.7vh 0 #D84315; }
+    .outro-btns button:active { transform: translateY(0.6vh); }
+    .twinkle { position: absolute; color: #fff; pointer-events: none; animation: twinkle 2s ease-in-out infinite alternate; }
+    .float-heart { position: absolute; bottom: -8vh; pointer-events: none; animation: heartUp linear infinite; }
+
+    /* 지구 캐릭터 움직임 */
+    #earth-svg .eye { transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+    #earth-svg .arm-wave { transform-box: fill-box; transform-origin: 100% 100%; animation: wave 0.7s ease-in-out infinite alternate; }
+    #earth-svg #mouth-talk { display: none; transform-box: fill-box; transform-origin: center; }
+    #earth-svg.talking #mouth-smile { display: none; }
+    #earth-svg.talking #mouth-talk { display: inline; animation: talk 0.16s ease-in-out infinite alternate; }
+    #earth-svg .sprout { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 1.6s ease-in-out infinite alternate; }
+
+    @keyframes earthFloat { from { transform: translateY(-1.5vh) rotate(-2deg); } to { transform: translateY(1.5vh) rotate(2deg); } }
+    @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+    @keyframes wave { from { transform: rotate(-12deg); } to { transform: rotate(22deg); } }
+    @keyframes talk { from { transform: scaleY(0.35); } to { transform: scaleY(1); } }
+    @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+    @keyframes blinkCursor { 50% { opacity: 0; } }
+    @keyframes twinkle { from { opacity: .2; transform: scale(.7); } to { opacity: 1; transform: scale(1.15); } }
+    @keyframes heartUp { from { transform: translateY(0); opacity: 0; } 10% { opacity: .9; } to { transform: translateY(-115vh); opacity: 0; } }
+
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeInFlat { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes bounce { from { transform: translate(-50%, -48%); } to { transform: translate(-50%, -52%); } }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+  </style>
+<style id="youngil-persistent-brand-style">
+:root{--youngil-brand-height:64px;--youngil-brand-total:calc(var(--youngil-brand-height) + env(safe-area-inset-bottom,0px));}
+#youngil-brand-bar{box-sizing:border-box!important;position:fixed!important;inset:auto 0 0 0!important;z-index:2147483647!important;height:var(--youngil-brand-total)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:0!important;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) 16px!important;margin:0!important;background:#fffef9!important;border:0!important;border-top:1px solid #dce7dd!important;box-shadow:0 -2px 8px #3155400a!important;pointer-events:none!important;overflow:hidden!important;transform:none!important;opacity:1!important;visibility:visible!important;}
+#youngil-brand-bar img{display:block!important;height:100%!important;width:auto!important;max-width:45vw!important;object-fit:contain!important;flex-shrink:0!important;margin:0!important;}
+@media(max-height:650px),(max-width:600px){:root{--youngil-brand-height:48px;}}
+
+html,body{display:block!important;}
+#game-container{width:100%;height:calc(100dvh - var(--youngil-brand-total))!important;}
+#screen-intro,#screen-outro{bottom:var(--youngil-brand-total)!important;height:calc(100dvh - var(--youngil-brand-total))!important;}
+</style></head>
+<body>
+
+  <div id="game-container">
+    <video class="input_video" autoplay playsinline muted></video>
+    <canvas id="game-canvas"></canvas>
+
+    <div id="score-board">
+      <div class="score-box" style="border-color: #2196F3;">🧒 지구지킴이 1: <span id="p1-score">0</span></div>
+      <div class="score-box" style="border-color: #FFC107; font-size: 2rem;">🏆 우리 점수: <span id="team-score">0</span></div>
+      <div class="score-box" style="border-color: #E91E63;">🧒 지구지킴이 2: <span id="p2-score">0</span></div>
+    </div>
+
+    <div id="top-guide-bar">안내창</div>
+    <div id="fleece-reveal">
+      <div class="fr-rays"></div>
+      <div class="fr-title">✨ 펑! 변신 성공! ✨</div>
+      <div class="fr-jacket">
+        <svg class="fleece-svg" viewBox="0 0 300 290" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="fluff" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="2.6" fill="rgba(255,255,255,.38)"/>
+      <circle cx="10" cy="10" r="2.6" fill="rgba(255,255,255,.38)"/>
+      <circle cx="10" cy="3.5" r="1.5" fill="rgba(0,70,140,.13)"/>
+      <circle cx="3.5" cy="10" r="1.5" fill="rgba(0,70,140,.13)"/>
+    </pattern>
+    <linearGradient id="fleeceGrad" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#4FC3F7"/><stop offset=".5" stop-color="#8DD8FA"/><stop offset="1" stop-color="#4FC3F7"/>
+    </linearGradient>
+    <path id="fl-sl-l" d="M92 82 L62 96 Q44 140 30 198 L62 210 Q76 160 95 132 Z"/>
+    <path id="fl-sl-r" d="M208 82 L238 96 Q256 140 270 198 L238 210 Q224 160 205 132 Z"/>
+    <path id="fl-body" d="M120 62 L90 82 Q86 160 88 248 Q150 258 212 248 Q214 160 210 82 L180 62 Q150 84 120 62 Z"/>
+  </defs>
+  <!-- 소매 -->
+  <g>
+    <use href="#fl-sl-l" fill="url(#fleeceGrad)" stroke="#0288D1" stroke-width="3" stroke-linejoin="round"/>
+    <use href="#fl-sl-l" fill="none" stroke="#4FC3F7" stroke-width="11" stroke-dasharray="0 10" stroke-linecap="round"/>
+    <use href="#fl-sl-l" fill="url(#fluff)"/>
+    <use href="#fl-sl-r" fill="url(#fleeceGrad)" stroke="#0288D1" stroke-width="3" stroke-linejoin="round"/>
+    <use href="#fl-sl-r" fill="none" stroke="#4FC3F7" stroke-width="11" stroke-dasharray="0 10" stroke-linecap="round"/>
+    <use href="#fl-sl-r" fill="url(#fluff)"/>
+    <path d="M30 198 L62 210 L58 228 L25 216 Z" fill="#1E88E5" stroke="#0D47A1" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M270 198 L238 210 L242 228 L275 216 Z" fill="#1E88E5" stroke="#0D47A1" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <!-- 몸판 -->
+  <use href="#fl-body" fill="url(#fleeceGrad)" stroke="#0288D1" stroke-width="3" stroke-linejoin="round"/>
+  <use href="#fl-body" fill="none" stroke="#4FC3F7" stroke-width="11" stroke-dasharray="0 10" stroke-linecap="round"/>
+  <use href="#fl-body" fill="url(#fluff)"/>
+  <!-- 밑단 -->
+  <path d="M88 236 Q150 247 212 236 L212 254 Q150 266 88 254 Z" fill="#1E88E5" stroke="#0D47A1" stroke-width="3" stroke-linejoin="round"/>
+  <!-- 목 카라 -->
+  <path d="M120 62 L117 32 Q150 22 183 32 L180 62 Q150 82 120 62 Z" fill="#1E88E5" stroke="#0D47A1" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M119 46 Q150 37 181 46" fill="none" stroke="#64B5F6" stroke-width="3" stroke-linecap="round"/>
+  <!-- 지퍼 -->
+  <line x1="150" y1="28" x2="150" y2="258" stroke="#CFD8DC" stroke-width="8"/>
+  <line x1="150" y1="28" x2="150" y2="258" stroke="#78909C" stroke-width="8" stroke-dasharray="2 3"/>
+  <rect x="144.5" y="44" width="11" height="20" rx="4" fill="#ECEFF1" stroke="#455A64" stroke-width="2.5"/>
+  <circle cx="150" cy="58" r="2.2" fill="#455A64"/>
+  <!-- 가슴 지퍼 주머니 -->
+  <line x1="167" y1="120" x2="197" y2="113" stroke="#546E7A" stroke-width="5" stroke-dasharray="2 2"/>
+  <rect x="193" y="110" width="6" height="12" rx="2" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+  <!-- 손 주머니 -->
+  <path d="M102 192 Q115 212 108 232" fill="none" stroke="#0277BD" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M198 192 Q185 212 192 232" fill="none" stroke="#0277BD" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- 재활용 표시 -->
+  <circle cx="117" cy="120" r="16" fill="#43A047" stroke="#fff" stroke-width="3"/>
+  <text x="117" y="127" font-size="20" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="bold">♻</text>
+</svg>
+      </div>
+      <div class="fr-msg" id="fr-msg">모은 페트병이<br>포근한 <b>플리스 옷</b>이 되었어요!</div>
+      <div class="fr-steps"><span><img id="fr-bottle" alt="">페트병</span><span class="arrow">➜</span><span>🧶 실</span><span class="arrow">➜</span><span>🧥 플리스 옷</span></div>
+    </div>
+    <button id="home-btn" onclick="goHome()">🏠 처음으로</button>
+    <div id="status-msg"></div>
+
+    <div id="ui-layer">
+      <div id="screen-intro" class="active">
+        <div class="intro-icons">🌎 🗑️ ♻️ 🌳</div>
+        <h1 class="intro-title">지구지킴이 대작전!</h1>
+        <p class="intro-subtitle">
+          각 단계별로 40초 동안 진행돼요!<br>
+          많이 움직일수록 점수가 쑥쑥 올라갑니다!<br>
+          친구와 힘을 합쳐 최강 지구지킴이가 되어보세요!
+        </p>
+        <div class="intro-tip">📷 화면에서 2~3걸음 뒤로 물러나, 머리부터 허리까지 화면에 보이게 서 주세요!<br>🧒 지구지킴이 1은 왼쪽, 🧒 지구지킴이 2는 오른쪽에 서요.</div>
+
+        <div class="stage-cards">
+          <div class="card card-1">
+            <div class="card-title">🌊 1단계<br>바다 쓰레기 줍기</div>
+            <div class="card-desc">쓰레기를 손으로 주워서<br>바다를 깨끗하게 만들어요!</div>
+          </div>
+          <div class="card card-2">
+            <div class="card-title">♻️ 2단계<br>페트병 업사이클링</div>
+            <div class="card-desc">페트병을 손으로 잡고<br>빨간 선 너머 친구에게 밀어 전달해요!</div>
+          </div>
+          <div class="card card-3">
+            <div class="card-title">🌳 3단계<br>초록 숲 만들기</div>
+            <div class="card-desc">제자리에서 힘껏 점프!<br>점프할 때마다 나무가 쑥쑥 자라요!</div>
+          </div>
+        </div>
+        <button class="start-btn" onclick="requestFullscreenAndStart()">✨ 게임 시작하기!</button>
+      </div>
+
+      <div id="screen-explain" class="screen">
+        <h1 id="explain-title">단계 제목</h1>
+        <p id="explain-text">상세 게임 방법 설명</p>
+        <div id="explain-countdown">3초 뒤 시작!</div>
+      </div>
+
+      <div id="screen-outro">
+        <div id="outro-deco"></div>
+        <div class="outro-title">🎉 최강 지구지킴이 만세! 🎉</div>
+        <div class="outro-main">
+          <div class="earth-wrap">
+            <svg id="earth-svg" viewBox="-40 -45 280 285" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="ocean" cx="38%" cy="32%" r="75%">
+                  <stop offset="0%" stop-color="#81D4FA"/><stop offset="55%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#0277BD"/>
+                </radialGradient>
+                <radialGradient id="shine" cx="30%" cy="25%" r="40%">
+                  <stop offset="0%" stop-color="rgba(255,255,255,.65)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                </radialGradient>
+                <clipPath id="earthClip"><circle cx="100" cy="110" r="88"/></clipPath>
+              </defs>
+              <!-- 머리 위 새싹 -->
+              <g class="sprout">
+                <path d="M100 24 Q 97 6 100 -12" stroke="#43A047" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <path d="M100 -4 Q 78 -22 66 -6 Q 82 4 100 -4 Z" fill="#66BB6A" stroke="#2E7D32" stroke-width="3"/>
+                <path d="M100 -10 Q 124 -32 138 -14 Q 120 -2 100 -10 Z" fill="#81C784" stroke="#2E7D32" stroke-width="3"/>
+              </g>
+              <!-- 왼팔 -->
+              <path d="M18 128 Q -6 136 -18 158" stroke="#0277BD" stroke-width="12" fill="none" stroke-linecap="round"/>
+              <circle cx="-20" cy="162" r="13" fill="#FFE0B2" stroke="#0277BD" stroke-width="4"/>
+              <!-- 오른팔(손 흔들기) -->
+              <g class="arm-wave" style="transform-origin: 0% 100%;">
+                <path d="M182 120 Q 206 104 214 76" stroke="#0277BD" stroke-width="12" fill="none" stroke-linecap="round"/>
+                <circle cx="216" cy="70" r="13" fill="#FFE0B2" stroke="#0277BD" stroke-width="4"/>
+              </g>
+              <!-- 지구 몸 -->
+              <circle cx="100" cy="110" r="88" fill="url(#ocean)" stroke="#01579B" stroke-width="5"/>
+              <g clip-path="url(#earthClip)">
+                <path d="M30 60 Q 50 38 78 46 Q 92 56 82 72 Q 66 80 70 96 Q 56 108 40 100 Q 22 88 30 60 Z" fill="#66BB6A" stroke="#2E7D32" stroke-width="3"/>
+                <path d="M118 36 Q 150 30 170 54 Q 182 76 166 84 Q 150 78 142 92 Q 124 92 122 74 Q 106 62 118 36 Z" fill="#7CB342" stroke="#33691E" stroke-width="3"/>
+                <path d="M120 150 Q 150 140 168 160 Q 170 186 146 196 Q 124 200 116 182 Q 108 164 120 150 Z" fill="#66BB6A" stroke="#2E7D32" stroke-width="3"/>
+                <path d="M24 150 Q 44 142 58 156 Q 62 176 44 184 Q 22 180 24 150 Z" fill="#8BC34A" stroke="#33691E" stroke-width="3"/>
+                <ellipse cx="62" cy="34" rx="22" ry="8" fill="rgba(255,255,255,.75)"/>
+                <ellipse cx="160" cy="190" rx="26" ry="8" fill="rgba(255,255,255,.7)"/>
+              </g>
+              <circle cx="100" cy="110" r="86" fill="url(#shine)"/>
+              <!-- 얼굴 -->
+              <g class="eye"><ellipse cx="72" cy="104" rx="14" ry="17" fill="#fff" stroke="#263238" stroke-width="3"/><circle cx="74" cy="107" r="9" fill="#263238"/><circle cx="78" cy="102" r="3.5" fill="#fff"/></g>
+              <g class="eye"><ellipse cx="128" cy="104" rx="14" ry="17" fill="#fff" stroke="#263238" stroke-width="3"/><circle cx="130" cy="107" r="9" fill="#263238"/><circle cx="134" cy="102" r="3.5" fill="#fff"/></g>
+              <ellipse cx="50" cy="132" rx="12" ry="7" fill="rgba(255,120,170,.75)"/>
+              <ellipse cx="150" cy="132" rx="12" ry="7" fill="rgba(255,120,170,.75)"/>
+              <path id="mouth-smile" d="M80 136 Q 100 160 120 136" stroke="#3E2723" stroke-width="5" fill="none" stroke-linecap="round"/>
+              <g id="mouth-talk">
+                <ellipse cx="100" cy="146" rx="16" ry="14" fill="#5D1A1A" stroke="#3E2723" stroke-width="3"/>
+                <ellipse cx="100" cy="153" rx="9" ry="5" fill="#FF7B9C"/>
+              </g>
+            </svg>
+          </div>
+          <div class="speech-bubble"><div id="earth-speech"></div></div>
+        </div>
+        <div class="outro-bottom">
+          <div class="outro-score">🏆 최종 합동 점수: <span id="final-score">0</span>점</div>
+          <div class="outro-btns">
+            <button class="btn-listen" onclick="earthTalk()">🔊 지구 이야기 다시 듣기</button>
+            <button class="btn-again" onclick="location.reload()">🔄 처음부터 다시하기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* =========================================================
+     그림 자원
+     ========================================================= */
+  const petBottleSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+    <path d="M 40 10 L 60 10 L 60 20 L 40 20 Z" fill="#0288D1"/>
+    <path d="M 38 20 L 62 20 L 62 25 L 38 25 Z" fill="#0288D1"/>
+    <path d="M 42 25 L 58 25 L 65 40 L 35 40 Z" fill="rgba(179, 229, 252, 0.9)" stroke="#0288D1" stroke-width="2"/>
+    <path d="M 35 40 L 65 40 L 70 105 C 70 115, 65 118, 50 118 C 35 118, 30 115, 30 105 Z" fill="rgba(179, 229, 252, 0.7)" stroke="#0288D1" stroke-width="3"/>
+    <path d="M 32 60 L 68 60 L 69 85 L 31 85 Z" fill="#4CAF50"/>
+    <text x="50" y="78" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">ECO</text>
+    <path d="M 31 85 L 69 85 L 70 105 C 70 115, 65 118, 50 118 C 35 118, 30 115, 30 105 Z" fill="rgba(3, 169, 244, 0.6)"/>
+  </svg>`;
+  const petBottleImg = new Image();
+  petBottleImg.src = "data:image/svg+xml;utf8," + encodeURIComponent(petBottleSVG);
+
+  /* =========================================================
+     효과음
+     ========================================================= */
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx;
+  function initAudio() { try { if (!audioCtx && AudioCtx) audioCtx = new AudioCtx(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e) {} }
+  function playSound(type) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    if (type === 'catch') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+      gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+      osc.start(now); osc.stop(now + 0.2);
+    } else if (type === 'toss') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(392, now);
+      osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.1);
+      gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0, now + 0.15);
+      osc.start(now); osc.stop(now + 0.15);
+    } else if (type === 'tree') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now);
+      osc.frequency.linearRampToValueAtTime(880, now + 0.12);
+      osc.frequency.linearRampToValueAtTime(1320, now + 0.25);
+      gain.gain.setValueAtTime(0.45, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'transform') {
+      osc.type = 'square'; osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.4);
+      gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.6);
+      osc.start(now); osc.stop(now + 0.6);
+    }
+  }
+
+  /* =========================================================
+     기본 상태
+     ========================================================= */
+  const videoElement = document.querySelector('.input_video');
+  const canvasElement = document.getElementById('game-canvas');
+  const canvasCtx = canvasElement.getContext('2d');
+
+  let gameState = 'intro';
+  let p1Score = 0, p2Score = 0;
+  let particles = [];
+  let currentStageTimer = null;
+
+  const PCOL = ['#2196F3', '#E91E63'];
+  const PNAME = ['🧒 지구지킴이 1', '🧒 지구지킴이 2'];
+
+  function resizeCanvas() { canvasElement.width = canvasElement.parentElement.clientWidth; canvasElement.height = canvasElement.parentElement.clientHeight; }
+  window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+  /* =========================================================
+     동작 인식: MediaPipe Pose Landmarker (전신, 최대 2명 동시)
+     - 손만 보는 Hands 모델은 아이가 2~3m 떨어지면 손이 너무 작아 인식을 못 합니다.
+     - 전신 모델로 두 사람의 몸 전체를 찾고, 그 안에서 손 위치·점프를 계산합니다.
+     ========================================================= */
+  const TV_VER = '0.10.14';
+  const VISION_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TV_VER}/vision_bundle.mjs`;
+  const WASM_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TV_VER}/wasm`;
+  const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+
+  let visionLib = null, visionFileset = null, poseLandmarker = null, poseDelegate = '', modelError = null;
+  let lastVideoTime = -1, lastTs = 0, detectErrors = 0, switchingDelegate = false;
+
+  function poseOptions(delegate) {
+    return {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate },
+      runningMode: 'VIDEO', numPoses: 2,
+      minPoseDetectionConfidence: 0.4, minPosePresenceConfidence: 0.4, minTrackingConfidence: 0.4
+    };
+  }
+  async function createLandmarker(delegate) {
+    const lm = await visionLib.PoseLandmarker.createFromOptions(visionFileset, poseOptions(delegate));
+    poseDelegate = delegate;
+    return lm;
+  }
+  async function loadPoseModel() {
+    visionLib = await import(VISION_URL);
+    visionFileset = await visionLib.FilesetResolver.forVisionTasks(WASM_URL);
+    try { poseLandmarker = await createLandmarker('GPU'); }
+    catch (e) { console.warn('GPU 사용 불가 → CPU로 실행합니다.', e); poseLandmarker = await createLandmarker('CPU'); }
+  }
+  // 페이지가 열리자마자 모델을 미리 받아 둡니다(시작 버튼을 누를 때 기다리는 시간 단축).
+  const modelPromise = loadPoseModel().catch(e => { modelError = e; console.error('동작 인식 모델 로드 실패', e); });
+
+  async function switchToCPU() {
+    if (switchingDelegate || poseDelegate === 'CPU' || !visionLib) return;
+    switchingDelegate = true;
+    try { const old = poseLandmarker; poseLandmarker = null; try { old && old.close(); } catch(e) {} poseLandmarker = await createLandmarker('CPU'); detectErrors = 0; }
+    catch (e) { console.error('CPU 전환 실패', e); }
+    switchingDelegate = false;
+  }
+
+  // 카메라 영상을 화면에 '꽉 차게(비율 유지)' 그릴 때의 위치 정보
+  function getVideoTransform(w, h) {
+    const vw = videoElement.videoWidth || 640, vh = videoElement.videoHeight || 480;
+    const s = Math.max(w / vw, h / vh);
+    const dw = vw * s, dh = vh * s;
+    return { ox: (w - dw) / 2, oy: (h - dh) / 2, dw, dh };
+  }
+
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+  function makePlayer(i) {
+    return { id: i, present: false, lastSeen: -99999, cx: i === 0 ? 0.25 : 0.75, pts: null, head: null,
+             hands: [], handMap: {}, jumpEvent: false, lastPlant: 0,
+             jump: { base: null, scale: null, airborne: false, airStart: 0, last: 0, mode: null, votes: 0, rise: 0 } };
+  }
+  const players = [makePlayer(0), makePlayer(1)];
+
+  function runDetection() {
+    if (!poseLandmarker || switchingDelegate || videoElement.readyState < 2) return;
+    if (videoElement.currentTime === lastVideoTime) return;
+    lastVideoTime = videoElement.currentTime;
+    let ts = performance.now(); if (ts <= lastTs) ts = lastTs + 1; lastTs = ts;
+    try {
+      const res = poseLandmarker.detectForVideo(videoElement, ts);
+      detectErrors = 0;
+      processPoses((res && res.landmarks) || [], ts);
+    } catch (e) {
+      detectErrors++; if (detectErrors < 4) console.warn('동작 인식 오류', e);
+      if (detectErrors > 8) switchToCPU();
+    }
+  }
+
+  function toCandidate(lm, w, tf) {
+    if (!lm || lm.length < 25) return null;
+    const hasVis = lm.some(p => (p.visibility || 0) > 0);
+    // 거울 모드: 화면 왼쪽 = 아이의 오른쪽
+    const pts = lm.map(p => ({ x: w - (tf.ox + p.x * tf.dw), y: tf.oy + p.y * tf.dh, v: hasVis ? (p.visibility || 0) : 1, ny: p.y }));
+    const shOK = pts[11].v > 0.3 && pts[12].v > 0.3;
+    const c = shOK ? mid(pts[11], pts[12]) : pts[0];
+    return { pts, cx: c.x };
+  }
+
+  function processPoses(list, now) {
+    const w = canvasElement.width, tf = getVideoTransform(w, canvasElement.height);
+    const cands = list.map(lm => toCandidate(lm, w, tf)).filter(Boolean).sort((a, b) => a.cx - b.cx);
+    const assigned = [null, null];
+    if (cands.length >= 2) { assigned[0] = cands[0]; assigned[1] = cands[cands.length - 1]; }
+    else if (cands.length === 1) {
+      const c = cands[0];
+      const recent = players.map(p => now - p.lastSeen < 1500);
+      let idx = c.cx < w / 2 ? 0 : 1;               // 기본: 화면 왼쪽 = 1번, 오른쪽 = 2번
+      if (recent[0] && recent[1]) idx = Math.abs(players[0].cx - c.cx) <= Math.abs(players[1].cx - c.cx) ? 0 : 1;
+      else if (recent[0] !== recent[1]) { const r = recent[0] ? 0 : 1; if (Math.abs(players[r].cx - c.cx) < w * 0.22) idx = r; }
+      assigned[idx] = c;
+    }
+    players.forEach((p, i) => { if (assigned[i]) updatePlayer(p, assigned[i], now); });
+  }
+
+  function updatePlayer(p, c, now) {
+    const pts = c.pts;
+    p.present = true; p.lastSeen = now; p.cx = c.cx; p.pts = pts;
+    const headTarget = pts[0].v > 0.3 ? { x: pts[0].x, y: pts[0].y } : mid(pts[11], pts[12]);
+    p.head = p.head ? { x: p.head.x + (headTarget.x - p.head.x) * 0.4, y: p.head.y + (headTarget.y - p.head.y) * 0.4 } : headTarget;
+
+    // 손바닥 위치 = 손목과 손가락 마디(검지·새끼) 사이
+    const hands = [];
+    [['L', 15, 17, 19], ['R', 16, 18, 20]].forEach(([k, wr, pk, ix]) => {
+      if (pts[wr].v < 0.35) { delete p.handMap[k]; return; }
+      const knuckle = mid(pts[pk], pts[ix]);
+      const target = { x: pts[wr].x * 0.4 + knuckle.x * 0.6, y: pts[wr].y * 0.4 + knuckle.y * 0.6 };
+      const prev = p.handMap[k];
+      const hp = prev ? { x: prev.x + (target.x - prev.x) * 0.65, y: prev.y + (target.y - prev.y) * 0.65, k } : { ...target, k };
+      p.handMap[k] = hp; hands.push(hp);
+    });
+    p.hands = hands;
+    updateJump(p, pts, now);
+  }
+
+  function updatePresence(now) {
+    players.forEach(p => { if (p.present && now - p.lastSeen > 350) { p.present = false; p.hands = []; p.handMap = {}; } });
+  }
+
+  /* 점프 판정: 몸통(어깨~골반) 중심이 평소 높이보다 순간적으로 올라가면 '점프!' */
+  const JUMP_UP = 0.10, JUMP_DOWN = 0.04;
+  function updateJump(p, pts, now) {
+    const J = p.jump;
+    const sm = mid(pts[11], pts[12]);
+    const sw = dist(pts[11], pts[12]);
+    const hipsOK = pts[23].v > 0.55 && pts[24].v > 0.55 && pts[23].ny < 0.97 && pts[24].ny < 0.97;
+    const wanted = hipsOK ? 'hip' : 'sh';
+    if (J.mode !== wanted) {
+      J.votes++;
+      if (J.mode === null || J.votes > 12) { J.mode = wanted; J.votes = 0; J.base = null; J.airborne = false; }
+    } else J.votes = 0;
+
+    let y, scale;
+    if (J.mode === 'hip') { const hm = mid(pts[23], pts[24]); y = (sm.y + hm.y) / 2; scale = Math.max(40, dist(sm, hm)); }
+    else { y = sm.y; scale = Math.max(30, sw * 1.3); }
+
+    if (J.base === null) { J.base = y; J.scale = scale; J.rise = 0; return; }
+    J.scale += (scale - J.scale) * 0.08;
+    const rise = (J.base - y) / J.scale;
+    J.rise = rise;
+
+    if (!J.airborne) {
+      if (rise > JUMP_UP && now - J.last > 260) {
+        J.airborne = true; J.airStart = now; J.last = now; p.jumpEvent = true;   // 뛰어오르는 순간 바로 반응
+      } else {
+        // 평소 높이(기준선)를 천천히 따라갑니다. 웅크리면(아래로) 빠르게, 위로는 느리게.
+        const k = y > J.base ? 0.2 : (rise < JUMP_UP * 0.5 ? 0.04 : 0.01);
+        J.base += (y - J.base) * k;
+      }
+    } else {
+      if (rise < JUMP_DOWN) J.airborne = false;                         // 착지
+      else if (now - J.airStart > 1300) { J.airborne = false; J.base = y; } // 까치발·이동 등은 기준선 재설정
+    }
+  }
+
+  /* =========================================================
+     게임 진행
+     ========================================================= */
+  function requestFullscreenAndStart() {
+    initAudio();
+    const container = document.getElementById('game-container');
+    try {
+      if (container.requestFullscreen) container.requestFullscreen().catch(() => {});
+      else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+    } catch(e) {}
+    document.getElementById('screen-intro').classList.remove('active');
+    startMappingPhase();
+  }
+
+  let sessionId = 0, explainTimer = null, transformTimeout = null, renderLoopOn = false;
+  function startRenderLoop() { if (!renderLoopOn) { renderLoopOn = true; requestAnimationFrame(renderGame); } }
+
+  function goHome() {
+    sessionId++;
+    [currentStageTimer, explainTimer, stage1Interval].forEach(t => t && clearInterval(t));
+    if (transformTimeout) clearTimeout(transformTimeout);
+    currentStageTimer = explainTimer = transformTimeout = null;
+    gameState = 'intro';
+    p1Score = 0; p2Score = 0; addScore(1, 0);
+    particles = []; trashes = []; stage2Stack = []; isTransforming = false; forestLevel = 0;
+    ['score-board', 'top-guide-bar', 'status-msg', 'home-btn'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.getElementById('screen-explain').classList.remove('active');
+    document.getElementById('fleece-reveal').classList.remove('show');
+    document.getElementById('screen-intro').classList.add('active');
+  }
+
+  function showError(html) {
+    const msgBox = document.getElementById('status-msg');
+    msgBox.style.display = 'block'; msgBox.style.animation = 'none';
+    msgBox.innerHTML = html + '<br><button onclick="location.reload()">🔄 다시 시도</button>';
+  }
+
+  async function startMappingPhase() {
+    const my = ++sessionId;
+    gameState = 'loading';
+    document.getElementById('home-btn').style.display = 'block';
+    const msgBox = document.getElementById('status-msg');
+    msgBox.style.display = 'block';
+    msgBox.innerHTML = '📷 카메라를 켜고 있어요!';
+    const camLive = videoElement.srcObject && videoElement.srcObject.getTracks().some(t => t.readyState === 'live');
+    if (!camLive) try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('카메라 사용을 지원하지 않는 환경입니다. 크롬(Chrome) 또는 엣지(Edge)에서 열어 주세요.');
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      videoElement.srcObject = stream;
+      await videoElement.play();
+    } catch (error) {
+      console.error(error);
+      showError('📷 카메라를 사용할 수 없어요.<br><span style="font-size:1.3rem">' + String(error.message || error).replace(/[<>]/g, '') + '<br>카메라 권한(주소창 왼쪽 자물쇠 아이콘)을 허용해 주세요.</span>');
+      return;
+    }
+    if (my !== sessionId) return;
+
+    startRenderLoop();
+    if (!poseLandmarker) {
+      msgBox.innerHTML = '🤖 동작 인식을 준비하고 있어요...<br><span style="font-size:1.5rem">처음에는 10초 정도 걸릴 수 있어요.</span>';
+      await modelPromise;
+    }
+    if (my !== sessionId) return;
+    if (!poseLandmarker) {
+      showError('🤖 동작 인식 프로그램을 불러오지 못했어요.<br><span style="font-size:1.3rem">인터넷 연결을 확인해 주세요.<br>' + String((modelError && modelError.message) || '').replace(/[<>]/g, '') + '</span>');
+      return;
+    }
+    msgBox.style.display = 'none';
+    document.getElementById('score-board').style.display = 'flex';
+    triggerExplanation(1);
+  }
+
+  function startStageTimer(duration, onTick, onComplete) {
+    if (currentStageTimer) clearInterval(currentStageTimer);
+    let timeLeft = duration;
+    onTick(timeLeft);
+    currentStageTimer = setInterval(() => {
+      timeLeft--; onTick(timeLeft);
+      if (timeLeft <= 0) { clearInterval(currentStageTimer); onComplete(); }
+    }, 1000);
+  }
+
+  function triggerExplanation(stage) {
+    gameState = 'explain';
+    document.getElementById('top-guide-bar').style.display = 'none';
+    particles = []; trashes = [];
+    const overlay = document.getElementById('screen-explain');
+    const title = document.getElementById('explain-title');
+    const text = document.getElementById('explain-text');
+    const countdown = document.getElementById('explain-countdown');
+
+    if (stage === 1) {
+      title.innerText = "🌊 1단계: 바다 쓰레기 줍기";
+      text.innerHTML = "바다에 쓰레기가 둥둥 떠다녀요!<br><br>화면 속 내 손(✋)으로<br>쓰레기를 꽉! 잡아서 주워요!<br><br>40초 동안 최대한 많이 치워봐요!";
+    } else if (stage === 2) {
+      title.innerText = "♻️ 2단계: 페트병 업사이클링";
+      text.innerHTML = "내 쪽에 있는 페트병을 손(✋)으로 잡아요!<br><br>잡은 채로 빨간 선 쪽으로 쭉 밀면<br>페트병이 친구에게 넘어가요!<br><br>전달할 때마다 가운데에 페트병이 하나씩 쌓여요!<br>다 모은 페트병은 무엇으로 변신할까요?";
+    } else if (stage === 3) {
+      title.innerText = "🌳 3단계: 초록 숲 만들기";
+      text.innerHTML = "화면 아래 멋진 잔디밭이 생겼어요!<br><br>제자리에서 힘껏 점프하면<br>점프 1번에 나무가 1그루씩 자라요!<br><br>40초 동안 숲을 가득 채워봐요!";
+    }
+
+    overlay.classList.add('active');
+    let count = 3; countdown.innerText = `준비... ${count}초!`;
+    if (explainTimer) clearInterval(explainTimer);
+    explainTimer = setInterval(() => {
+      count--;
+      if (count > 0) { countdown.innerText = `준비... ${count}초!`; }
+      else {
+        clearInterval(explainTimer); explainTimer = null; overlay.classList.remove('active');
+        if (stage === 1) initStage1(); else if (stage === 2) initStage2(); else if (stage === 3) initStage3();
+      }
+    }, 1000);
+  }
+
+  function setGuide(html) {
+    const bar = document.getElementById('top-guide-bar');
+    bar.innerHTML = html; bar.style.display = 'block';
+  }
+
+  /* ---------------- 1단계 ---------------- */
+  let trashes = []; let stage1Interval; let oceanEntities = { bubbles: [], fishes: [], time: 0 };
+  const trashKinds = ['bottle', 'can', 'cup', 'bag', 'wrapper', 'carton'];
+  let trashSpawnSide = 0;
+  let lastTrashCatch = [0, 0];
+  let trashCount = 0;
+
+  function initStage1() {
+    gameState = 'stage1'; trashes = []; trashCount = 0; clearInterval(stage1Interval);
+    oceanEntities = { bubbles: [], fishes: [], time: 0 };
+    for (let i = 0; i < 15; i++) oceanEntities.bubbles.push({ x: Math.random(), y: Math.random(), size: Math.random() * 20 + 10, speed: Math.random() * 0.005 + 0.002 });
+    for (let i = 0; i < 6; i++) oceanEntities.fishes.push({ x: Math.random(), y: Math.random() * 0.5 + 0.2, emoji: ['🐠', '🐟', '🐡', '🐬'][Math.floor(Math.random() * 4)], speed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1) });
+
+    stage1Interval = setInterval(() => { if (gameState === 'stage1' && trashes.length < 8) spawnTrash(); }, 600);
+    for (let i = 0; i < 6; i++) spawnTrash();
+
+    startStageTimer(40,
+      (timeLeft) => setGuide(`🌊 손(✋)으로 쓰레기를 주워요!<span class="timer-text">⏱ ${timeLeft}초</span>`),
+      () => { clearInterval(stage1Interval); trashes = []; triggerExplanation(2); }
+    );
+  }
+
+  function spawnTrash() {
+    if (trashes.length >= 8) return;
+    const side = trashSpawnSide++ % 2;   // 양쪽 구역에 번갈아 생성
+    trashes.push({ x: (side === 0 ? 0.07 : 0.57) + Math.random() * 0.36, y: 0.26 + Math.random() * 0.46,
+      kind: trashKinds[Math.floor(Math.random() * trashKinds.length)], angle: (Math.random() - 0.5) * 0.7, born: performance.now() });
+  }
+
+  function renderStage1Logic(w, h) {
+    oceanEntities.time++;
+    canvasCtx.fillStyle = 'rgba(0, 119, 190, 0.40)'; canvasCtx.fillRect(0, 0, w, h);
+    canvasCtx.fillStyle = 'rgba(210, 180, 140, 0.9)';
+    canvasCtx.beginPath(); canvasCtx.moveTo(0, h); canvasCtx.lineTo(0, h - 80); canvasCtx.quadraticCurveTo(w / 2, h - 140, w, h - 80); canvasCtx.lineTo(w, h); canvasCtx.fill();
+
+    canvasCtx.font = "60px Jua"; canvasCtx.textAlign = "center"; canvasCtx.textBaseline = "bottom";
+    canvasCtx.fillText("🌿", w * 0.1, h); canvasCtx.fillText("🪸", w * 0.25, h + 10);
+    canvasCtx.fillText("🌿", w * 0.8, h); canvasCtx.fillText("🪸", w * 0.9, h + 10);
+
+    oceanEntities.fishes.forEach(f => {
+      f.x += f.speed; if (f.x > 1.1) f.x = -0.1; if (f.x < -0.1) f.x = 1.1;
+      canvasCtx.font = "50px Jua"; canvasCtx.textAlign = "center"; canvasCtx.textBaseline = "middle";
+      canvasCtx.save();
+      if (f.speed < 0) { canvasCtx.translate(f.x * w, f.y * h); canvasCtx.scale(-1, 1); canvasCtx.fillText(f.emoji, 0, 0); }
+      else { canvasCtx.fillText(f.emoji, f.x * w, f.y * h + Math.sin(oceanEntities.time / 20) * 10); }
+      canvasCtx.restore();
+    });
+
+    canvasCtx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    oceanEntities.bubbles.forEach(b => {
+      b.y -= b.speed; if (b.y < 0) { b.y = 1; b.x = Math.random(); }
+      canvasCtx.beginPath(); canvasCtx.arc(b.x * w + Math.sin(oceanEntities.time / 10 + b.x) * 5, b.y * h, b.size, 0, Math.PI * 2); canvasCtx.fill();
+    });
+
+    const size = Math.min(110, Math.max(70, w * 0.075));
+    const hitR = size * 0.55 + handRadius(w, h);
+    const now = performance.now();
+
+    for (let i = trashes.length - 1; i >= 0; i--) {
+      const t = trashes[i]; const tx = t.x * w; const ty = t.y * h + Math.sin(oceanEntities.time / 15 + i) * 12;
+      const pop = Math.min(1, (now - t.born) / 250);
+      drawTrash(canvasCtx, t.kind, tx, ty, size * pop, t.angle);
+
+      // 각 아이의 손(✋)으로 쓰레기를 잡으면 그 아이가 획득
+      let winner = -1, best = Infinity;
+      players.forEach((p, pi) => {
+        if (!p.present || now - lastTrashCatch[pi] < 120) return;
+        p.hands.forEach(hd => { const d = Math.hypot(tx - hd.x, ty - hd.y); if (d < hitR && d < best) { best = d; winner = pi; } });
+      });
+      if (winner >= 0) {
+        lastTrashCatch[winner] = now; createParticle(tx / w, ty / h, '✊'); createParticle(tx / w + 0.03, ty / h - 0.03, '✨'); playSound('catch');
+        addScore(winner + 1, 10); trashes.splice(i, 1); trashCount++;
+      }
+    }
+  }
+
+  function drawTrash(ctx, kind, x, y, size, angle) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.lineWidth = 3; ctx.strokeStyle = '#334155';
+    const grad = ctx.createLinearGradient(-size / 2, 0, size / 2, 0);
+    if (kind === 'bottle') {
+      grad.addColorStop(0, '#6fc8df'); grad.addColorStop(.35, '#d9f6fc'); grad.addColorStop(1, '#60b5d0'); ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.moveTo(-size * .22, -size * .36); ctx.lineTo(-size * .13, -size * .46); ctx.lineTo(-size * .13, -size * .57); ctx.lineTo(size * .13, -size * .57); ctx.lineTo(size * .13, -size * .46); ctx.lineTo(size * .22, -size * .36); ctx.lineTo(size * .25, size * .48); ctx.quadraticCurveTo(0, size * .57, -size * .25, size * .48); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#1378c9'; ctx.fillRect(-size * .16, -size * .62, size * .32, size * .09); ctx.fillStyle = '#37a56b'; ctx.fillRect(-size * .23, -size * .05, size * .46, size * .24); ctx.fillStyle = 'white'; ctx.font = `bold ${size * .13}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('PET', 0, size * .11);
+    } else if (kind === 'can') {
+      grad.addColorStop(0, '#777'); grad.addColorStop(.4, '#f1f5f9'); grad.addColorStop(1, '#8794a4'); ctx.fillStyle = grad; ctx.fillRect(-size * .3, -size * .45, size * .6, size * .9); ctx.strokeRect(-size * .3, -size * .45, size * .6, size * .9); ctx.fillStyle = '#d44e42'; ctx.fillRect(-size * .28, -size * .3, size * .56, size * .62); ctx.fillStyle = '#e5e7eb'; ctx.beginPath(); ctx.ellipse(0, -size * .45, size * .3, size * .08, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'white'; ctx.font = `bold ${size * .17}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('CAN', 0, size * .1);
+    } else if (kind === 'cup') {
+      ctx.fillStyle = '#f2e5ce'; ctx.beginPath(); ctx.moveTo(-size * .36, -size * .3); ctx.lineTo(size * .36, -size * .3); ctx.lineTo(size * .23, size * .46); ctx.lineTo(-size * .23, size * .46); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(-size * .4, -size * .36, size * .8, size * .12); ctx.strokeRect(-size * .4, -size * .36, size * .8, size * .12); ctx.strokeStyle = '#c86b49'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(size * .12, -size * .35); ctx.lineTo(size * .31, -size * .69); ctx.stroke();
+    } else if (kind === 'bag') {
+      ctx.fillStyle = 'rgba(242,245,250,.87)'; ctx.beginPath(); ctx.moveTo(-size * .38, -size * .25); ctx.lineTo(-size * .48, size * .4); ctx.quadraticCurveTo(0, size * .56, size * .48, size * .4); ctx.lineTo(size * .38, -size * .25); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-size * .25, -size * .2); ctx.quadraticCurveTo(-size * .25, -size * .65, 0, -size * .43); ctx.quadraticCurveTo(size * .25, -size * .65, size * .25, -size * .2); ctx.stroke(); ctx.fillStyle = '#74b6dd'; ctx.fillRect(-size * .25, size * .08, size * .5, size * .12);
+    } else if (kind === 'carton') {
+      ctx.fillStyle = '#e6d6ac'; ctx.beginPath(); ctx.moveTo(-size * .3, -size * .35); ctx.lineTo(0, -size * .58); ctx.lineTo(size * .3, -size * .35); ctx.lineTo(size * .3, size * .45); ctx.lineTo(-size * .3, size * .45); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#7bcae8'; ctx.fillRect(-size * .28, -size * .15, size * .56, size * .4); ctx.fillStyle = '#fff'; ctx.font = `bold ${size * .13}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('MILK', 0, size * .1);
+    } else {
+      ctx.fillStyle = '#eab64b'; ctx.beginPath(); ctx.moveTo(-size * .44, -size * .25); ctx.lineTo(-size * .3, -size * .4); ctx.lineTo(size * .35, -size * .3); ctx.lineTo(size * .45, size * .32); ctx.lineTo(-size * .38, size * .4); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#d75a44'; ctx.fillRect(-size * .3, -size * .12, size * .6, size * .25); ctx.fillStyle = 'white'; ctx.font = `bold ${size * .12}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('SNACK', 0, size * .05);
+    }
+    ctx.restore();
+  }
+
+  /* ---------------- 2단계 ---------------- */
+  let stage2TossCount = 0, stage2Holder = 1, stage2State = 'idle';
+  let stage2Item = { x: 0, y: 0 };
+  let isTransforming = false;
+  let stage2Stack = [];
+  let stage2AnchorX = 0, stage2Ctrl = null, stage2LastSeen = 0, stage2FlightStart = 0, stage2Cooldown = 0;
+  const PUSH_GAIN = 3.0;   // 손을 조금만 밀어도 페트병이 더 크게 움직이도록
+
+  function initStage2() {
+    gameState = 'stage2'; stage2TossCount = 0; stage2Stack = []; stage2Holder = 1; stage2State = 'idle'; isTransforming = false;
+    stage2LastSeen = 0; stage2Cooldown = 0;
+    stage2Item.x = canvasElement.width * 0.25;
+    stage2Item.y = canvasElement.height * 0.55;
+
+    startStageTimer(40,
+      (timeLeft) => setGuide(`♻️ 페트병을 잡고 빨간 선 너머로 밀어요!<span class="timer-text">⏱ ${timeLeft}초</span>`),
+      () => {
+        // 1) 쌓인 페트병이 가운데로 모여요 → 2) 펑! 플리스 옷으로 변신
+        isTransforming = true; transformStart = performance.now(); transformBurst = false; playSound('toss');
+        document.getElementById('top-guide-bar').style.display = 'none';
+        transformTimeout = setTimeout(showFleece, 1100);
+      }
+    );
+  }
+
+  function holderControl(hands, ref, radius) {
+    const near = hands.filter(hd => dist(hd, ref) < radius);
+    if (!near.length) return null;
+    return { x: near.reduce((a, b) => a + b.x, 0) / near.length, y: near.reduce((a, b) => a + b.y, 0) / near.length, n: near.length };
+  }
+
+  function renderStage2Logic(w, h) {
+    canvasCtx.fillStyle = 'rgba(210,234,255,.25)'; canvasCtx.fillRect(0, 0, w / 2, h);
+    canvasCtx.fillStyle = 'rgba(255,219,233,.25)'; canvasCtx.fillRect(w / 2, 0, w / 2, h);
+    canvasCtx.strokeStyle = '#ff4738'; canvasCtx.lineWidth = 9;
+    canvasCtx.beginPath(); canvasCtx.moveTo(w / 2, 0); canvasCtx.lineTo(w / 2, h); canvasCtx.stroke();
+    const now = performance.now();
+    if (isTransforming) { drawGatherAnimation(w, h, now); return; }
+
+    const homeX = stage2Holder === 1 ? w * 0.25 : w * 0.75, homeY = h * 0.55;
+    const dir = stage2Holder === 1 ? 1 : -1;
+    const bw = Math.min(200, Math.max(120, w * 0.15)), bh = bw * 1.2;
+    const holder = players[stage2Holder - 1];
+    const hands = holder.present ? holder.hands : [];
+    const grabR = bw * 0.55 + handRadius(w, h) + 20;
+
+    if (stage2State === 'idle') {
+      stage2Item.x += (homeX - stage2Item.x) * 0.25; stage2Item.y += (homeY - stage2Item.y) * 0.25;
+      if (now > stage2Cooldown) {
+        const ctrl = holderControl(hands, stage2Item, grabR);
+        if (ctrl) { stage2State = 'holding'; stage2AnchorX = ctrl.x; stage2Ctrl = ctrl; stage2LastSeen = now; playSound('catch'); }
+      }
+    } else if (stage2State === 'holding') {
+      // 병을 잡은 아이의 손 중 병 근처에 있는 손을 따라갑니다(한 손·두 손 모두 가능).
+      const ctrl = holderControl(hands, stage2Ctrl || stage2Item, Math.max(grabR * 1.5, w * 0.16));
+      if (ctrl) {
+        stage2LastSeen = now; stage2Ctrl = ctrl;
+        let push = (ctrl.x - stage2AnchorX) * dir;
+        if (push < 0) { stage2AnchorX = ctrl.x; push = 0; }   // 뒤로 빼면 그 자리에서 다시 밀기 시작
+        const targetX = homeX + dir * push * PUSH_GAIN;
+        stage2Item.x += (targetX - stage2Item.x) * 0.5;
+        const ty = Math.max(h * 0.28, Math.min(h * 0.8, ctrl.y));
+        stage2Item.y += (ty - stage2Item.y) * 0.25;
+        if (dir * (stage2Item.x - w / 2) > bw * 0.15) startFlight();
+      } else if (now - stage2LastSeen > 700) { stage2State = 'idle'; stage2Ctrl = null; }
+    } else if (stage2State === 'flying') {
+      const dest = stage2Holder === 1 ? w * 0.75 : w * 0.25;
+      stage2Item.x += (dest - stage2Item.x) * 0.18;
+      stage2Item.y += (homeY - stage2Item.y) * 0.18;
+      if (Math.abs(stage2Item.x - dest) < 12 || now - stage2FlightStart > 1200) {
+        stage2Holder = stage2Holder === 1 ? 2 : 1; stage2Item.x = dest; stage2Item.y = homeY;
+        stage2State = 'idle'; stage2Cooldown = now + 500;
+        stage2TossCount++; addScore(1, 20); addScore(2, 20);
+        stage2Stack.push({ born: now, fx: w / 2, fy: h * 0.18 });   // 가운데로 한 개 쌓기
+        createParticle(dest / w, homeY / h - 0.1, '🎉');
+      }
+    }
+
+    // 페트병 + 안내
+    const curHolderIdx = stage2Holder - 1;
+    if (stage2State !== 'flying') {
+      canvasCtx.save();
+      canvasCtx.strokeStyle = stage2State === 'holding' ? '#00ff98' : PCOL[curHolderIdx];
+      canvasCtx.lineWidth = 8; canvasCtx.setLineDash(stage2State === 'holding' ? [14, 8] : [4, 10]);
+      canvasCtx.globalAlpha = stage2State === 'holding' ? 1 : 0.6 + 0.4 * Math.sin(now / 200);
+      canvasCtx.beginPath(); canvasCtx.ellipse(stage2Item.x, stage2Item.y, bw * 0.68, bh * 0.6, 0, 0, Math.PI * 2); canvasCtx.stroke();
+      canvasCtx.restore();
+    }
+    if (petBottleImg.complete && petBottleImg.naturalWidth) canvasCtx.drawImage(petBottleImg, stage2Item.x - bw / 2, stage2Item.y - bh / 2, bw, bh);
+
+    if (stage2State === 'holding') {   // 빨간 선 쪽 화살표
+      canvasCtx.save(); canvasCtx.font = '70px Jua'; canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle';
+      const ax = stage2Item.x + dir * (bw * 0.75 + 20 + 15 * Math.sin(now / 120));
+      canvasCtx.fillText(dir > 0 ? '👉' : '👈', ax, stage2Item.y);
+      canvasCtx.restore();
+    }
+
+    drawBottleStack(w, h, now);
+  }
+
+  /* 전달할 때마다 가운데에 페트병이 한 개씩 쌓입니다 (피라미드 모양) */
+  const STACK_BASE = 7;   // 맨 아랫줄 7개 → 최대 28개까지 쌓임
+  function stackSlot(i, w, h) {
+    const sb = Math.min(110, Math.max(66, w * 0.055)), sh = sb * 1.2, rowH = sh * 0.86, step = sb * 0.72;
+    const bottom = h - 76;
+    let row = 0, idx = i;
+    while (idx >= STACK_BASE - row && row < STACK_BASE - 1) { idx -= STACK_BASE - row; row++; }
+    const n = STACK_BASE - row;
+    return { x: w / 2 + (idx - (n - 1) / 2) * step, y: bottom - sh / 2 - row * rowH, sb, sh, row, step };
+  }
+  function drawBottleStack(w, h, now) {
+    const maxShown = STACK_BASE * (STACK_BASE + 1) / 2;
+    const count = stage2Stack.length;
+    const s0 = stackSlot(0, w, h);
+    // 받침대
+    const baseW = Math.max(STACK_BASE * s0.step + 40, 380);
+    canvasCtx.save();
+    canvasCtx.fillStyle = '#2E7D32'; canvasCtx.strokeStyle = '#fff'; canvasCtx.lineWidth = 4;
+    canvasCtx.beginPath(); canvasCtx.roundRect ? canvasCtx.roundRect(w / 2 - baseW / 2, h - 72, baseW, 58, 18) : canvasCtx.rect(w / 2 - baseW / 2, h - 72, baseW, 58);
+    canvasCtx.fill(); canvasCtx.stroke();
+    canvasCtx.font = 'bold 32px Jua'; canvasCtx.fillStyle = '#fff'; canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle';
+    canvasCtx.fillText(`♻️ 모은 페트병 ${count}개`, w / 2, h - 43);
+    canvasCtx.restore();
+    if (!(petBottleImg.complete && petBottleImg.naturalWidth)) return;
+    for (let i = 0; i < Math.min(count, maxShown); i++) {
+      const slot = stackSlot(i, w, h), it = stage2Stack[i];
+      const t = Math.min(1, (now - it.born) / 550);
+      // 위에서 툭 떨어져 쌓이는 움직임 (살짝 튕김)
+      const ease = t < 1 ? 1 - Math.pow(1 - t, 3) : 1;
+      const x = it.fx + (slot.x - it.fx) * ease;
+      const y = it.fy + (slot.y - it.fy) * ease;
+      const sc = t < 1 ? 1 + 0.25 * Math.sin(t * Math.PI) : 1;
+      canvasCtx.drawImage(petBottleImg, x - slot.sb * sc / 2, y - slot.sh * sc / 2, slot.sb * sc, slot.sh * sc);
+      if (t < 1 && t > 0.85) createParticle(slot.x / w, slot.y / h, '✨');
+    }
+    if (count > maxShown) {
+      const top = stackSlot(maxShown - 1, w, h);
+      canvasCtx.save(); canvasCtx.font = 'bold 34px Jua'; canvasCtx.textAlign = 'center'; canvasCtx.fillStyle = '#FFEB3B';
+      canvasCtx.strokeStyle = '#000'; canvasCtx.lineWidth = 6;
+      canvasCtx.strokeText(`+${count - maxShown}`, w / 2, top.y - top.sh); canvasCtx.fillText(`+${count - maxShown}`, w / 2, top.y - top.sh);
+      canvasCtx.restore();
+    }
+  }
+  let transformStart = 0, transformBurst = false;
+  function showFleece() {
+    playSound('transform');
+    const n = stage2TossCount;
+    document.getElementById('fr-msg').innerHTML = n > 0
+      ? `모은 페트병 <b>${n}개</b>가<br>포근한 <b>플리스 옷</b>이 되었어요!`
+      : '페트병이<br>포근한 <b>플리스 옷</b>이 되었어요!';
+    document.getElementById('fr-bottle').src = petBottleImg.src;
+    document.getElementById('fleece-reveal').classList.add('show');
+    transformTimeout = setTimeout(() => {
+      transformTimeout = null;
+      document.getElementById('fleece-reveal').classList.remove('show');
+      isTransforming = false;
+      triggerExplanation(3);
+    }, 6500);
+  }
+  function drawGatherAnimation(w, h, now) {   // 쌓인 페트병이 빙글빙글 가운데로 모이는 장면
+    const t = Math.min(1, (now - transformStart) / 1000), e = t * t;
+    const cx = w / 2, cy = h * 0.5;
+    const n = Math.max(1, Math.min(stage2Stack.length, STACK_BASE * (STACK_BASE + 1) / 2));
+    if (petBottleImg.complete && petBottleImg.naturalWidth) for (let i = 0; i < n; i++) {
+      const slot = stackSlot(i, w, h);
+      const x = slot.x + (cx - slot.x) * e, y = slot.y + (cy - slot.y) * e, sc = 1 - 0.6 * e;
+      canvasCtx.save(); canvasCtx.translate(x, y); canvasCtx.rotate(e * Math.PI * 4 + i);
+      canvasCtx.drawImage(petBottleImg, -slot.sb * sc / 2, -slot.sh * sc / 2, slot.sb * sc, slot.sh * sc);
+      canvasCtx.restore();
+    }
+    if (t >= 1 && !transformBurst) {
+      transformBurst = true;
+      for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2; createParticle(0.5 + Math.cos(a) * 0.12, 0.5 + Math.sin(a) * 0.15, k % 2 ? '✨' : '💫'); }
+    }
+  }
+
+  function startFlight() {
+    if (stage2State === 'flying') return;
+    playSound('toss'); createParticle(stage2Item.x / canvasElement.width, stage2Item.y / canvasElement.height, '💨');
+    stage2State = 'flying'; stage2FlightStart = performance.now();
+  }
+
+  /* ---------------- 3단계 ---------------- */
+  let forestLevel = 0;
+  const TREE_SPOTS = [];
+  (function () { let s = 7; const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let i = 0; i < 150; i++) TREE_SPOTS.push({ x: 0.03 + r() * 0.94, d: r(), e: r() > 0.5 ? '🌳' : '🌲' }); })();
+
+  function initStage3() {
+    gameState = 'stage3'; forestLevel = 0; particles = [];
+    players.forEach(p => { p.jumpEvent = false; p.lastPlant = 0; p.jump.airborne = false; });
+    startStageTimer(40,
+      (timeLeft) => setGuide(`🌳 제자리에서 힘껏 점프해요!<span class="timer-text">⏱ ${timeLeft}초</span>`),
+      () => { finishGame(); }
+    );
+  }
+
+  function renderStage3Logic(w, h) {
+    const groundY = h * 0.80, now = performance.now();
+    canvasCtx.fillStyle = '#795548'; canvasCtx.fillRect(0, groundY, w, h - groundY);
+    canvasCtx.fillStyle = '#81c784'; canvasCtx.fillRect(0, groundY, w, 36);
+
+    // 점프 판정 → 나무 1그루
+    players.forEach((p, i) => {
+      if (!p.jumpEvent) return;
+      p.jumpEvent = false; p.lastPlant = now;
+      forestLevel += 1; addScore(i + 1, 10); playSound('tree');   // 점프 1번 = 나무 1그루
+      const fx = (p.head ? p.head.x : (i + 0.5) * w / 2) / w;
+      createParticle(Math.min(0.95, Math.max(0.05, fx)), 0.72, '🌳');
+    });
+
+    const shown = TREE_SPOTS.slice(0, Math.min(forestLevel, TREE_SPOTS.length)).slice().sort((a, b) => a.d - b.d);
+    canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'bottom';
+    shown.forEach(t => {
+      const size = 70 + t.d * 55;
+      canvasCtx.font = `${size}px Jua`;
+      canvasCtx.fillText(t.e, t.x * w, groundY + 30 + t.d * (h - groundY - 40));
+    });
+
+  }
+
+  function finishGame() {
+    gameState = 'outro';
+    if (currentStageTimer) clearInterval(currentStageTimer);
+    document.getElementById('score-board').style.display = 'none';
+    document.getElementById('top-guide-bar').style.display = 'none';
+    document.getElementById('status-msg').style.display = 'none';
+    document.getElementById('home-btn').style.display = 'none';
+    document.getElementById('final-score').innerText = p1Score + p2Score;
+    try { (videoElement.srcObject && videoElement.srcObject.getTracks() || []).forEach(t => t.stop()); } catch(e) {}
+    buildOutroDeco();
+    document.getElementById('screen-outro').classList.add('active');
+    playSound('transform');
+    setTimeout(earthTalk, 900);
+  }
+
+  /* ---------------- 마지막 화면: 지구가 말해요 ---------------- */
+  function buildOutroDeco() {
+    const deco = document.getElementById('outro-deco');
+    if (deco.childElementCount) return;
+    for (let i = 0; i < 40; i++) {
+      const st = document.createElement('div'); st.className = 'twinkle'; st.textContent = i % 5 ? '·' : '✦';
+      st.style.left = Math.random() * 100 + 'vw'; st.style.top = Math.random() * 100 + 'vh';
+      st.style.fontSize = (i % 5 ? 3 + Math.random() * 3 : 2 + Math.random() * 2) + 'vh';
+      st.style.animationDelay = (Math.random() * 2) + 's'; deco.appendChild(st);
+    }
+    const em = ['💚', '💙', '🌱', '🌳', '♻️', '💕'];
+    for (let i = 0; i < 14; i++) {
+      const ht = document.createElement('div'); ht.className = 'float-heart'; ht.textContent = em[i % em.length];
+      ht.style.left = (3 + Math.random() * 94) + 'vw'; ht.style.fontSize = (3.5 + Math.random() * 3) + 'vh';
+      ht.style.animationDuration = (7 + Math.random() * 6) + 's'; ht.style.animationDelay = (Math.random() * 8) + 's';
+      deco.appendChild(ht);
+    }
+  }
+
+  function earthLines() {
+    const lines = ['친구들, 안녕하세요! 나는 지구예요! 🌏'];
+    lines.push(trashCount > 0 ? `바다에서 쓰레기를 ${trashCount}개나 주워 줘서 물고기 친구들이 정말 기뻐해요! 🐠` : '바다를 깨끗하게 청소해 줘서 물고기 친구들이 정말 기뻐해요! 🐠');
+    lines.push(stage2TossCount > 0 ? `페트병을 ${stage2TossCount}개나 모아서 포근한 플리스 옷으로 다시 태어났어요! 🧥` : '페트병이 포근한 플리스 옷으로 다시 태어났어요! 🧥');
+    lines.push(forestLevel > 0 ? `점프로 나무를 ${forestLevel}그루나 심어 줘서 숲이 초록초록해졌어요! 🌳` : '나무를 심어 줘서 숲이 초록초록해졌어요! 🌳');
+    lines.push('여러분이 협동해서 나를 지켜 줬어요. 정말 고마워요! 💕');
+    lines.push('앞으로도 나를 사랑하고 아껴 줄 거죠? 약속! 🤙');
+    return lines;
+  }
+
+  let talkToken = 0, koVoice = null;
+  function pickVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    const vs = speechSynthesis.getVoices() || [];
+    return vs.find(v => /^ko/i.test(v.lang) && /female|여|heami|yuna|sun-?hi|google/i.test(v.name)) || vs.find(v => /^ko/i.test(v.lang)) || null;
+  }
+  if ('speechSynthesis' in window) {
+    koVoice = pickVoice();
+    speechSynthesis.onvoiceschanged = () => { koVoice = pickVoice(); };
+  }
+  function speakLine(text) {
+    return new Promise(resolve => {
+      if (!koVoice || !('speechSynthesis' in window)) { resolve(false); return; }
+      const clean = text.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').trim();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.voice = koVoice; u.lang = koVoice.lang || 'ko-KR'; u.rate = 0.95; u.pitch = 1.35; u.volume = 1;
+      let done = false; const fin = () => { if (!done) { done = true; resolve(true); } };
+      u.onend = fin; u.onerror = fin;
+      setTimeout(fin, 2500 + clean.length * 250);   // 음성이 멈춰도 다음으로 넘어가도록
+      speechSynthesis.speak(u);
+    });
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  async function earthTalk() {
+    const my = ++talkToken;
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    const box = document.getElementById('earth-speech'), earth = document.getElementById('earth-svg');
+    const lines = earthLines();
+    for (let li = 0; li < lines.length; li++) {
+      if (my !== talkToken) return;
+      const line = lines[li], chars = Array.from(line);
+      earth.classList.add('talking');
+      const speaking = speakLine(line);
+      for (let c = 1; c <= chars.length; c++) {
+        if (my !== talkToken) return;
+        box.innerHTML = chars.slice(0, c).join('').replace(/</g, '&lt;') + '<span class="cursor"></span>';
+        await wait(koVoice ? 85 : 70);
+      }
+      await speaking;
+      if (my !== talkToken) return;
+      earth.classList.remove('talking');
+      box.innerHTML = line;
+      await wait(li === lines.length - 1 ? 0 : 1300);
+    }
+    earth.classList.remove('talking');
+  }
+
+  function addScore(player, p) {
+    if (player === 1) p1Score += p; else p2Score += p;
+    document.getElementById('p1-score').innerText = p1Score;
+    document.getElementById('p2-score').innerText = p2Score;
+    document.getElementById('team-score').innerText = p1Score + p2Score;
+  }
+  function createParticle(x, y, emoji) { particles.push({ x: x, y: y, emoji: emoji, life: 35, maxLife: 35 }); }
+
+  /* =========================================================
+     화면 그리기
+     ========================================================= */
+  function handRadius(w, h) { return Math.max(28, Math.min(w, h) * 0.04); }
+
+  function drawPlayers(w, h) {
+    const R = handRadius(w, h);
+    const bones = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]];
+    players.forEach((p, i) => {
+      if (!p.present || !p.pts) return;
+      const pts = p.pts;
+      canvasCtx.save();
+      canvasCtx.strokeStyle = PCOL[i]; canvasCtx.lineWidth = 7; canvasCtx.lineCap = 'round'; canvasCtx.globalAlpha = 0.7;
+      bones.forEach(([a, b]) => {
+        if (pts[a].v > 0.3 && pts[b].v > 0.3) { canvasCtx.beginPath(); canvasCtx.moveTo(pts[a].x, pts[a].y); canvasCtx.lineTo(pts[b].x, pts[b].y); canvasCtx.stroke(); }
+      });
+      canvasCtx.globalAlpha = 1;
+      p.hands.forEach(hd => {
+        canvasCtx.beginPath(); canvasCtx.arc(hd.x, hd.y, R, 0, Math.PI * 2);
+        canvasCtx.fillStyle = PCOL[i] + '99'; canvasCtx.fill();
+        canvasCtx.lineWidth = 5; canvasCtx.strokeStyle = '#fff'; canvasCtx.stroke();
+        canvasCtx.font = `${Math.round(R * 1.1)}px Jua`; canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle';
+        canvasCtx.fillText('✋', hd.x, hd.y + 2);
+      });
+      if (p.head && gameState !== 'outro') {   // 머리 위 번호(1, 2)만 작게 표시
+        const bx = Math.min(w - 40, Math.max(40, p.head.x)), by = Math.max(190, p.head.y - 75), br = 26;
+        canvasCtx.beginPath(); canvasCtx.arc(bx, by, br, 0, Math.PI * 2);
+        canvasCtx.fillStyle = PCOL[i]; canvasCtx.fill(); canvasCtx.lineWidth = 4; canvasCtx.strokeStyle = '#fff'; canvasCtx.stroke();
+        canvasCtx.font = 'bold 30px Jua'; canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle'; canvasCtx.fillStyle = '#fff';
+        canvasCtx.fillText(String(i + 1), bx, by + 1);
+      }
+      canvasCtx.restore();
+    });
+  }
+
+  function drawStatusHud(w, h) {
+    canvasCtx.save();
+    canvasCtx.font = 'bold 22px Jua'; canvasCtx.textAlign = 'left'; canvasCtx.textBaseline = 'middle';
+    if (gameState === 'intro' || (players[0].present && players[1].present)) { canvasCtx.restore(); return; }   // 둘 다 보이면 표시 안 함
+    const anyone = players.some(p => p.present);
+    const line = anyone ? `🔍 ${players[0].present ? 2 : 1}번 친구를 찾고 있어요` : '🔍 2~3걸음 뒤로 서서 몸이 다 보이게 해 주세요';
+    const tw = Math.min(w - 24, canvasCtx.measureText(line).width + 28);
+    const top = h - 54;
+    canvasCtx.fillStyle = 'rgba(0,0,0,.72)'; canvasCtx.fillRect(12, top, tw, 43);
+    canvasCtx.fillStyle = anyone ? '#9cffbb' : '#ffe2a5';
+    canvasCtx.fillText(line, 26, top + 22);
+    canvasCtx.restore();
+  }
+
+  function renderGame() {
+    try {
+      const w = canvasElement.width, h = canvasElement.height, now = performance.now();
+      runDetection();
+      updatePresence(now);
+
+      canvasCtx.clearRect(0, 0, w, h);
+      if (videoElement.readyState >= 2) {
+        const tf = getVideoTransform(w, h);
+        canvasCtx.save(); canvasCtx.translate(w, 0); canvasCtx.scale(-1, 1);
+        canvasCtx.drawImage(videoElement, tf.ox, tf.oy, tf.dw, tf.dh);
+        canvasCtx.restore();
+      }
+
+      canvasCtx.save();
+      if (gameState === 'stage1') renderStage1Logic(w, h);
+      else if (gameState === 'stage2') renderStage2Logic(w, h);
+      else if (gameState === 'stage3') renderStage3Logic(w, h);
+      else players.forEach(p => { p.jumpEvent = false; });
+      canvasCtx.restore();
+
+      if (gameState !== 'outro') drawPlayers(w, h);
+
+      canvasCtx.save(); canvasCtx.textAlign = 'center'; canvasCtx.textBaseline = 'middle';
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]; p.life--; p.y -= 0.006;
+        canvasCtx.font = "60px Jua"; canvasCtx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        canvasCtx.fillText(p.emoji, p.x * w, p.y * h);
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+      canvasCtx.restore();
+
+      if (gameState !== 'outro') drawStatusHud(w, h);
+    } catch (e) { console.error("게임 화면 오류:", e); }
+    if (gameState !== 'outro') requestAnimationFrame(renderGame); else renderLoopOn = false;
+  }
+</script>
+<footer id="youngil-brand-bar" aria-label="공립단설 영일유치원"><img src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false"></footer></body>
+</html>
