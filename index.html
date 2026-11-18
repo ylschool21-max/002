@@ -680,6 +680,8 @@ const CATEGORIES = {
   "자연탐구": { emoji:"🌱", bg:"#dff5e5", ac:"#2f9e5b" },
   "역할놀이": { emoji:"🛒", bg:"#fff1c9", ac:"#d18f00" },
   "놀이게임": { emoji:"🎲", bg:"#dcedff", ac:"#2f7fd6" },
+  "놀이지원": { emoji:"🎈", bg:"#dff5e5", ac:"#2f9e5b" },
+  "학급운영": { emoji:"🏫", bg:"#ffe6dc", ac:"#ec6a45" },
   "인성·마음": { emoji:"💖", bg:"#ffe2ee", ac:"#e04f8e" },
   "신체놀이": { emoji:"🏃", bg:"#ffe8d1", ac:"#e57a1f" },
   "안전교육": { emoji:"🚦", bg:"#ffe3e3", ac:"#e14b4b" },
@@ -772,6 +774,37 @@ const MANUALS = {
   "전담_같은 카드 찾기.html": 14,
   "장수풍뎅이 성장게임.html": 15
 };
+/* 표시할 놀이 명단 (번호 순): [파일명, 이름, 분류, 아이콘, 설명] */
+const APPS = [
+  ["글자친구.html","글자친구","놀이지원","🔤","말한 낱말을 글자로 보여 주고 보고 쓰기"],
+  ["2. 모양놀이_콩콩댄스.html","모양놀이 콩콩댄스","놀이지원","💃","음악에 맞춰 모양 카드를 터치하는 신체 놀이"],
+  ["3. 세고개 질문놀이(비밀상자 퀴즈).html","세고개 놀이(비밀상자퀴즈)","질문놀이","📦","모양·색·크기를 물어 숨긴 물건 맞히기"],
+  ["4. 우리반의 하루.html","우리반의 하루","질문놀이","🏫","날짜·날씨·일과·식단 확인으로 하루를 여는 질문"],
+  ["5. 질문놀이_콩콩댄스.html","질문놀이 콩콩댄스","질문놀이","💃","음악에 맞춰 카드를 터치하며 질문 말 익히기"],
+  ["6. 장수풍뎅이 키우기.html","장수풍뎅이 성장게임","놀이지원","🪲","한살이 알아보기와 탐험 게임"],
+  ["7. 재미있는 질문놀이.html","재미있는 질문놀이(까바,까만)","질문놀이","❓","문장을 질문으로 바꾸는 말놀이"],
+  ["8. 알쏭달쏭 일곱고개 놀이.html","일곱 고개 놀이","질문놀이","🤔","예·아니요 질문 일곱 번으로 정답 추리"],
+  ["9. 질문보드게임.html","질문 보드 게임","질문놀이","💬","주사위로 도착한 칸의 그림책 질문에 답하기"],
+  ["10. 무지개 질문 놀이.html","무지개 질문 놀이","질문놀이","🌈","무지개 색 질문을 골라 이야기 나누는 놀이"],
+  ["11. 가게 놀이.html","가게놀이 키오스크","놀이지원","🛒","메뉴와 가격을 정해 키오스크로 주문"],
+  ["12. 지구를 지키는 튼튼어린이.html","지구를 지키는 어린이","놀이지원","🌎","몸을 움직여 지구를 지키는 놀이"],
+  ["13. 글자 따라쓰기.html","글자 따라쓰기","놀이지원","✏️","말한 글자를 따라 쓰고 글자 사전에 저장"],
+  ["14. 글자 스케치북.html","글자 스케치북","놀이지원","🎨","스케치북에 글자를 쓰고 그려 보는 활동"],
+  ["15. 다 했어요!.html","다 했어요!","학급운영","✅","활동 시간과 완료 현황을 한눈에 보기"],
+  ["16. 띄어쓰기 친구.html","띄어쓰기 친구","놀이지원","🔤","말한 문장을 듣고 띄어 쓰는 놀이"],
+  ["17. 생각ON질문스틱.html","생각ON 그림책 질문스틱","질문놀이","🥢","연령별 질문스틱을 뽑아 이야기 나누기"],
+  ["식물 키우기 레이스.html","식물 키우기 레이스","놀이지원","🌱","음을 읽어 햇빛·물을 모으며 식물 키우기"],
+  ["20. 아무질문 대잔치.html","아무 질문 대잔치","질문놀이","🎉","그림책을 읽고 질문을 나누어 기록"],
+  ["지구지킴이 대작전.html","지구 지킴이 대작전","놀이지원","🌍","전신 동작인식으로 지구를 지키는 놀이"],
+  ["우리반 미덕 보석함.html","우리반 미덕 보석함","학급운영","💎","미덕 보석을 모아 서로의 좋은 점 알아보기"],
+  ["주말 지낸 이야기 도우미.html","주말 지낸 이야기 도우미","학급운영","🏡","주말 경험을 이야기로 만들어 표현"],
+  ["24. 단어공 질문놀이.html","단어 공 질문 놀이","질문놀이","⚽","단어 공과 질문 공을 골라 질문 만들기"],
+  ["25. 질문 연구소.html","질문 연구소","질문놀이","🔬","그림책 질문을 만들고 놀이로 기록"]
+];
+Object.assign(MANUALS, {
+  "9. 질문보드게임.html": 2, "7. 재미있는 질문놀이.html": 3, "8. 알쏭달쏭 일곱고개 놀이.html": 4,
+  "11. 가게 놀이.html": 9, "6. 장수풍뎅이 키우기.html": 15
+});
 const THUMBNAILS = {
   "가게놀이 키오스크.html":"thumbnails/가게놀이 키오스크.png",
   "글자친구.html":"thumbnails/글자친구.png",
@@ -798,7 +831,7 @@ function esc(v) {
 }
 function encodePath(p) { return p.split("/").map(encodeURIComponent).join("/"); }
 function appUrl(a) { return BASE + encodeURIComponent(a.file); }
-function rank(file) { const n = PRIORITY.indexOf(file); return n < 0 ? 99 : n; }
+function rank(file) { const n = APPS.findIndex(a => a[0] === file); return n < 0 ? 99 : n; }
 function catStyle(cat) {
   const c = CATEGORIES[cat] || CATEGORIES["기타"];
   return `--c-bg:${c.bg};--c-ac:${c.ac}`;
@@ -835,12 +868,8 @@ async function copyText(text, okMsg) {
 
 /* ===================== 데이터 ===================== */
 function setFiles(files) {
-  state.apps = files
-    .filter(f => f.type === "file" && /\.html$/i.test(f.name) && !["index.html","preview.html"].includes(f.name))
-    .map(f => {
-      const info = EXAMPLES[f.name] || ["기타","🎲","선생님이 만든 놀이 웹앱"];
-      return { file:f.name, title:f.name.replace(/\.html$/i,""), cat:info[0], icon:info[1], desc:info[2] };
-    });
+  /* 명단에 있는 놀이만 보여 줍니다 (저장소의 다른 파일은 표시하지 않음) */
+  state.apps = APPS.map(([file, title, cat, icon, desc]) => ({ file, title, cat, icon, desc }));
   renderFilters();
   render();
   if (!pickedOnce || !state.apps.some(a => a.file === pickedFile)) roll(false);
@@ -871,6 +900,7 @@ function renderFilters() {
     const n = name === "전체" ? state.apps.length
       : EXTERNAL_TOOLS.some(t => t.cat === name) ? EXTERNAL_TOOLS.filter(t => t.cat === name).length
       : (counts[name] || 0);
+    if (n === 0) return "";
     const on = name === state.category;
     return `<button type="button" class="cat" data-category="${esc(name)}" aria-pressed="${on}" style="${catStyle(name)}">
       <span class="cat-emoji" aria-hidden="true">${c.emoji}</span>
@@ -1090,8 +1120,8 @@ $("#pick-date").textContent = new Date().toLocaleDateString("ko-KR", { month:"lo
 
 /* ===================== 불러오기 ===================== */
 async function load() {
-  // GitHub 응답이 늦거나 실패해도 저장된 자료를 먼저 보여 줍니다.
-  setFiles(Object.keys(EXAMPLES).map(name => ({ name, type:"file" })));
+  setFiles([]);
+  return;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
