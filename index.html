@@ -455,7 +455,7 @@ body:has(dialog[open]){overflow:hidden}
 }
 
 .manual-preview{position:absolute;inset:0;width:100%;border:0;padding:0;background:var(--c-bg);cursor:zoom-in}
-.thumb .manual-preview img{opacity:.5;object-position:top;object-fit:cover;background:var(--c-bg)}
+.thumb .manual-preview img{opacity:.45 !important;object-position:top;object-fit:cover;background:var(--c-bg)}
 .card:hover .manual-preview img{transform:none}
 .manual-preview span{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:1;background:#fff;color:#42334e;border-radius:26px;padding:7px 18px;font-size:18px;font-weight:800;white-space:nowrap;box-shadow:0 2px 10px #0002}
 .manual-preview:focus-visible{outline:4px solid #6546cf;outline-offset:-4px}
@@ -944,7 +944,7 @@ function render() {
       <div class="thumb">
         <span class="badge">${cat.emoji} ${esc(a.cat)}</span>
         <button class="heart" type="button" data-fav aria-pressed="${fav}" aria-label="${esc(a.title)} 즐겨찾기">${heartSvg}</button>
-        ${MANUALS[a.file] ? `<button type="button" class="manual-preview" data-manual aria-haspopup="dialog" aria-label="${esc(a.title)} 사용법 보기"><img src="guide/${MANUALS[a.file]}-thumb.jpg" alt="" loading="lazy" decoding="async"><span>🔍 사용법 보기</span></button>` : `<span class="thumb-emoji" aria-hidden="true">${a.icon}</span>`}
+        ${MANUALS[a.file] ? `<button type="button" class="manual-preview" data-manual aria-haspopup="dialog" aria-label="${esc(a.title)} 사용법 보기"><img src="guide/${MANUALS[a.file]}-thumb.jpg?v=45" style="opacity:.45" alt="" loading="lazy" decoding="async"><span>🔍 사용법 보기</span></button>` : `<span class="thumb-emoji" aria-hidden="true">${a.icon}</span>`}
       </div>
       <div class="card-body">
         <h3 class="card-title">${esc(a.title)}</h3>
