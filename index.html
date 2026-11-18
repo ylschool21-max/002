@@ -455,8 +455,7 @@ body:has(dialog[open]){overflow:hidden}
 }
 
 .manual-preview{position:absolute;inset:0;width:100%;border:0;padding:0;background:var(--c-bg);cursor:zoom-in}
-.thumb .manual-preview img{opacity:1;object-position:top;object-fit:cover;background:var(--c-bg);filter:saturate(.9)}
-.thumb .manual-preview::after{content:"";position:absolute;inset:0;background:var(--c-bg);opacity:.35;mix-blend-mode:multiply;pointer-events:none;z-index:1}
+.thumb .manual-preview img{opacity:.5;object-position:top;object-fit:cover;background:var(--c-bg)}
 .card:hover .manual-preview img{transform:none}
 .manual-preview span{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:1;background:#fff;color:#42334e;border-radius:20px;padding:5px 14px;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px #0002}
 .manual-preview:focus-visible{outline:4px solid #6546cf;outline-offset:-4px}
