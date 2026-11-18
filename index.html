@@ -790,6 +790,7 @@ const APPS = [
 const GUIDE_NO = { "글자친구.html":1, "식물 키우기 레이스.html":19, "지구지킴이 대작전.html":21, "우리반 미덕 보석함.html":22, "주말 지낸 이야기 도우미.html":23 };
 APPS.forEach(([f]) => { const m = /^(\d+)\./.exec(f); if (m) GUIDE_NO[f] = +m[1]; });
 Object.keys(GUIDE_NO).forEach(f => { MANUALS[f] = String(GUIDE_NO[f]).padStart(2, "0"); });
+MANUALS["13. 글자 따라쓰기.html"] = "word-tracing";
 const THUMBNAILS = {
   "가게놀이 키오스크.html":"thumbnails/가게놀이 키오스크.png",
   "글자친구.html":"thumbnails/글자친구.png",
