@@ -185,8 +185,55 @@
             letter-spacing: 0;
             line-height: 1.6;
         }
-        #transitionOverlay p { font-size: clamp(1.3rem, 2.15vw, 2rem); font-weight: 700; }
-        #transitionOverlay h2 { font-size: clamp(2rem, 3.1vw, 3.3rem); }
+        #transitionOverlay {
+            padding: clamp(8px, 2vmin, 28px);
+            box-sizing: border-box;
+        }
+        #transitionOverlay > div {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            padding: clamp(10px, 3vmin, 40px);
+            border-style: solid;
+            border-width: clamp(3px, .75vmin, 8px);
+            border-radius: clamp(16px, 4vmin, 48px);
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: safe center;
+            gap: clamp(6px, 2.4vmin, 30px);
+        }
+        #transitionOverlay > div > * { flex: none; margin: 0; }
+        #txtTransIcon { font-size: clamp(32px, 13vmin, 128px); line-height: 1; }
+        #windPreviewCanvas {
+            display: block;
+            width: auto;
+            height: clamp(42px, 18vmin, 160px);
+            max-width: 100%;
+            margin: auto;
+        }
+        #transitionOverlay h2 {
+            font-size: clamp(19px, 5.5vmin, 64px);
+            line-height: 1.25;
+            word-break: keep-all;
+        }
+        #transitionOverlay p {
+            max-width: 44ch;
+            font-size: clamp(14px, 3.6vmin, 40px);
+            line-height: 1.45;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+        }
+        #transitionOverlay .inline-block {
+            padding: .45em 1em;
+            font-size: clamp(13px, 2.7vmin, 28px);
+            line-height: 1.3;
+        }
+        @media (max-height: 400px) {
+            #transitionOverlay > div { gap: 6px; }
+            #transitionOverlay #txtTransIcon { animation: none; }
+        }
         #startOverlay .grid p { font-weight: 600; }
 
         /* 첫 화면의 세 단계 게임 설명을 모두 가운데 정렬 */
@@ -209,17 +256,40 @@
         #winOverlay .flower-success-title {font-family:'Malgun Gothic','Noto Sans KR',sans-serif; font-size:clamp(27px,4.4vw,58px);font-weight:900;color:#21855a;margin:0;}
         #winOverlay #harvestApplesBox {max-height:9vh;overflow:hidden;}
     </style>
-<style id="youngil-persistent-brand-style">
-:root{--youngil-brand-height:64px;--youngil-brand-total:calc(var(--youngil-brand-height) + env(safe-area-inset-bottom,0px));}
-#youngil-brand-bar{box-sizing:border-box!important;position:fixed!important;inset:auto 0 0 0!important;z-index:2147483647!important;height:var(--youngil-brand-total)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:0!important;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) 16px!important;margin:0!important;background:#fffef9!important;border:0!important;border-top:1px solid #dce7dd!important;box-shadow:0 -2px 8px #3155400a!important;pointer-events:none!important;overflow:hidden!important;transform:none!important;opacity:1!important;visibility:visible!important;}
-#youngil-brand-bar img{display:block!important;height:100%!important;width:auto!important;max-width:45vw!important;object-fit:contain!important;flex-shrink:0!important;margin:0!important;}
-@media(max-height:650px),(max-width:600px){:root{--youngil-brand-height:48px;}}
-html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!important;min-height:0!important;margin:0!important;}
-#startOverlay{overflow-y:auto!important;}
-@media(max-height:850px){#startOverlay>div{padding-top:16px;padding-bottom:16px;}#startOverlay .animate-bounce{font-size:3rem;line-height:1;}}
-@media(max-height:740px){#startOverlay{justify-content:flex-start!important;}}
+<style id="youngil-logo-style">
+#youngil-logo, #youngil-game-logo {
+  display: block;
+  width: clamp(68px, 10vw, 146px);
+  height: auto;
+  pointer-events: none;
+}
+
+body { height: 100dvh; margin: 0; }
+#startOverlay { overflow-y: auto; }
+#startOverlay > div { position: relative; }
+#youngil-logo {
+  position: absolute;
+  top: clamp(10px, 2vh, 24px);
+  left: clamp(10px, 2vw, 32px);
+}
+#youngil-game-logo {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 60;
+}
+body:has(#startOverlay:not(.hidden)) #youngil-game-logo { display: none; }
+@media (max-height: 850px) {
+  #startOverlay > div { padding-top: 16px; padding-bottom: 16px; }
+  #startOverlay .animate-bounce { font-size: 3rem; line-height: 1; }
+}
+@media (max-height: 740px) { #startOverlay { justify-content: flex-start; } }
+@media (max-width: 700px) {
+  #startOverlay > div > .animate-bounce { margin-top: 36px; }
+}
 </style></head>
 <body class="bg-amber-50 text-slate-700 w-full h-screen overflow-hidden relative">
+    
 
     <!-- 실시간 웹캠 화면 배경 (거울 모드 적용) -->
     <video id="webcam" class="mirror-video absolute inset-0 w-full h-full object-cover z-0 opacity-90" autoplay playsinline muted></video>
@@ -233,6 +303,7 @@ html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!importan
     <!-- 초기 시작 스크린 -->
     <div id="startOverlay" class="absolute inset-0 z-50 bg-gradient-to-br from-pink-100 via-amber-100 to-sky-100 flex flex-col items-center justify-center p-6 text-center">
         <div class="max-w-2xl bg-white/95 backdrop-blur-md p-8 rounded-[2.5rem] border-4 border-orange-200 shadow-xl">
+            <img id="youngil-logo" src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false">
             <span class="text-8xl mb-2 block animate-bounce">☀️💧🌼🌸</span>
             <h1 class="text-5xl font-bold tracking-wide mb-4 text-orange-400">식물 키우기 레이스!</h1>
             <p class="text-xl leading-relaxed mb-6 font-semibold text-slate-600">
@@ -350,7 +421,7 @@ html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!importan
     </div>
     <!-- 단계 전환 오버레이 -->
     <div id="transitionOverlay" class="absolute inset-0 z-40 bg-black/60 hidden flex items-center justify-center p-6 transition-opacity duration-300">
-        <div class="max-w-xl w-full bg-gradient-to-b from-amber-50 to-white p-10 rounded-[3rem] border-8 border-orange-200 shadow-2xl text-center transform scale-100 transition-transform duration-300">
+        <div class="bg-gradient-to-b from-amber-50 to-white border-orange-200 shadow-2xl text-center">
             <span class="text-9xl mb-4 block animate-bounce" id="txtTransIcon">🎉</span>
             <h2 class="text-5xl font-extrabold text-orange-400 mb-4" id="txtTransTitle">야호! 정말 잘했어요!</h2>
             <p class="text-xl font-bold text-slate-600 mb-8 leading-relaxed" id="txtTransDesc">
@@ -853,7 +924,7 @@ html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!importan
             const overlay = document.getElementById('transitionOverlay');
             const transIcon = document.getElementById('txtTransIcon');
             if (icon === 'wind-preview') {
-                transIcon.innerHTML = '<canvas id="windPreviewCanvas" width="180" height="140" style="width:180px;height:140px;max-width:100%;display:block;margin:auto"></canvas>';
+                transIcon.innerHTML = '<canvas id="windPreviewCanvas" width="180" height="140"></canvas>';
                 const preview = document.getElementById('windPreviewCanvas');
                 const pen = preview.getContext('2d');
                 pen.translate(90, 70);
@@ -1544,5 +1615,12 @@ html{height:100%;}body{height:calc(100dvh - var(--youngil-brand-total))!importan
             const modal = document.getElementById('settingsModal'); if (modal) modal.classList.toggle('hidden');
         }
     </script>
-<footer id="youngil-brand-bar" aria-label="공립단설 영일유치원"><img src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false"></footer></body>
+<script>
+  {
+    const gameLogo = document.getElementById('youngil-logo').cloneNode();
+    gameLogo.id = 'youngil-game-logo';
+    document.body.append(gameLogo);
+  }
+</script>
+</body>
 </html>
