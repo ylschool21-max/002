@@ -1105,21 +1105,35 @@ var t=r||{};var i=t.boundary||"SheetJS";i="------="+i;var n=["MIME-Version: 1.0"
     .gem-art{display:block;object-fit:contain;flex-shrink:0;filter:none!important;}
     .roster-upload{background:#fff8e9;border:2px solid #efd5a6;border-radius:18px;padding:20px;margin-bottom:22px;color:#80552b}.roster-upload p{margin:10px 0;font-size:16px}.roster-file-label{display:block;font-size:22px;margin-bottom:12px}.roster-upload input{max-width:100%}#roster-preview{display:block;width:100%;box-sizing:border-box;border:2px solid #e6c08b;border-radius:12px;padding:12px;margin:10px 0;font-size:20px;background:white}#roster-review button{background:#a86d26;color:white;padding:12px 22px;border-radius:12px;font-size:20px}
   </style>
-<style id="youngil-persistent-brand-style">
-:root{--youngil-brand-height:64px;--youngil-brand-total:calc(var(--youngil-brand-height) + env(safe-area-inset-bottom,0px));}
-#youngil-brand-bar{box-sizing:border-box!important;position:fixed!important;inset:auto 0 0 0!important;z-index:2147483647!important;height:var(--youngil-brand-total)!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:0!important;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) 16px!important;margin:0!important;background:#fffef9!important;border:0!important;border-top:1px solid #dce7dd!important;box-shadow:0 -2px 8px #3155400a!important;pointer-events:none!important;overflow:hidden!important;transform:none!important;opacity:1!important;visibility:visible!important;}
-#youngil-brand-bar img{display:block!important;height:100%!important;width:auto!important;max-width:45vw!important;object-fit:contain!important;flex-shrink:0!important;margin:0!important;}
-@media(max-height:650px),(max-width:600px){:root{--youngil-brand-height:48px;}}
-body{padding-bottom:var(--youngil-brand-total)!important;}#capture-area{height:calc(100dvh - var(--youngil-brand-total))!important;min-height:0!important;}
-#student-detail-modal,#box-modal,#settings-modal{bottom:var(--youngil-brand-total)!important;}
-#student-detail-modal .detail-shell,#box-modal>div,#settings-modal>div{max-height:calc(100dvh - var(--youngil-brand-total) - 32px)!important;}
-@media(max-width:650px){#capture-area{height:auto!important;min-height:calc(100dvh - var(--youngil-brand-total))!important;}}
+<style id="youngil-logo-style">
+#youngil-logo {
+  display: block;
+  width: clamp(68px, 10vw, 146px);
+  height: auto;
+  pointer-events: none;
+}
+
+#capture-area header {
+  padding-inline: clamp(90px, 13vw, 160px);
+}
+#capture-area header #youngil-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+@media (max-width: 650px) {
+  #capture-area header { padding-inline: 0; }
+  #capture-area header h1 { width: 100%; padding-inline: 72px; font-size: clamp(19px, 5vw, 28px); }
+  #capture-area header .settings-btn { padding: 8px; }
+  #capture-area header .settings-btn svg { width: 28px; height: 28px; }
+}
 </style></head>
 <body class="h-full select-none overflow-x-hidden text-gray-800">
   <div id="stars-bg" class="fixed inset-0 pointer-events-none z-0"></div>
 
   <main id="capture-area" class="relative z-10 p-6 md:p-10 max-w-7xl mx-auto">
     <header class="text-center mb-12 relative flex flex-col items-center">
+      <img id="youngil-logo" src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false">
       <h1 class="text-6xl md:text-8xl font-bold text-amber-600 drop-shadow-md display-font mb-4">✨ 우리반 미덕보석함 ✨</h1>
       <p class="text-2xl md:text-3xl text-amber-800 font-bold bg-white/60 inline-block px-10 py-3 rounded-full border-2 border-amber-200 shadow-sm mb-4">내 마음 속 미덕 보석을 깨워주세요 !</p>
       
@@ -1275,5 +1289,5 @@ body{padding-bottom:var(--youngil-brand-total)!important;}#capture-area{height:c
       </div>
     </div>
   </div>
-<footer id="youngil-brand-bar" aria-label="공립단설 영일유치원"><img src="ylschool-logo.png" alt="공립단설 영일유치원" width="1915" height="831" draggable="false"></footer></body>
+</body>
 </html>
